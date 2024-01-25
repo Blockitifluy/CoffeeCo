@@ -8,8 +8,7 @@
 		"esModuleInterop": true,
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
-		"types": ["vite/client", "solid-js/web"],
-		"lib": ["ES2022.Object", "DOM"],
+		"types": ["vite/client"],
 		"noEmit": true,
 		"isolatedModules": true
 	}
