@@ -7,9 +7,9 @@ import Header from "./components/Header";
 import { Router, Route, useParams } from "@solidjs/router";
 
 import "./index.css";
-import MainPage from "./Routes/MainPage";
-import AboutUs from "./Routes/AboutUs";
-import Profile from "./Routes/Profile";
+import MainPage from "./routes/MainPage";
+import AboutUs from "./routes/AboutUs";
+import Profile from "./routes/Profile";
 
 const root = document.getElementById("root");
 

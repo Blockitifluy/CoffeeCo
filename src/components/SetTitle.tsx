@@ -4,7 +4,7 @@ interface TitleSetterProps {
 	title: string;
 }
 
-const TitleSetter = (props: TitleSetterProps) => {
+const TitleSetter: Component<TitleSetterProps> = (props: TitleSetterProps) => {
 	createEffect(() => {
 		document.title = props.title;
 	});

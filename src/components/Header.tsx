@@ -9,7 +9,13 @@ const Header: Component = () => {
 			<nav class='grid grid-cols-h-layout grid-rows-1 w-full h-3/4'>
 				<div class='flex justify-center items-center'>
 					<a href='/' class='flex justify-center items-center'>
-						<img src={logo} alt='' class='mr-8 h-10' />
+						<img
+							src={logo}
+							alt='CoffeeCo Logo'
+							class='mr-8'
+							height={40}
+							width={40}
+						/>
 						<h1 class=' text-white text-lg font-medium'>CoffeeCo</h1>
 					</a>
 				</div>

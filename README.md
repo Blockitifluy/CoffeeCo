@@ -1,34 +1,85 @@
-## Usage
+# CoffeeCo
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+<!--Hero-->
+<p align='center'>
+  <img src="src/logo.png" alt='Logo Temo' height='350'/>
+</p>
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+CoffeeCo is an up and coming social media app, using the Framework [SolidJS](https://www.solidjs.com/). Allowing for Better user personilation using CSS.
+
+The project's stack is TFQ:
+
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Flask](https://flask.palletsprojects.com/en/3.0.x/)
+
+<!--Nerd Stuff-->
+
+## Run the Project
+
+This Project uses _Vite_ as required of SolidJS and uses Typescript.
+
+### Development
+
+To run the development server (Client Only), use the command in powershell:
 
 ```bash
-$ npm install # or pnpm install or yarn install
+npm run dev
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Now, put in the url - [localhost:8000](localhost:8000) - of your browser of choice, and the website is working as expected. _To be noted, fetch request to the server can't be used_.
 
-## Available Scripts
+### Production
 
-In the project directory, you can run:
+To build the client side use the command:
 
-### `npm run dev` or `npm start`
+```bash
+npm run build
+```
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+To run the Python api server:
 
-The page will reload if you make edits.<br>
+```bash
+python ./api/server.py
+```
 
-### `npm run build`
+or `py ./api/server.py`
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+Then finally, put the url: [localhost:8000](localhost:8000)
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+## Basic Files / Directories
 
-## Deployment
+- [/src/routes/](./src/routes/): The directory of the Routes tsx pages,
+- [/src/index.jsx](./src/index.jsx): The base jsx file (where the routes are computed),
+- [/src/index.css](./src/index.css): The stylesheet (This project uses Tailwind so this is mostly unused),
+- [/dist](./dist/): The compiled src file using _Vite_,
+- [/api](./api/): The server side using Python Flask,
+- [/tscontig.json](./tsconfig.json): The config for the typescript scripts
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+## Server
+
+### API Request
+
+- `/api/user/getfromid/<int:id>`, Gets the `username` and `id` from the user based the `id`
+- `/api/user/add`, Add an user using `username` and `id`
+
+### Routes
+
+For more about Routes in Solidjs see [here](https://docs.solidjs.com/guides/how-to-guides/routing-in-solid/solid-router) (**Link maybe out dated**).
+
+- `/` : Home route;
+- `/users/:id` (or in the Python Flask `users/<int:users>`) : The route containing the user pages
+- `/about` : an about section (_we don't talk about the about section_)
+
+As seen in [src/index.jsx](./src/index.jsx):
+
+```jsx
+const RouteElement = () => {
+	return (
+		<Router>
+			<Route path='/' component={MainPage} />
+			<Route path='/users/:id' component={Profile} />
+			<Route path='/about' component={AboutUs} />
+		</Router>
+	);
+};
+```
