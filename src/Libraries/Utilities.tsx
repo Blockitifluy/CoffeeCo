@@ -1,4 +1,4 @@
-import { JSX } from "solid-js/jsx-runtime";
+import { Component } from "solid-js";
 
 export function removeItemOnce<t>(arr: t[], index: number): t[] {
 	arr.splice(index, 1);
@@ -46,7 +46,13 @@ const ColouredRules: ColouredRule[] = [
 const ANTI_BYPASS: RegExp =
 	/<\s*[A-Za-z_]+\s*.*\/?\s*>(?:.*<\s*\/[\sA-Za-z_]+>)?/gs;
 
-export function FormatedText(props: { text: string }): JSX.Element {
+interface FormatedTextProps {
+	text: string;
+}
+
+export const FormatedText: Component<FormatedTextProps> = (
+	props: FormatedTextProps
+) => {
 	//Does it bypass the ANTI_BYPASS REGEX
 	if (props.text.search(ANTI_BYPASS) !== -1) {
 		console.error("Bypassed Messaage");
@@ -61,4 +67,4 @@ export function FormatedText(props: { text: string }): JSX.Element {
 	}
 
 	return <p innerHTML={coloured}></p>;
-}
+};
