@@ -1,4 +1,4 @@
-import logo from "../logo.svg";
+import logo from "../logo.png";
 
 import { Component } from "solid-js";
 import { OcBook2, OcPerson2 } from "solid-icons/oc";
@@ -13,8 +13,8 @@ const Header: Component = () => {
 							src={logo}
 							alt='CoffeeCo Logo'
 							class='mr-8'
-							height={40}
-							width={40}
+							height={52}
+							width={52}
 						/>
 						<h1 class=' text-white text-lg font-medium'>CoffeeCo</h1>
 					</a>
