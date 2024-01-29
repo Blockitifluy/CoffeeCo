@@ -1,9 +1,46 @@
-import { Component } from "solid-js";
+import { Component, createSignal } from "solid-js";
+import { useParams } from "@solidjs/router";
 import Header from "../components/Header";
 import PostUI from "../components/Post";
 import TitleSetter from "../components/SetTitle";
 
+interface Profile {
+	ID: number;
+	USERNAME: string;
+}
+
+async function GetUserFromID(id: string): Promise<Profile> {
+	try {
+		let res = await fetch(`http://localhost:8000/api/user/getfromid/${id}`);
+
+		if (!res.ok) {
+			return { ID: 0, USERNAME: `ERROR - ${res.status}` };
+		}
+
+		const json: Profile = await res.json();
+
+		return json;
+	} catch (error) {
+		return { ID: 0, USERNAME: `ERROR - ${error}` };
+	}
+}
+
 const Profile: Component = () => {
+	const params = useParams();
+
+	console.log(params.id);
+
+	const [Profile, SetProfile] = createSignal<Profile>({
+		ID: 0,
+		USERNAME: "Loading"
+	});
+
+	GetUserFromID(params.id).then((profile: Profile) => {
+		console.log(profile);
+
+		SetProfile(profile);
+	});
+
 	return (
 		<>
 			<TitleSetter title='CoffeeCo - Username' />
@@ -20,7 +57,7 @@ const Profile: Component = () => {
 						src='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
 						alt='Profile Image'
 					/>
-					<h1 class='font-bold text-3xl'>Username</h1>
+					<h1 class='font-bold text-3xl'>{Profile().USERNAME}</h1>
 					<p class='w-full h-max box-border'>
 						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eum veniam
 						aperiam, deserunt dolores porro.

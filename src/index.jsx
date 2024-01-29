@@ -10,6 +10,7 @@ import "./index.css";
 import MainPage from "./routes/MainPage";
 import AboutUs from "./routes/AboutUs";
 import Profile from "./routes/Profile";
+import Signin from "./routes/Signin";
 
 const root = document.getElementById("root");
 
@@ -25,6 +26,7 @@ const RouteElement = () => {
 			<Route path='/' component={MainPage} />
 			<Route path='/users/:id' component={Profile} />
 			<Route path='/about' component={AboutUs} />
+			<Route path='/signin' component={Signin} />
 		</Router>
 	);
 };

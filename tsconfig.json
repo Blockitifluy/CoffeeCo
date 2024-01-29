@@ -9,6 +9,7 @@
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
 		"types": ["vite/client"],
+		"lib": ["ES2022", "DOM"],
 		"noEmit": true,
 		"isolatedModules": true
 	}

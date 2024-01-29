@@ -65,6 +65,18 @@ const MainPage: Component = () => {
 						praesentium explicabo nulla quia saepe sequi consequuntur id eaque
 						rem assumenda sapiente aspernatur!
 					</p>
+
+					<div class='flex justify-evenly my-8'>
+						<a class='p-2 bg-indigo-700 text-white rounded-md' href='/signin'>
+							Sign in
+						</a>
+						<button class='p-2 bg-indigo-700 text-white rounded-md'>
+							Log in
+						</button>
+						<button class='p-2 bg-slate-700 text-white rounded'>
+							About Us
+						</button>
+					</div>
 				</div>
 			</div>
 
