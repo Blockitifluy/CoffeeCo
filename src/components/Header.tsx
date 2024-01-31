@@ -1,4 +1,4 @@
-import logo from "../logo.png";
+import logo256 from "../logos/logo256.png";
 
 import { Component } from "solid-js";
 import { OcBook2, OcPerson2 } from "solid-icons/oc";
@@ -10,7 +10,7 @@ const Header: Component = () => {
 				<div class='flex justify-center items-center'>
 					<a href='/' class='flex justify-center items-center'>
 						<img
-							src={logo}
+							src={logo256}
 							alt='CoffeeCo Logo'
 							class='mr-8'
 							height={52}

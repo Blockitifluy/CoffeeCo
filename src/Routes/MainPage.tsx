@@ -2,6 +2,7 @@
 
 import { Component } from "solid-js";
 import TitleSetter from "../components/SetTitle";
+import { Title, Meta } from "@solidjs/meta";
 
 // Other
 
@@ -50,7 +51,12 @@ const CreatePost: Component = () => {
 const MainPage: Component = () => {
 	return (
 		<>
-			<TitleSetter title='CoffeeCo' />
+			<Title>CoffeeCo</Title>
+			<Meta name='description' content='A open-source social media account' />
+			<Meta charset='UTF-8' />
+			<Meta name='author' content='Blockitifluy' />
+			<Meta name='viewport' content='width=device-width, initial-scale=1.0' />
+			{/*<TitleSetter title='CoffeeCo' />*/}
 			<Header />
 
 			<div class='bg-gradient-to-b from-indigo-600 h-80'>
@@ -70,9 +76,9 @@ const MainPage: Component = () => {
 						<a class='p-2 bg-indigo-700 text-white rounded-md' href='/signin'>
 							Sign in
 						</a>
-						<button class='p-2 bg-indigo-700 text-white rounded-md'>
+						<a href='/login' class='p-2 bg-indigo-700 text-white rounded-md'>
 							Log in
-						</button>
+						</a>
 						<button class='p-2 bg-slate-700 text-white rounded'>
 							About Us
 						</button>

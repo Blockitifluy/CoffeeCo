@@ -1,5 +1,10 @@
 import logo from "../logo.png";
-import { Component, createSignal } from "solid-js";
+import { Component, Setter, createSignal } from "solid-js";
+import {
+	MessageResult,
+	GetMessageForStatus,
+	HIDE_RESULT
+} from "../Libraries/Utilities";
 import { JSX } from "solid-js";
 
 // TODO: Add RegExp
@@ -11,46 +16,87 @@ const PasswordAllowed: RegExp =
 	EmailAllowed: RegExp =
 		/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
 
-interface LoginForm {
+interface SigninForm {
 	password: string;
 	username: string;
 	email: string;
 }
 
-function GetMessageForStatus(status: number): string {
-	let result: string = "";
+async function SignUser(Form: SigninForm, setMR: Setter<MessageResult>) {
+	const AddOptions: RequestInit = {
+		method: "POST",
+		mode: "cors",
+		cache: "no-cache",
+		credentials: "same-origin",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		redirect: "follow",
+		referrerPolicy: "strict-origin-when-cross-origin",
+		body: JSON.stringify(Form)
+	};
 
-	switch (status) {
-		case 500:
-			result = "500 - Server Error";
-			break;
-		case 404:
-			result = "404 - Not Found";
-			break;
-		case 400:
-			result = "400 - Bad Request";
-			break;
-		case 401:
-			result = "401 - Request isn't unauthorised"; //! ITS SPELT "UNAUTHORISED" NOT "UNAUTHORIZZZZZZZZED"
-		case 201:
-			result = "Everything is alright 👍";
-			break;
-		default:
-			result = `${status} - idk what happened?`;
+	console.group("Requesting adding user");
+	console.log("Add user");
+
+	const AddResponse: Response = await fetch(
+		"http://localhost:8000/api/user/add",
+		AddOptions
+	);
+
+	setMR({
+		ok: AddResponse.ok,
+		message: GetMessageForStatus(AddResponse.status)
+	});
+
+	if (!AddResponse.ok) {
+		console.error(
+			`Submit request status not ok, status: ${AddResponse.status} ${AddResponse.statusText}`
+		);
+
+		console.groupEnd();
+
+		return;
 	}
 
-	return result;
-}
+	console.log(`Submit success`);
 
-interface MessageResult {
-	ok: boolean;
-	message: string;
-}
+	console.groupEnd();
 
-const HIDE_RESULT: string = "DON'T SHOW";
+	const LoginBody = { ...Form, ID: (await AddResponse.json())["ID"] };
+
+	console.log(LoginBody);
+
+	const LoginOptions: RequestInit = {
+		method: "POST",
+		mode: "cors",
+		cache: "no-cache",
+		credentials: "same-origin",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		redirect: "follow",
+		referrerPolicy: "strict-origin-when-cross-origin",
+		body: JSON.stringify(LoginBody)
+	};
+
+	console.log("Login user");
+
+	const Login = await fetch("/api/user/login", LoginOptions);
+
+	if (!Login.ok) {
+		console.error(
+			`Submit request status not ok, status: ${Login.status} ${Login.statusText}`
+		);
+
+		console.groupEnd();
+
+		return;
+	}
+}
 
 const Signin: Component = () => {
-	const [form, setForm] = createSignal<LoginForm>({
+	const [form, setForm] = createSignal<SigninForm>({
 		password: "",
 		username: "",
 		email: ""
@@ -62,39 +108,9 @@ const Signin: Component = () => {
 	});
 
 	const OnSubmit = (event: MouseEvent) => {
-		console.log();
-		const options: RequestInit = {
-			method: "POST",
-			mode: "cors",
-			cache: "no-cache",
-			credentials: "same-origin",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			redirect: "follow",
-			referrerPolicy: "strict-origin-when-cross-origin",
-			body: JSON.stringify(form())
-		};
+		SignUser(form(), setMR);
 
-		fetch("http://localhost:8000/api/user/add", options).then(res => {
-			console.group("Requesting adding user");
-
-			setMR({ ok: res.ok, message: GetMessageForStatus(res.status) });
-
-			if (!res.ok) {
-				console.error(
-					`Submit request status not ok, status: ${res.status} ${res.statusText}`
-				);
-
-				console.groupEnd();
-
-				return;
-			}
-
-			console.log(`Submit success`);
-
-			console.groupEnd();
-		});
+		location.href = "/";
 
 		event.preventDefault();
 	};
@@ -103,7 +119,7 @@ const Signin: Component = () => {
 		HTMLInputElement,
 		InputEvent
 	> = event => {
-		const json: LoginForm = {
+		const json: SigninForm = {
 			password: event.currentTarget.value,
 			username: form().username,
 			email: form().email
@@ -116,7 +132,7 @@ const Signin: Component = () => {
 		HTMLInputElement,
 		InputEvent
 	> = event => {
-		const json: LoginForm = {
+		const json: SigninForm = {
 			password: form().password,
 			username: event.currentTarget.value,
 			email: form().email
@@ -129,7 +145,7 @@ const Signin: Component = () => {
 		HTMLInputElement,
 		InputEvent
 	> = event => {
-		const json: LoginForm = {
+		const json: SigninForm = {
 			password: form().password,
 			username: form().username,
 			email: event.currentTarget.value
@@ -160,7 +176,7 @@ const Signin: Component = () => {
 
 			<label class='text-white my-2'>Username</label>
 			<input
-				id='username'
+				autocomplete='username'
 				type='text'
 				onInput={handleUsername}
 				class='mb-4 bg-slate-700 rounded-md text-white p-1'
@@ -168,7 +184,7 @@ const Signin: Component = () => {
 
 			<label class='text-white my-2'>Email</label>
 			<input
-				id='email'
+				autocomplete='email'
 				type='text'
 				placeholder='person@example.com'
 				onInput={handleEmail}
@@ -177,7 +193,7 @@ const Signin: Component = () => {
 
 			<label class='text-white my-2'>Password</label>
 			<input
-				id='current-password'
+				autocomplete='new-password'
 				type='password'
 				onInput={handlePassword}
 				class='mb-4 bg-slate-700 rounded-md text-white p-1'

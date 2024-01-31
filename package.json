@@ -19,8 +19,10 @@
     "vite-plugin-solid": "^2.7.0"
   },
   "dependencies": {
+    "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.10.9",
     "babel-preset-solid": "^1.8.9",
+    "eslint": "^8.56.0",
     "sass": "^1.70.0",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.11",

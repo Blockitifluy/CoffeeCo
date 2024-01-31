@@ -5,12 +5,14 @@
 import { render } from "solid-js/web";
 import Header from "./components/Header";
 import { Router, Route, useParams } from "@solidjs/router";
+import { Link, MetaProvider } from "@solidjs/meta";
 
 import "./index.css";
 import MainPage from "./routes/MainPage";
 import AboutUs from "./routes/AboutUs";
 import Profile from "./routes/Profile";
 import Signin from "./routes/Signin";
+import Login from "./routes/Login";
 
 const root = document.getElementById("root");
 
@@ -22,12 +24,20 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 const RouteElement = () => {
 	return (
-		<Router>
-			<Route path='/' component={MainPage} />
-			<Route path='/users/:id' component={Profile} />
-			<Route path='/about' component={AboutUs} />
-			<Route path='/signin' component={Signin} />
-		</Router>
+		<MetaProvider>
+			<Link
+				rel='manifest'
+				href='./manifest.json'
+				crossorigin='use-credemtial'
+			/>
+			<Router>
+				<Route path='/' component={MainPage} />
+				<Route path='/users/:id' component={Profile} />
+				<Route path='/about' component={AboutUs} />
+				<Route path='/signin' component={Signin} />
+				<Route path='/login' component={Login} />
+			</Router>
+		</MetaProvider>
 	);
 };
 

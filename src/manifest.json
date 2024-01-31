@@ -1,0 +1,33 @@
+{
+	"name": "CoffeeCo",
+	"short_name": "CoffeeCo",
+	"display": "standalone",
+	"background_color": "#0f172a",
+	"start_url": ".",
+	"description": "An open source social media app.",
+	"icons": [
+		{
+			"src": "logos/logo32.png",
+			"sizes": "32x32",
+			"type": "image/png"
+		},
+
+		{
+			"src": "logos/logo64.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		},
+
+		{
+			"src": "logos/logo128.png",
+			"sizes": "128x128",
+			"type": "image/png"
+		},
+
+		{
+			"src": "logos/logo256.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		}
+	]
+}

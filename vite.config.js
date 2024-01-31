@@ -15,6 +15,7 @@ export default defineConfig({
 		port: 3000
 	},
 	build: {
+		manifest: true,
 		target: "esnext",
 		rollupOptions: {
 			output: {
