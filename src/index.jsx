@@ -3,8 +3,7 @@
 // This project uses Github Octicons (oc)
 
 import { render } from "solid-js/web";
-import Header from "./components/Header";
-import { Router, Route, useParams } from "@solidjs/router";
+import { Router, Route } from "@solidjs/router";
 import { Link, MetaProvider } from "@solidjs/meta";
 
 import "./index.css";
@@ -25,11 +24,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 const RouteElement = () => {
 	return (
 		<MetaProvider>
-			<Link
-				rel='manifest'
-				href='./manifest.json'
-				crossorigin='use-credemtial'
-			/>
+			<Link rel='manifest' href='/manifest.json' crossorigin='use-credemtial' />
 			<Router>
 				<Route path='/' component={MainPage} />
 				<Route path='/users/:id' component={Profile} />

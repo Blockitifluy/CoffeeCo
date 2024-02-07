@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 // import devtools from 'solid-devtools/vite';
@@ -19,9 +20,9 @@ export default defineConfig({
 		target: "esnext",
 		rollupOptions: {
 			output: {
-				entryFileNames: `assets/[name].js`,
-				chunkFileNames: `assets/[name].js`,
-				assetFileNames: `assets/[name].[ext]`
+				entryFileNames: "assets/[name].js",
+				chunkFileNames: "assets/[name].js",
+				assetFileNames: "assets/[name].[ext]"
 			}
 		}
 	}

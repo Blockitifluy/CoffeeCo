@@ -5,12 +5,13 @@
   <img src="src/logo.png" alt='Logo Temo' height='350'/>
 </p>
 
-CoffeeCo is an up and coming social media app, using the Framework [SolidJS](https://www.solidjs.com/). Allowing for Better user personilation using CSS.
+CoffeeCo is an up and coming social media app, using the Framework [SolidJS](https://www.solidjs.com/). Allowing for Better user personisation using CSS.
 
-The project's stack is TFQ:
+The project's stack is PyTS:
 
+- [Python (Flask)](https://flask.palletsprojects.com/en/3.0.x/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Flask](https://flask.palletsprojects.com/en/3.0.x/)
+- [Solidjs](https://www.solidjs.com/)
 
 <!--Nerd Stuff-->
 
@@ -55,18 +56,28 @@ Then finally, put the url: [localhost:8000](localhost:8000)
 - [/api](./api/): The server side using Python Flask,
 - [/tscontig.json](./tsconfig.json): The config for the typescript scripts
 
-## Server
+## Backend
+
+The api for Coffeeco uses (may use [Go](https://go.dev/) in the future) for it's rest pi. Since the project uses Solidjs and vite to compile the `src/` folder use:
+
+```cmd
+npm run build
+```
+
+All the compiled content will be found in `dist/` and `dist/assets/` directories.
 
 ### API Request
 
-- `/api/user/getfromid/<int:id>`, Gets the `username` and `id` from the user based the `id`
-- `/api/user/add`, Add an user using `username` and `id`
+- `/api/user/getfromid/<int:id>`, _(GET)_ Gets the `username` and `id` from the user based the `id`
+- `/api/user/add` _(POST)_, Add an user using `username` and `id`
+- `/api/user/authtoid` _(GET)_ make the `auth` (from cookies) to `id`
+- `/api/user/login` _(POST)_ Logins (Password needed) in user by using `LOGIN` cookie
 
 ### Routes
 
 For more about Routes in Solidjs see [here](https://docs.solidjs.com/guides/how-to-guides/routing-in-solid/solid-router) (**Link maybe out dated**).
 
-- `/` : Home route;
+- `/` : Home route
 - `/users/:id` (or in the Python Flask `users/<int:users>`) : The route containing the user pages
 - `/about` : an about section (_we don't talk about the about section_)
 

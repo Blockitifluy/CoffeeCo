@@ -1,5 +1,5 @@
 import { JSX } from "solid-js/jsx-runtime";
-import { FormatedText } from "../Libraries/Utilities";
+import { FormatedText } from "../Libraries/Formater";
 import logo from "../logo.png";
 import { Component } from "solid-js";
 

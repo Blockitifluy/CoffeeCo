@@ -34,6 +34,8 @@ class FullProfile:
         encoded_pass : bytes = input_password.encode('utf-8')
         hashed_input : bytes = hashpw(encoded_pass, self.salt)
 
+        print("\n" * 6, "pass:", self.password, encoded_pass, hashed_input)
+
         return hashed_input == self.password
 
     def generate_auth_key(self) -> str:
@@ -51,9 +53,11 @@ class FullProfile:
 
         print(fetched, identifier)
 
+        password : str = fetched["PASSWORD"]
+
         self.id = identifier
         self.username = fetched["USERNAME"]
-        self.password = fetched["PASSWORD"]
+        self.password = hashpw(password.encode("utf-8"), fetched["SALT"])
         self.email = fetched["EMAIL"]
         self.salt = fetched["SALT"]
 

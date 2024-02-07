@@ -1,0 +1,93 @@
+interface PublicUser {
+	ID: number;
+	USERNAME: string;
+}
+
+interface SigninUser {
+	password: string;
+	username: string;
+	email: string;
+}
+
+export async function GetUserFromUsername(
+	username: string
+): Promise<PublicUser> {
+	const UserFetch = await fetch(
+		`http://localhost:8000/api/user/getfromid/${username}`
+	);
+
+	if (!UserFetch.ok) {
+		throw new Error(`Fetch wasn't ok: ${UserFetch.status}`);
+	}
+
+	return UserFetch.json();
+}
+
+export async function LoginUser(
+	id: number,
+	password: string
+): Promise<Response> {
+	const LoginFetch = await fetch("http://localhost:8000/api/user/login", {
+		method: "POST",
+		headers: {},
+		body: JSON.stringify({ id, password }),
+		mode: "no-cors",
+		cache: "default"
+	});
+
+	if (!LoginFetch.ok) {
+		throw new Error(`Fetch wasn't ok: ${LoginFetch.status}`);
+	}
+
+	return LoginFetch;
+}
+
+/**
+ * Add a user to the database.
+ * @param User Contains `password`, `username` and `email`
+ * @returns An object containing:
+ * - `ID`,
+ * - `password`,
+ * - `username`,
+ * - `email`
+ */
+export async function AddUser(
+	User: SigninUser
+): Promise<{ ID: number } & SigninUser> {
+	const CreateFetch = await fetch("http://localhost:8000/api/user/login", {
+		method: "POST",
+		headers: { Accept: "application/json" },
+		body: JSON.stringify(User),
+		mode: "no-cors",
+		cache: "default"
+	});
+
+	if (!CreateFetch.ok) {
+		throw new Error(`Fetch wasn't ok: ${CreateFetch.status}`);
+	}
+
+	const Json: { ID: number } = await CreateFetch.json();
+
+	return { ...Json, ...User };
+}
+
+/**
+ * Returns the user's id using the Login Cookie (Auth cookie)
+ * @returns The id as an object
+ * @example {ID: 1}
+ */
+export async function AuthToId(): Promise<number> {
+	const AuthFetch = await fetch("http://localhost:8000/api/user/authtoid", {
+		method: "GET",
+		headers: { Accept: "application/json" },
+		body: null,
+		mode: "no-cors",
+		cache: "default"
+	});
+
+	if (!AuthFetch.ok) {
+		throw new Error(`Fetch wasn't ok: ${AuthFetch.status}`);
+	}
+
+	return (await AuthFetch.json()).ID;
+}

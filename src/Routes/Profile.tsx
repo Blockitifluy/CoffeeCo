@@ -11,7 +11,7 @@ interface Profile {
 
 async function GetUserFromID(id: string): Promise<Profile> {
 	try {
-		let res = await fetch(`http://localhost:8000/api/user/getfromid/${id}`);
+		const res = await fetch(`http://localhost:8000/api/user/getfromid/${id}`);
 
 		if (!res.ok) {
 			return { ID: 0, USERNAME: `ERROR - ${res.status}` };

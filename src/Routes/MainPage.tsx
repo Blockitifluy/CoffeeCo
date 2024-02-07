@@ -1,7 +1,8 @@
+/* eslint-disable linebreak-style */
 // Libraries
 
 import { Component } from "solid-js";
-import TitleSetter from "../components/SetTitle";
+
 import { Title, Meta } from "@solidjs/meta";
 
 // Other
@@ -9,7 +10,9 @@ import { Title, Meta } from "@solidjs/meta";
 // Components
 
 import PostUI, { ProfileImage } from "../components/Post";
+
 import Header from "../components/Header";
+
 import { OcLightbulb2 } from "solid-icons/oc";
 
 // Contexts
@@ -17,7 +20,9 @@ import { OcLightbulb2 } from "solid-icons/oc";
 const CreatePost: Component = () => {
 	const Tips: string[] = [
 		"_text_ can put italics into your text",
+
 		"Using *text* can bolden your text!",
+
 		"#Hashtag can relate your post to "
 	];
 
@@ -29,17 +34,20 @@ const CreatePost: Component = () => {
 				image='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
 				username='You'
 			/>
+
 			<textarea
 				name='Post'
 				placeholder='Write Post Here'
 				class='w-full min-h-32 rounded-md p-2 mb-5 focus:outline-none bg-slate-600 text-white'
 			></textarea>
+
 			<button
 				type='button'
 				class='bg-indigo-700 text-white w-fit p-2 rounded-md hover:bg-indigo-800 mb-3'
 			>
 				Submit
 			</button>
+
 			<sub class='text-slate-100 text-sm border-t-2 border-indigo-600 pt-2 flex'>
 				<OcLightbulb2 size={24} class='mr-4 text-indigo-600' /> Tip of the Day:{" "}
 				{chosen}
@@ -52,11 +60,17 @@ const MainPage: Component = () => {
 	return (
 		<>
 			<Title>CoffeeCo</Title>
+
 			<Meta name='description' content='A open-source social media account' />
+
 			<Meta charset='UTF-8' />
+
 			<Meta name='author' content='Blockitifluy' />
+
 			<Meta name='viewport' content='width=device-width, initial-scale=1.0' />
+
 			{/*<TitleSetter title='CoffeeCo' />*/}
+
 			<Header />
 
 			<div class='bg-gradient-to-b from-indigo-600 h-80'>
@@ -76,9 +90,11 @@ const MainPage: Component = () => {
 						<a class='p-2 bg-indigo-700 text-white rounded-md' href='/signin'>
 							Sign in
 						</a>
+
 						<a href='/login' class='p-2 bg-indigo-700 text-white rounded-md'>
 							Log in
 						</a>
+
 						<button class='p-2 bg-slate-700 text-white rounded'>
 							About Us
 						</button>
@@ -91,11 +107,17 @@ const MainPage: Component = () => {
 
 				<section class='overflow-x-clip'>
 					<PostUI />
+
 					<PostUI />
+
 					<PostUI />
+
 					<PostUI />
+
 					<PostUI />
+
 					<PostUI />
+
 					<PostUI />
 				</section>
 			</div>

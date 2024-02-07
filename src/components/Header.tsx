@@ -1,7 +1,5 @@
-import logo256 from "../logos/logo256.png";
-
+import logo256 from "../assets/logos/logo256.png";
 import { Component } from "solid-js";
-import { OcBook2, OcPerson2 } from "solid-icons/oc";
 
 const Header: Component = () => {
 	return (
@@ -30,21 +28,14 @@ const Header: Component = () => {
 				</div>
 
 				<div class='flex justify-center items-center'>
-					<a
-						class='text-white hover:text-slate-400 transition-colors mx-4'
-						href='/users/1'
-					>
-						<OcPerson2 size={24} title='Profile' />
-					</a>
-					<a
-						class='text-white hover:text-slate-400 transition-colors mx-4'
-						href='/about'
-					>
-						<OcBook2 size={24} title='Profile' />
-					</a>
-					<button class='text-white transition-colors m-2 bg-indigo-800 p-2 rounded-lg hover:bg-indigo-700 hover:text-slate-400'>
-						Log Out
-					</button>
+					<img
+						height={36}
+						width={36}
+						class='aspect-square rounded-full'
+						alt='Profile Image'
+						src='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
+					/>
+					<span class='text-white mx-3'>Blockitifluy</span>
 				</div>
 			</nav>
 		</header>
