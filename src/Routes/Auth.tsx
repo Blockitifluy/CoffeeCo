@@ -125,8 +125,6 @@ const UserInterface: Component<AuthInterfaceProps> = (
 		const FormDict: Dict<string> = Form();
 		// Does match needed length
 
-		console.log(Object.keys(FormDict), AuthProp.Inputs.length);
-
 		if (Object.keys(FormDict).length !== AuthProp.Inputs.length) {
 			// Not enough inputs
 			return;
@@ -145,7 +143,10 @@ const UserInterface: Component<AuthInterfaceProps> = (
 	};
 
 	return (
-		<form class='flex flex-col bg-slate-800 p-5 rounded-lg absolute translate-x-[-50%] translate-y-[-50%] top-1/2 left-1/2'>
+		<form
+			class='flex flex-col bg-white text-slate-700 p-5 rounded-lg absolute translate-x-[-50%] translate-y-[-50%] top-1/2 left-1/2 shadow-lg
+		'
+		>
 			<img
 				src={logo}
 				height={64}
@@ -154,19 +155,19 @@ const UserInterface: Component<AuthInterfaceProps> = (
 				class='mx-auto mt-1 mb-3'
 			/>
 
-			<h1 class='text-white text-center text-2xl mb-4 font-semibold'>
+			<h1 class='text-center text-2xl mb-4 font-semibold'>
 				CoffeeCo - {AuthProp.name}
 			</h1>
 
 			<For each={AuthProp.Inputs}>
 				{auth => (
 					<>
-						<label class='text-white my-2'>{auth.name}</label>
+						<label class='my-2 text-slate-700'>{auth.name}</label>
 						<input
 							autocomplete={auth.autocomplete}
 							type={auth.isPassword ? "password" : "text"}
 							onInput={useInputDict(Form, setForm, auth.name)}
-							class='mb-4 bg-slate-700 rounded-md text-white p-1'
+							class='mb-4 bg-slate-200 rounded-md p-1'
 						/>
 					</>
 				)}
@@ -175,7 +176,7 @@ const UserInterface: Component<AuthInterfaceProps> = (
 			<button
 				type='submit'
 				onClick={OnSubmit}
-				class='bg-indigo-700 rounded-md mx-auto p-2 text-white mt-4'
+				class='bg-persian text-white rounded-md mx-auto p-2 mt-4'
 			>
 				{AuthProp.confirmText}
 			</button>

@@ -12,7 +12,7 @@
 	"plugins": ["@typescript-eslint"],
 	"rules": {
 		"indent": ["off", "tab"],
-		"linebreak-style": ["error", "windows"],
+		"linebreak-style": ["off", "windows"],
 		"quotes": ["error", "double"],
 		"semi": ["error", "always"]
 	}

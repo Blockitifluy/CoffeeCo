@@ -10,9 +10,10 @@ input[type="button"] {
 }
 
 body {
-	--background: #efefef;
+	--background: #dbdbdb;
 	margin: 0px;
 	padding: 0px;
+	width: 100%;
 	font-family: "Poppins", sans-serif, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

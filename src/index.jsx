@@ -29,7 +29,7 @@ const RouteElement = () => {
 				<Route path='/' component={MainPage} />
 				<Route path='/users/:id' component={Profile} />
 				<Route path='/about' component={AboutUs} />
-				<Route path='/signin' component={Signin} />
+				<Route path='/signup' component={Signin} />
 				<Route path='/login' component={Login} />
 			</Router>
 		</MetaProvider>

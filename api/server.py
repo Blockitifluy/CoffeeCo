@@ -47,7 +47,7 @@ def user_page(_ : str) -> Response:
     return base_page()
 
 @app.route('/login', methods=['GET'])
-@app.route('/signin', methods=['GET'])
+@app.route('/signup', methods=['GET'])
 @app.route('/about', methods=['GET'])
 @app.route('/', methods=['GET'])
 def base_page() -> Response:
@@ -167,18 +167,18 @@ def login():
 
     auth_key = profile.generate_auth_key()
     resp : Response = Response(status=200)
-    resp.set_cookie(key="LOGIN", value=auth_key, expires=expire_date)
+    resp.set_cookie(key="LOGIN", value=auth_key, expires=expire_date, path="/")
 
     return resp
 
 
 
-@app.route('/api/user/getfromid/<username>', methods=['GET'])
-def get_user_by_id(username : str):
+@app.route('/api/user/getfromusername/<username>', methods=['GET'])
+def get_user_by_name(username : str):
     """Gets a user by the id
 
     Args:
-        identifition (int): The userid
+        username (string): The username
 
     Returns:
         Response: returns the {'ID' and 'USERNAME'} returned json
@@ -192,6 +192,24 @@ def get_user_by_id(username : str):
 
     return jsonify(row)
 
+@app.route('/api/user/getfromid/<int:userid>', methods=['GET'])
+def get_user_by_id(userid : int):
+    """Gets a user by the id
+
+    Args:
+        identifition (int): The userid
+
+    Returns:
+        Response: returns the {'ID' and 'USERNAME'} returned json
+    """
+
+    print(userid)
+
+    cmd = "SELECT ID, USERNAME FROM users WHERE ID = ?"
+
+    row = cursor.execute(cmd, (userid,)).fetchone()
+
+    return jsonify(row)
 
 if __name__ == '__main__':
     #Check if connection is running

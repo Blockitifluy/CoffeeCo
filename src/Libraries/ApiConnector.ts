@@ -1,9 +1,9 @@
-interface PublicUser {
+export interface PublicUser {
 	ID: number;
 	USERNAME: string;
 }
 
-interface SigninUser {
+export interface SigninUser {
 	password: string;
 	username: string;
 	email: string;
@@ -13,7 +13,19 @@ export async function GetUserFromUsername(
 	username: string
 ): Promise<PublicUser> {
 	const UserFetch = await fetch(
-		`http://localhost:8000/api/user/getfromid/${username}`
+		`http://localhost:8000/api/user/getfromusername/${username}`
+	);
+
+	if (!UserFetch.ok) {
+		throw new Error(`Fetch wasn't ok: ${UserFetch.status}`);
+	}
+
+	return UserFetch.json();
+}
+
+export async function GetUserFromUserId(userId: number): Promise<PublicUser> {
+	const UserFetch = await fetch(
+		`http://localhost:8000/api/user/getfromid/${userId}`
 	);
 
 	if (!UserFetch.ok) {
@@ -54,7 +66,7 @@ export async function LoginUser(
 export async function AddUser(
 	User: SigninUser
 ): Promise<{ ID: number } & SigninUser> {
-	const CreateFetch = await fetch("http://localhost:8000/api/user/login", {
+	const CreateFetch = await fetch("http://localhost:8000/api/user/add", {
 		method: "POST",
 		headers: { Accept: "application/json" },
 		body: JSON.stringify(User),

@@ -14,11 +14,11 @@ class ColouredRule {
 
 const ColouredRules: ColouredRule[] = [
 	new ColouredRule(/@([\d\w_]+)/g, (_, g1) => {
-		return `<a class="text-indigo-600">@${g1}</a>`;
+		return `<a class="text-sienna-400">@${g1}</a>`;
 	}),
 
 	new ColouredRule(/#([\da-zA-Z]+)/g, (_, g1) => {
-		return `<a class="text-indigo-600">#${g1}</a>`;
+		return `<a class="text-sienna-400">#${g1}</a>`;
 	}),
 
 	new ColouredRule(/`(.+?)`/g, (_, g1) => {
@@ -43,6 +43,7 @@ const ANTI_BYPASS: RegExp =
 
 interface FormatedTextProps {
 	text: string;
+	class?: string;
 }
 
 export const FormatedText: Component<FormatedTextProps> = (
@@ -52,7 +53,9 @@ export const FormatedText: Component<FormatedTextProps> = (
 	if (props.text.search(ANTI_BYPASS) !== -1) {
 		console.error("Bypassed Messaage");
 
-		return <p class='font-mono text-red-500'>Bypassed message: {props.text}</p>;
+		return (
+			<p class='font-mono text-sandy-500'>Bypassed message: {props.text}</p>
+		);
 	}
 
 	let coloured: string = props.text;
@@ -61,5 +64,5 @@ export const FormatedText: Component<FormatedTextProps> = (
 		coloured = coloured.replace(Rule.Expression, Rule.Replacer);
 	}
 
-	return <p innerHTML={coloured}></p>;
+	return <p class={props.class} innerHTML={coloured}></p>;
 };

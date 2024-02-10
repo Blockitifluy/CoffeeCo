@@ -1,6 +1,4 @@
-import { JSX } from "solid-js/jsx-runtime";
 import { FormatedText } from "../Libraries/Formater";
-import logo from "../logo.png";
 import { Component } from "solid-js";
 
 export interface PostRequest {
@@ -10,44 +8,48 @@ export interface PostRequest {
 	poll: { name: string; votes: number }[];
 }
 
-export interface ProfileImageProps {
-	image: string;
-	username: string;
-}
-
-export const ProfileImage: Component<ProfileImageProps> = (
-	props: ProfileImageProps
-) => {
-	return (
-		<div class='flex items-center mb-3'>
-			<img
-				src={props.image}
-				alt='Profile Image'
-				class='h-8 w-8 aspect-square bg-indigo-600 mr-2 rounded-full'
-			/>
-			<h1 class='text-2xl mb-0 ml-2 font-semibold text-left text-white'>
-				{props.username}
-			</h1>
-		</div>
-	);
-};
-
 const PostUI: Component = () => {
 	return (
-		<div class='border-b-2 py-4 mt-12 border-slate-500 text-white'>
+		<div class='grid grid-rows-1 grid-cols-[32px_1fr] bg-white rounded-md mb-4 mt-4 p-4 gap-4 max-w-[30rem]'>
+			<img
+				src='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
+				alt='username profile picture'
+				height={32}
+				width={32}
+				class='rounded-full'
+			/>
+			<div class='flex flex-col'>
+				<div class='h-full'>
+					<h1 class='font-medium'>Username</h1>
+					<p class='text-slate-600'>19:57 07/02/2024</p>
+				</div>
+
+				<FormatedText
+					class='text-slate-800'
+					text='Lorem ipsum @dolor, sit amet consectetur adipisicing elit. Aliquam, ab!
+				Voluptatem, tenetur `beatae` molestias hic quos ut, modi enim voluptates
+				doloribus officiis dignissimos ad accusantium perspiciatis eligendi sunt
+				atque. Dolores. #Hello World #World'
+				/>
+			</div>
+		</div>
+	);
+	/*return (
+		<div class='py-4 mt-4 mb-12 bg-white px-6 rounded-xl text-white shadow-xl max-w-[36rem]'>
 			<ProfileImage
-				image='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
+				image=''
 				username='LoremIpsumLover'
 			/>
 
 			<FormatedText
+				class='text-slate-200'
 				text='Lorem ipsum @dolor, sit amet consectetur adipisicing elit. Aliquam, ab!
-				Voluptatem, tenetur beatae molestias hic quos ut, modi enim voluptates
+				Voluptatem, tenetur `beatae` molestias hic quos ut, modi enim voluptates
 				doloribus officiis dignissimos ad accusantium perspiciatis eligendi sunt
 				atque. Dolores. #Hello World #World'
 			/>
 		</div>
-	);
+	);*/
 };
 
 export default PostUI;
