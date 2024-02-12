@@ -2,6 +2,14 @@
 
 The changelog is based on the github's release or important commits.
 
+## v0.0.3 (12/2/2024)
+
+- Simplified Login and Sign in pages
+- Redesigned website
+- Added api methods `/api/user/authtoid` and `/api/post/postcontent`
+- Added eslint
+- Added more a more secure server via github's code scanning
+
 ## v0.0.2 (31/01/2024)
 
 - Login and Signup page

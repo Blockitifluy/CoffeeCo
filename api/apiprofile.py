@@ -2,9 +2,6 @@
 import sqlite3 as sql
 from bcrypt import hashpw, gensalt
 
-
-print(__name__)
-
 class AddedUserError(Exception):
     """Happened if two users have the same username
 
@@ -14,7 +11,7 @@ class AddedUserError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
-class FullProfile:
+class VirtualProfile:
     """Is meta profile (changes to this profile will not update in the db)"""
     id : int
     username : str
@@ -22,7 +19,7 @@ class FullProfile:
     email : str
     salt : bytes
 
-    def can_authorise_user(self, input_password : str) -> bool:
+    def does_password_match(self, input_password : str) -> bool:
         """Returns true if the input_password matches the stored password 
 
         Args:
@@ -33,35 +30,27 @@ class FullProfile:
         """
         encoded_pass : bytes = input_password.encode('utf-8')
         hashed_input : bytes = hashpw(encoded_pass, self.salt)
-
-        print("\n" * 6, "pass:", self.password, encoded_pass, hashed_input)
-
         return hashed_input == self.password
 
-    def generate_auth_key(self) -> str:
+    def generate_login_key(self) -> str:
         """Is a class copy of generate auth token
 
         Returns:
             str: Auth code
         """
-
-        return generate_auth_token(self.username, self.password, self.email, self.salt)
+        return generate_login_cookie(self.username, self.password, self.email, self.salt)
 
     def __init__(self, identifier : int, cursor : sql.Cursor) -> None:
         cmd : str = "SELECT USERNAME, EMAIL, PASSWORD, SALT FROM users WHERE ID = ?"
         fetched = cursor.execute(cmd, (identifier,)).fetchone()
-
-        print(fetched, identifier)
-
         password : str = fetched["PASSWORD"]
-
         self.id = identifier
         self.username = fetched["USERNAME"]
         self.password = hashpw(password.encode("utf-8"), fetched["SALT"])
         self.email = fetched["EMAIL"]
         self.salt = fetched["SALT"]
 
-def generate_auth_token(username : str, password : bytes, email : str, salt : bytes):
+def generate_login_cookie(username : str, password : bytes, email : str, salt : bytes):
     """Generation an authenation string based on:
     - username
     - password
@@ -77,14 +66,11 @@ def generate_auth_token(username : str, password : bytes, email : str, salt : by
         str: Auth code
     """
     combined : str = username + hex(int.from_bytes(password)) + email
-
     key = hashpw(combined.encode(), salt)
-
     hexed : str = hex(int.from_bytes(key, byteorder='little'))
-
     return hexed
 
-def new_user(username : str, password : str, email : str, cursor : sql.Cursor) -> FullProfile:
+def add_user(username : str, password : str, email : str, cursor : sql.Cursor) -> VirtualProfile:
     """Adds a user to the database
 
     Args:
@@ -101,21 +87,26 @@ def new_user(username : str, password : str, email : str, cursor : sql.Cursor) -
     """
     salt : bytes = gensalt()
     hashed_pass : bytes = hashpw(password.encode('utf-8'), salt)
-
-    auth_key = generate_auth_token(username, hashed_pass, email, salt)
-
+    auth_key = generate_login_cookie(username, hashed_pass, email, salt)
     pre_exists = cursor.execute("SELECT ID FROM users WHERE USERNAME = ?", (username,)).fetchone()
-
     print(pre_exists)
-
     if pre_exists is not None:
         raise AddedUserError(f"Error adding user: {username}")
-
     cmd = "INSERT INTO users (USERNAME, EMAIL, PASSWORD, SALT, AUTH) VALUES (?, ?, ?, ?, ?)"
-
     cursor.execute(cmd, (username, email, password, salt, auth_key))
-
     identifier = cursor.execute("SELECT ID FROM users WHERE USERNAME = ?", (username,)).fetchone()
     cursor.connection.commit()
+    return VirtualProfile(identifier["ID"], cursor)
 
-    return FullProfile(identifier["ID"], cursor)
+def auth_to_userid(cursor: sql.Cursor, auth: str):
+    """Converts the login (auth) cookie to the user's id
+
+    Args:
+        cursor (sql.Cursor): Database's cursor
+        auth (str): The login cookie
+
+    Returns:
+        int: the id
+    """
+    user_json = cursor.execute("SELECT ID FROM users WHERE AUTH = ?", (auth,)).fetchone()
+    return user_json['ID']

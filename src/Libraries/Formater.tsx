@@ -42,7 +42,7 @@ const ANTI_BYPASS: RegExp =
 	/<\s*[A-Za-z_]+\s*.*\/?\s*>(?:.*<\s*\/[\sA-Za-z_]+>)?/gs;
 
 interface FormatedTextProps {
-	text: string;
+	children: string;
 	class?: string;
 }
 
@@ -50,15 +50,15 @@ export const FormatedText: Component<FormatedTextProps> = (
 	props: FormatedTextProps
 ) => {
 	//Does it bypass the ANTI_BYPASS REGEX
-	if (props.text.search(ANTI_BYPASS) !== -1) {
+	if (props.children.search(ANTI_BYPASS) !== -1) {
 		console.error("Bypassed Messaage");
 
 		return (
-			<p class='font-mono text-sandy-500'>Bypassed message: {props.text}</p>
+			<p class='font-mono text-sandy-500'>Bypassed message: {props.children}</p>
 		);
 	}
 
-	let coloured: string = props.text;
+	let coloured: string = props.children;
 
 	for (const Rule of ColouredRules) {
 		coloured = coloured.replace(Rule.Expression, Rule.Replacer);

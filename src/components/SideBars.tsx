@@ -19,22 +19,16 @@ interface PostContent {
 	text: string;
 }
 
-const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
+const PostForm: Component = () => {
+	const maxLength = 100;
+
 	const [PostContent, setPostContent] = createSignal<PostContent>({
 		text: ""
 	});
 
-	const maxLength = 100,
-		LoginCookie = Cookies.get("LOGIN");
-
-	const Hashtags: string[] = [
-		"helloworld",
-		"loremipsum",
-		"placeholder",
-		"fortnite",
-		"coffeeco",
-		"taylorswift"
-	];
+	const OnSubmit = (event: MouseEvent) => {
+		event.preventDefault();
+	};
 
 	const onPostTyped: JSX.InputEventHandlerUnion<
 		HTMLTextAreaElement,
@@ -45,6 +39,54 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 
 		setPostContent(Content);
 	};
+
+	return (
+		<form class='grid grid-rows-1 grid-cols-[48px_1fr] bg-white p-4 max-w-[30rem] rounded gap-1'>
+			<img src={logo256} alt='' width={48} />
+
+			<div>
+				<h1 class='text-2xl font-semibold my-2 text-slate-800'>Profile</h1>
+				<textarea
+					onInput={onPostTyped}
+					maxLength={maxLength}
+					class='w-full resize-none h-fit text-ellipsis focus:outline-none'
+					placeholder='What do you want to say'
+					onKeyPress={event => {
+						console.log(event.key);
+
+						if (event.key === "Enter") {
+							event.preventDefault();
+						}
+					}}
+					rows={4}
+					cols={30}
+				/>
+				<p class='text-slate-700 text-sm mb-2'>
+					{PostContent().text.length}/{maxLength}
+				</p>
+				<button
+					type='submit'
+					class='bg-persian-700 text-white p-1 rounded'
+					onClick={OnSubmit}
+				>
+					Submit
+				</button>
+			</div>
+		</form>
+	);
+};
+
+const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
+	const LoginCookie = Cookies.get("LOGIN");
+
+	const Hashtags: string[] = [
+		"helloworld",
+		"loremipsum",
+		"placeholder",
+		"fortnite",
+		"coffeeco",
+		"taylorswift"
+	];
 
 	console.log(LoginCookie);
 
@@ -82,39 +124,7 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 							props.canCreatePost === undefined ? true : props.canCreatePost
 						}
 					>
-						<form class='grid grid-rows-1 grid-cols-[48px_1fr] bg-white p-4 max-w-[30rem] rounded gap-1'>
-							<img src={logo256} alt='' width={48} />
-
-							<div>
-								<h1 class='text-2xl font-semibold my-2 text-slate-800'>
-									Profile
-								</h1>
-								<textarea
-									onInput={onPostTyped}
-									maxLength={maxLength}
-									class='w-full resize-none h-fit text-ellipsis focus:outline-none'
-									placeholder='What do you want to say'
-									onKeyPress={event => {
-										console.log(event.key);
-
-										if (event.key === "Enter") {
-											event.preventDefault();
-										}
-									}}
-									rows={4}
-									cols={30}
-								/>
-								<p class='text-slate-700 text-sm mb-2'>
-									{PostContent().text.length}/{maxLength}
-								</p>
-								<button
-									type='submit'
-									class='bg-persian-700 text-white p-1 rounded'
-								>
-									Submit
-								</button>
-							</div>
-						</form>
+						<PostForm />
 					</Show>
 
 					<div class='flex flex-col h-fit w-full mt-5'>
@@ -148,9 +158,9 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 					<h1 class='text-lg mb-1 font-medium w-fit text-slate-600 mr-2'>
 						Popular Right Now
 					</h1>
-					<select class='mb-2 w-fit focus:outline-none rounded-md p-1 text-xs font-medium'>
-						<option value='area'>In my area</option>
-						<option value='world'>Worldwide</option>
+					<select class='mb-2 w-fit focus:outline-none rounded-md p-1 text-xs font-medium capitalize'>
+						<option value='world'>worldwide</option>
+						<option value='local'>in my area</option>
 					</select>
 				</div>
 
@@ -159,7 +169,8 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 						{tag => (
 							<li class='list-item mb-1'>
 								<a>
-									<OcHash2 class='inline text-sienna-400 text-xl' /> {tag}
+									<OcHash2 class='inline text-sienna-400 text-xl hover:text-sienna-900' />
+									{" " + tag}
 								</a>
 							</li>
 						)}

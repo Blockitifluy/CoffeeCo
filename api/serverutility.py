@@ -18,6 +18,7 @@ import os
 import sqlite3 as sql
 from pathlib import Path
 from mimetypes import guess_type as mime_type
+import errors
 
 ASSETS_MIMES : dict[str, str] = {
     ".ico": "image/vnd.microsoft.icon",
@@ -37,18 +38,21 @@ def get_mime(path : str) -> str:
         str: mimetype
     """
     parsed = Path(path)
-
     for ext, mime in ASSETS_MIMES.items():
         if parsed.suffix != ext:
             continue
         return mime
-
-    mime = mime_type(path)
-
+    mime = mime_type(url=path)
     return "text/plain" if mime is not None else mime
 
 def init_db(cursor : sql.Cursor):
-    """Inits an database (may throw an error)"""
+    """Inits sql database with tables"""
+    cursor.execute("""CREATE TABLE posts (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        USER INTEGER,
+        CONTENT TEXT,
+        FOREIGN KEY(USER) REFERENCES users(ID)
+    )""")
     cursor.execute("""CREATE TABLE users (
         ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         USERNAME TEXT UNIQUE NOT NULL,
@@ -58,25 +62,28 @@ def init_db(cursor : sql.Cursor):
         AUTH TEXT
     )""")
 
-def open_file(file_directory : str) -> tuple[bytes, int]:
+BASE_CLIENT_PATH = "dist"
+
+def open_file_from_cilent(file_path : str) -> tuple[bytes, int]:
     """Opens an file directory and compresses it, using zgip; returns the content and 404 or 200  
 
     Args:
         file_directory (str): The directory of the file
-
+    
     Returns:
         tuple[bytes, int]: A tuple that contains:
         - content
         - status code: 404 not found or 200 ok 
     """
-    content : bytes = bytes()
-    code : int = 404
-
-    with open(os.path.abspath(file_directory), 'rb') as f:
+    content = bytes()
+    code = 404
+    file_name = os.path.basename(file_path)
+    full_path = os.path.normpath(os.path.join(BASE_CLIENT_PATH, file_name))
+    if not full_path.startswith(BASE_CLIENT_PATH):
+        raise errors.SecurityError(f"Not Allowed: {file_path} not in dist directory")
+    with open(os.path.abspath(file_path), 'rb') as f:
         content = compress(f.read())
         code = 200
-
     if code == 404:
-        print(f"Couldn't read the file '{file_directory}'")
-
+        print(f"Couldn't read the file '{file_path}'")
     return (content, code)

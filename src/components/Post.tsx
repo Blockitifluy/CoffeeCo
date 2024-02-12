@@ -24,13 +24,12 @@ const PostUI: Component = () => {
 					<p class='text-slate-600'>19:57 07/02/2024</p>
 				</div>
 
-				<FormatedText
-					class='text-slate-800'
-					text='Lorem ipsum @dolor, sit amet consectetur adipisicing elit. Aliquam, ab!
-				Voluptatem, tenetur `beatae` molestias hic quos ut, modi enim voluptates
-				doloribus officiis dignissimos ad accusantium perspiciatis eligendi sunt
-				atque. Dolores. #Hello World #World'
-				/>
+				<FormatedText class='text-slate-800'>
+					Lorem ipsum @dolor, sit amet consectetur adipisicing elit. Aliquam,
+					ab! Voluptatem, tenetur `beatae` molestias hic quos ut, modi enim
+					voluptates doloribus officiis dignissimos ad accusantium perspiciatis
+					eligendi sunt atque. Dolores. #Hello World #World
+				</FormatedText>
 			</div>
 		</div>
 	);

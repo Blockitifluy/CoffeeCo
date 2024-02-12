@@ -53,7 +53,7 @@ const LoginProps: AuthProp = {
 		try {
 			const UserIdJson = await GetUserFromUsername(Form.Username);
 
-			LoginUser(UserIdJson.ID, Form.Password);
+			await LoginUser(UserIdJson.ID, Form.Password);
 		} catch (error) {
 			return { ok: false, statusCode: 400, message: "Password doesn't match" };
 		}
@@ -86,7 +86,7 @@ const SignupProps: AuthProp = {
 	],
 	OnSuccess: async (Form: Dict<string>) => {
 		try {
-			AddUser({
+			await AddUser({
 				username: Form.Username,
 				email: Form.Email,
 				password: Form.Password
@@ -131,6 +131,8 @@ const UserInterface: Component<AuthInterfaceProps> = (
 		}
 
 		AuthProp.OnSuccess(Form()).then(res => {
+			console.log(res);
+
 			if (res.ok) {
 				location.href = "http://localhost:8000/"; // Go to home page
 				return;

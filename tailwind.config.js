@@ -13,7 +13,6 @@ export const theme = {
 		},
 
 		colors: {
-			autogenerateShades: true,
 			charcoal: "#264653",
 			persian: "#2A9D8F",
 			saffron: "#E9C46A",
