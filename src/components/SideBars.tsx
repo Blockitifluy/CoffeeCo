@@ -1,4 +1,4 @@
-import { Component, JSX, createSignal, Show, For } from "solid-js";
+import { Component, JSX, createSignal, Show, For, onMount } from "solid-js";
 import {
 	OcPeople2,
 	OcFlame2,
@@ -7,8 +7,15 @@ import {
 	OcHome2
 } from "solid-icons/oc";
 import { A } from "@solidjs/router";
+import {
+	AuthToId,
+	PublicUser,
+	GetUserFromUserId
+} from "../Libraries/ApiConnector";
 import logo256 from "../assets/logos/logo256.png";
 import Cookies from "js-cookie";
+
+type KeyboardInput<T> = KeyboardEvent & { currentTarget: T; target: Element };
 
 interface SideBarsProps {
 	children: JSX.Element;
@@ -19,8 +26,28 @@ interface PostContent {
 	text: string;
 }
 
+function NoEnterKey(event: KeyboardInput<HTMLTextAreaElement>) {
+	if (event.key !== "Enter") return;
+	event.preventDefault();
+}
+
 const PostForm: Component = () => {
-	const maxLength = 100;
+	const maxLength = 100,
+		[UserData, setUser] = createSignal<PublicUser>({
+			ID: 0,
+			USERNAME: "Loading..."
+		});
+
+	onMount(async () => {
+		try {
+			const userId = await AuthToId(),
+				User = await GetUserFromUserId(userId);
+
+			setUser(User);
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	const [PostContent, setPostContent] = createSignal<PostContent>({
 		text: ""
@@ -45,19 +72,16 @@ const PostForm: Component = () => {
 			<img src={logo256} alt='' width={48} />
 
 			<div>
-				<h1 class='text-2xl font-semibold my-2 text-slate-800'>Profile</h1>
+				<h1 class='text-2xl font-semibold my-2 text-slate-800'>
+					Hello, {UserData().USERNAME}
+				</h1>
 				<textarea
 					onInput={onPostTyped}
 					maxLength={maxLength}
 					class='w-full resize-none h-fit text-ellipsis focus:outline-none'
-					placeholder='What do you want to say'
-					onKeyPress={event => {
-						console.log(event.key);
-
-						if (event.key === "Enter") {
-							event.preventDefault();
-						}
-					}}
+					placeholder='Express your thoughts'
+					id='post-input'
+					onKeyPress={NoEnterKey}
 					rows={4}
 					cols={30}
 				/>
@@ -76,8 +100,30 @@ const PostForm: Component = () => {
 	);
 };
 
+const NotLoggedMessage: Component = () => {
+	return (
+		<div class='bg-white md-rounded p-4'>
+			<p class='text-slate-600 text-center'>
+				Doesn't look like you are logged in, try:
+			</p>
+			<div class='flex flex-row my-4 justify-center pl-4'>
+				<a href='/signup' class='p-2 bg-persian-500 text-white rounded mr-4'>
+					Sign up
+				</a>
+				<a href='/login' class='p-2 bg-white text-slate-600 rounded'>
+					Log in
+				</a>
+			</div>
+		</div>
+	);
+};
+
 const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
-	const LoginCookie = Cookies.get("LOGIN");
+	const [loginCookie, setCookie] = createSignal<string | undefined>(undefined);
+
+	onMount(() => {
+		setCookie(Cookies.get("LOGIN"));
+	});
 
 	const Hashtags: string[] = [
 		"helloworld",
@@ -88,42 +134,15 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 		"taylorswift"
 	];
 
-	console.log(LoginCookie);
+	const isLoggedIn: boolean = loginCookie() !== undefined,
+		canShowPost =
+			props.canCreatePost === undefined ? true : props.canCreatePost;
 
 	return (
 		<div class='grid grid-rows-1 grid-cols-[1fr_2fr_1fr] w-full'>
 			<section class='p-4 flex flex-col h-fit sticky top-0 self-start items-left'>
-				<Show
-					when={LoginCookie !== undefined}
-					fallback={
-						<>
-							<p class='text-slate-600'>
-								Doesn't look like you are logged in, try:
-							</p>
-							<div class='flex flex-row my-4 justify-start pl-4'>
-								<a
-									href='/signup'
-									class='p-2 bg-persian text-white rounded mr-4'
-								>
-									Sign up
-								</a>
-								<a href='/login' class='p-2 bg-white text-slate-600 rounded'>
-									Log in
-								</a>
-							</div>
-							<p class='text-slate-600'>
-								By joining CoffeeCo you can continue supporting this project,
-								and could possibly inspire others to make other projects
-								similar.
-							</p>
-						</>
-					}
-				>
-					<Show
-						when={
-							props.canCreatePost === undefined ? true : props.canCreatePost
-						}
-					>
+				<Show when={isLoggedIn} fallback={<NotLoggedMessage />}>
+					<Show when={canShowPost}>
 						<PostForm />
 					</Show>
 
@@ -158,7 +177,10 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 					<h1 class='text-lg mb-1 font-medium w-fit text-slate-600 mr-2'>
 						Popular Right Now
 					</h1>
-					<select class='mb-2 w-fit focus:outline-none rounded-md p-1 text-xs font-medium capitalize'>
+					<select
+						class='mb-2 w-fit focus:outline-none rounded-md p-1 text-xs font-medium capitalize focus:bg-slate-100 focus:outline-1 focus:outline-white'
+						id='hashtag-filter'
+					>
 						<option value='world'>worldwide</option>
 						<option value='local'>in my area</option>
 					</select>
@@ -167,9 +189,9 @@ const SideBars: Component<SideBarsProps> = (props: SideBarsProps) => {
 				<ul class='text-sienna-400 text-lg w-full my-2'>
 					<For each={Hashtags}>
 						{tag => (
-							<li class='list-item mb-1'>
-								<a>
-									<OcHash2 class='inline text-sienna-400 text-xl hover:text-sienna-900' />
+							<li class='list-item mb-2'>
+								<a class='text-sienna-400 font-medium text-xl hover:text-sienna-300 active:text-sienna-600 transition-colors'>
+									<OcHash2 class='inline' />
 									{" " + tag}
 								</a>
 							</li>

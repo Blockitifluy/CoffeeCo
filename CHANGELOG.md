@@ -8,7 +8,7 @@ The changelog is based on the github's release or important commits.
 - Redesigned website
 - Added api methods `/api/user/authtoid` and `/api/post/postcontent`
 - Added eslint
-- Added more a more secure server via github's code scanning
+- Added fa more secure server via github's code scanning
 
 ## v0.0.2 (31/01/2024)
 

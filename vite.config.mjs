@@ -12,9 +12,8 @@ export default defineConfig({
 	server: {
 		port: 3000
 	},
-	publicDir: "./public/",
 	build: {
-		outDir: "../dist",
+		outDir: "./dist",
 		manifest: true,
 		target: "esnext",
 		rollupOptions: {

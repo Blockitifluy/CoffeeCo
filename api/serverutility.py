@@ -47,6 +47,8 @@ def get_mime(path : str) -> str:
 
 def init_db(cursor : sql.Cursor):
     """Inits sql database with tables"""
+    cursor.execute("ALTER TABLE posts ADD COLUMN LIKES INTEGER DEFAULT 0 NOT NULL")
+    cursor.execute("ALTER TABLE posts ADD DISLIKES INTEGER DEFAULT 0 NOT NULL")
     cursor.execute("""CREATE TABLE posts (
         ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         USER INTEGER,

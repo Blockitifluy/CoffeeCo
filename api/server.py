@@ -81,7 +81,7 @@ def auth_to_id() -> Response:
     Returns:
         Response: Can have an status of 401 or 200
     """
-    auth = request.cookies.get(key='login', default=None, type=str)
+    auth = request.cookies.get(key='LOGIN', default=None, type=str)
     if auth is None:
         return Response(response="{\"error\":\"No auth\"}", status=401)
     user_id = apiprofile.auth_to_userid(cursor, auth)
@@ -190,13 +190,24 @@ def post_content():
         Response
     """
     data = loads(request.data.decode("utf-8"))
-    auth = request.cookies.get(key='login', default=None, type=str)
+    auth = request.cookies.get(key='LOGIN', default="", type=str)
+    print(auth, "Hello World")
     if not auth:
         return Response(response="{\"error\":\"No auth\"}", status=401, mimetype="application/json")
     user_id = apiprofile.auth_to_userid(cursor, auth)
     cmd = "INSERT INTO posts (USER, CONTENT) VALUES (?, ?)"
     cursor.execute(cmd, (user_id, data["content"]))
     return Response(status=200)
+
+@app.route('/api/post/posts', methods=['GET'])
+def get_posts():
+    length : int = cursor.execute("SELECT COUNT(*) FROM posts").fetchone()['COUNT(*)'] #! NOT SCALEABLE
+    if length == 0: # No posts found
+        return Response(status=500)
+    amount : int = max(1, length - 16)
+    posts = cursor.execute("SELECT FROM posts WHERE id <= ?", (amount,)).fetchmany()
+
+    return Response(status=200, response=dumps(posts), mimetype="application/json")
 
 if __name__ == '__main__':
     #Check if connection is running
@@ -206,7 +217,7 @@ if __name__ == '__main__':
         db_connection.commit()
     except sql.Error as e:
         print(e)
-    app.run(host="localhost", port=8000)
+    app.run(host="localhost", port=8000, debug=False)
 
 cursor.close()
 db_connection.close()

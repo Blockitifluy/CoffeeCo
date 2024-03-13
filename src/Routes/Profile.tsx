@@ -1,7 +1,11 @@
-import { Component, createSignal } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { Component, Show, createSignal, onMount } from "solid-js";
+import { A, useParams } from "@solidjs/router";
 import { Meta } from "@solidjs/meta";
-import { GetUserFromUserId, PublicUser } from "../Libraries/ApiConnector";
+import {
+	AuthToId,
+	GetUserFromUserId,
+	PublicUser
+} from "../Libraries/ApiConnector";
 import TitleSetter from "../components/SetTitle";
 import Header from "../components/Header";
 import PostUI from "../components/Post";
@@ -10,26 +14,31 @@ import SideBars from "../components/SideBars";
 const Profile: Component = () => {
 	const params = useParams();
 
-	console.log(params.id);
-
 	const [Profile, SetProfile] = createSignal<PublicUser>({
 		ID: 0,
 		USERNAME: "Loading"
 	});
 
-	GetUserFromUserId(parseInt(params.id))
-		.catch(reason => {
-			console.error(reason);
-		})
-		.then((profile: PublicUser | void) => {
-			if (!profile) {
-				return;
-			}
+	const [OwnsProfile, SetOwns] = createSignal<boolean>(false);
 
-			console.log(profile);
+	onMount(async () => {
+		try {
+			// Page's profiles
+			const userId = parseInt(params.id),
+				User = await GetUserFromUserId(userId);
 
-			SetProfile(profile);
-		});
+			console.log(User);
+
+			SetProfile(User);
+
+			// Owns Profile
+			const ownId = await AuthToId();
+
+			SetOwns(ownId === userId);
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	return (
 		<>
@@ -55,22 +64,33 @@ const Profile: Component = () => {
 
 			<SideBars canCreatePost={false}>
 				<section class='mx-auto w-3/4 max-w-[648px]'>
-					<div class='relative bottom-8 w-full text-white'>
+					<div class='relative bottom-8 w-full text-white flex flex-col'>
 						<img
-							class='h-32 w-32 aspect-square rounded-full shadow-lg'
+							class='size-32 aspect-square rounded-full shadow-lg'
 							src='https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
 							alt='Profile Image'
 						/>
 					</div>
+
 					<h1 class='font-bold text-3xl text-slate-800'>
 						{Profile().USERNAME}
 					</h1>
-					<p class='w-full h-max box-border text-slate-600'>
+
+					<p class='w-full mb-2 h-max box-border text-slate-600'>
 						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eum veniam
 						aperiam, deserunt dolores porro.
 					</p>
 
-					<section class='mx-auto w-full py-8 overflow-x-clip flex flex-col items-center'>
+					<Show when={OwnsProfile()}>
+						<A
+							class='bg-persian-500 p-1 rounded text-slate-200 text-center'
+							href='/'
+						>
+							Edit Profile
+						</A>
+					</Show>
+
+					<section class='mx-auto w-full py-2 overflow-x-clip flex flex-col items-center'>
 						<PostUI />
 						<PostUI />
 						<PostUI />

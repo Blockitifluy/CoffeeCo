@@ -3,11 +3,7 @@
 import { Component, For, createSignal } from "solid-js";
 import logo from "../assets/logos/logo256.png";
 import { useInputDict, Dict } from "../Libraries/Utilities";
-import {
-	AddUser,
-	GetUserFromUsername,
-	LoginUser
-} from "../Libraries/ApiConnector";
+import * as ApiConnector from "../Libraries/ApiConnector";
 
 export enum AuthType {
 	Login = "Login",
@@ -51,9 +47,9 @@ const LoginProps: AuthProp = {
 	],
 	OnSuccess: async (Form: Dict<string>) => {
 		try {
-			const UserIdJson = await GetUserFromUsername(Form.Username);
+			const UserIdJson = await ApiConnector.GetUserFromUsername(Form.Username);
 
-			await LoginUser(UserIdJson.ID, Form.Password);
+			await ApiConnector.LoginUser(UserIdJson.ID, Form.Password);
 		} catch (error) {
 			return { ok: false, statusCode: 400, message: "Password doesn't match" };
 		}
@@ -86,7 +82,7 @@ const SignupProps: AuthProp = {
 	],
 	OnSuccess: async (Form: Dict<string>) => {
 		try {
-			await AddUser({
+			await ApiConnector.AddUser({
 				username: Form.Username,
 				email: Form.Email,
 				password: Form.Password
@@ -164,8 +160,11 @@ const UserInterface: Component<AuthInterfaceProps> = (
 			<For each={AuthProp.Inputs}>
 				{auth => (
 					<>
-						<label class='my-2 text-slate-700'>{auth.name}</label>
+						<label class='my-2 text-slate-700' for={auth.name}>
+							{auth.name}
+						</label>
 						<input
+							id={auth.name}
 							autocomplete={auth.autocomplete}
 							type={auth.isPassword ? "password" : "text"}
 							onInput={useInputDict(Form, setForm, auth.name)}
@@ -178,7 +177,7 @@ const UserInterface: Component<AuthInterfaceProps> = (
 			<button
 				type='submit'
 				onClick={OnSubmit}
-				class='bg-persian text-white rounded-md mx-auto p-2 mt-4'
+				class='bg-persian-500 text-white rounded-md mx-auto p-2 mt-4'
 			>
 				{AuthProp.confirmText}
 			</button>

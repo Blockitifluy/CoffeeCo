@@ -2,6 +2,7 @@
 
 // This project uses Github Octicons (oc)
 
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { Router, Route } from "@solidjs/router";
 import { Link, MetaProvider } from "@solidjs/meta";
@@ -10,8 +11,8 @@ import "./index.css";
 import MainPage from "./routes/MainPage";
 import AboutUs from "./routes/AboutUs";
 import Profile from "./routes/Profile";
-import Signin from "./routes/Signin";
-import Login from "./routes/Login";
+import AuthPage, { AuthType } from "./routes/Auth";
+import ErrorUI, { Errors } from "./Libraries/ErrorUI";
 
 const root = document.getElementById("root");
 
@@ -22,17 +23,32 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 }
 
 const RouteElement = () => {
+	// TODO Ulitise ErrorMessages
+	const [ErrorSignal, setErrorSignal] = createSignal([]);
+
 	return (
-		<MetaProvider>
-			<Link rel='manifest' href='/manifest.json' crossorigin='use-credemtial' />
-			<Router>
-				<Route path='/' component={MainPage} />
-				<Route path='/users/:id' component={Profile} />
-				<Route path='/about' component={AboutUs} />
-				<Route path='/signup' component={Signin} />
-				<Route path='/login' component={Login} />
-			</Router>
-		</MetaProvider>
+		<Errors.Provider value={[ErrorSignal, setErrorSignal]}>
+			<MetaProvider>
+				<Link
+					rel='manifest'
+					href='/manifest.json'
+					crossorigin='use-credemtial'
+				/>
+
+				<Router>
+					<Route path='/' component={MainPage} />
+					<Route path='/users/:id' component={Profile} />
+					<Route path='/about' component={AboutUs} />
+					<Route
+						path='/signup'
+						component={<AuthPage Auth={AuthType.Signup} />}
+					/>
+					<Route path='/login' component={<AuthPage Auth={AuthType.Login} />} />
+				</Router>
+
+				<ErrorUI />
+			</MetaProvider>
+		</Errors.Provider>
 	);
 };
 

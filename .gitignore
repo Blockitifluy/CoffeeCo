@@ -5,3 +5,4 @@ api/api.sql
 api/api.sql-journal
 api/__pycache__
 release
+desktop.ini

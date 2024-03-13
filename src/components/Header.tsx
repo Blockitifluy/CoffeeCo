@@ -19,11 +19,13 @@ import { A } from "@solidjs/router";
  */
 const Header: Component = () => {
 	return (
-		<header class='grid grid-cols-2 grid-rows-1 flex-row justify-center items-center bg-persian box-border'>
-			<section class='flex flex-row items-center py-4 pl-16'>
-				<A href='/' class='pr-16 flex flex-row items-center'>
-					<img src={logo256} alt='CoffeeCo Logo' width={48} class='mr-4' />
-					<h1 class='font-semibold text-2xl text-white mr-4'>CoffeeCo</h1>
+		<header class='grid grid-cols-[1fr_2fr] grid-rows-1 flex-row justify-center items-center bg-persian-500 box-border'>
+			<section class='flex flex-row items-center py-4 md:pl-16 mx-auto w-full pl-8'>
+				<A href='/' class='pr-8 flex flex-row items-center'>
+					<img src={logo256} alt='CoffeeCo Logo' width={48} />
+					<h1 class='font-semibold text-2xl text-white mr-8 sm:block hidden ml-4'>
+						CoffeeCo
+					</h1>
 				</A>
 
 				<A href='/users/1' class='mr-4'>
@@ -40,10 +42,11 @@ const Header: Component = () => {
 					/>
 				</button>
 			</section>
-			<section class='flex flex-row-reverse items-center py-4 pr-16'>
+			<section class='flex-row-reverse flex items-center py-4 md:pr-16 pr-8'>
 				<input
 					placeholder='Search for Hot Topics'
-					class='min-w-64 mr-4 h-10 rounded-lg pr-4 pl-12 w-fit text-ellipsis bg-persian-700 placeholder:text-slate-300 text-white focus:outline-1 focus:outline-white focus:bg-persian focus:shadow-xl'
+					class='min-w-64 h-10 rounded-lg pr-2 pl-10 w-fit text-ellipsis bg-persian-700 placeholder:text-slate-300 text-white focus:outline-1 focus:outline-white focus:bg-persian-500 focus:shadow-xl sm:min-w-min'
+					id='searchbar'
 					type='text'
 				/>
 				<OcSearch2 class='relative left-8 text-slate-300' />

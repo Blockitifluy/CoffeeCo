@@ -9,11 +9,35 @@ export interface SigninUser {
 	email: string;
 }
 
+export interface PostRequest {
+	text: string;
+	postTime: number;
+	User: PublicUser;
+	ImagesUser: string[4]; // Empty url is an empty string ""
+
+	PostOwner?: PostRequest; // Used for comments
+	Comments: PostRequest[];
+
+	// Reactions
+	likes: number;
+	dislikes: number;
+}
+
 export async function GetUserFromUsername(
 	username: string
 ): Promise<PublicUser> {
 	const UserFetch = await fetch(
-		`http://localhost:8000/api/user/getfromusername/${username}`
+		`http://localhost:8000/api/user/getfromusername/${username}`,
+		{
+			method: "GET",
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+				"Content-type": "applicatiomn/json"
+			},
+			body: null,
+			mode: "no-cors",
+			cache: "default"
+		}
 	);
 
 	if (!UserFetch.ok) {
@@ -41,7 +65,9 @@ export async function LoginUser(
 ): Promise<Response> {
 	const LoginFetch = await fetch("http://localhost:8000/api/user/login", {
 		method: "POST",
-		headers: {},
+		headers: {
+			"Access-Control-Allow-Origin": "http://localhost:8000"
+		},
 		body: JSON.stringify({ id, password }),
 		mode: "no-cors",
 		cache: "default"
