@@ -1,113 +1,183 @@
-// Later turn Login.tsx and Signin.tsx into one page
-
 import { Component, For, createSignal } from "solid-js";
 import logo from "../assets/logos/logo256.png";
 import { useInputDict, Dict } from "../Libraries/Utilities";
+import { useErrorList, ErrorMessage } from "../Libraries/ErrorUI";
 import * as ApiConnector from "../Libraries/ApiConnector";
 
+/**
+ * Has two options:
+ * * Login (Login),
+ * * Signup (Signup)
+ * @enum
+ */
 export enum AuthType {
 	Login = "Login",
 	Signup = "Signup"
 }
 
+/**
+ * Used for AuthInputs.
+ * See {@link AuthInputs}
+ */
 interface AuthProp {
+	/**
+	 * The title of Auth page
+	 */
 	name: string;
+	/**
+	 * The text button
+	 */
 	confirmText: string;
+	/**
+	 * The input elements (See {@link AuthInput})
+	 */
 	Inputs: AuthInput[];
+	/**
+	 * Fired when the Auth Page is successful.
+	 * @param Form The Form's inputs
+	 * @returns A Promise of a `SubmitResult` if it was ok (see {@link SubmitResult})
+	 */
 	OnSuccess: (Form: Dict<string>) => Promise<SubmitResult>;
 }
 
+/**
+ * The json version of the inputs (See {@link AuthProp})
+ */
 interface AuthInput {
+	/**
+	 * Name of the input
+	 */
 	name: string;
+	/**
+	 * The autocomplete propetry
+	 */
 	autocomplete: "off" | "username" | "current-password" | "new-password";
+	/**
+	 * Hides text if isPassword is equal true
+	 */
 	isPassword: boolean;
 }
 
+/**
+ * Auth's OnSuccess result
+ */
 interface SubmitResult {
+	/**
+	 * Is the request is okay
+	 */
 	ok: boolean;
+	/**
+	 * The status code of request
+	 */
 	statusCode: number;
+	/**
+	 * The displayed message
+	 */
 	message?: string;
 }
 
-const LoginProps: AuthProp = {
-	name: "Login",
-	confirmText: "Log in",
-	Inputs: [
-		{
-			name: "Username",
-			autocomplete: "username",
-			isPassword: false
-		},
-
-		{
-			name: "Password",
-			autocomplete: "current-password",
-			isPassword: true
-		}
-	],
-	OnSuccess: async (Form: Dict<string>) => {
-		try {
-			const UserIdJson = await ApiConnector.GetUserFromUsername(Form.Username);
-
-			await ApiConnector.LoginUser(UserIdJson.ID, Form.Password);
-		} catch (error) {
-			return { ok: false, statusCode: 400, message: "Password doesn't match" };
-		}
-
-		return { ok: true, statusCode: 200 };
-	}
-};
-
-const SignupProps: AuthProp = {
-	name: "Signup",
-	confirmText: "Sign up",
-	Inputs: [
-		{
-			name: "Username",
-			autocomplete: "username",
-			isPassword: false
-		},
-
-		{
-			name: "Email",
-			autocomplete: "off",
-			isPassword: false
-		},
-
-		{
-			name: "Password",
-			autocomplete: "new-password",
-			isPassword: true
-		}
-	],
-	OnSuccess: async (Form: Dict<string>) => {
-		try {
-			await ApiConnector.AddUser({
-				username: Form.Username,
-				email: Form.Email,
-				password: Form.Password
-			});
-		} catch (error) {
-			// May have condition if server is down
-			return { ok: false, statusCode: 401, message: "User already exists" };
-		}
-
-		return { ok: true, statusCode: 201 };
-	}
-};
-
+/**
+ * The map of Auth pages
+ */
 const AuthInputs: Map<AuthType, AuthProp> = new Map([
-	[AuthType.Login, LoginProps],
-	[AuthType.Signup, SignupProps]
+	[
+		AuthType.Login,
+		{
+			name: "Login",
+			confirmText: "Log in",
+			Inputs: [
+				{
+					name: "Username",
+					autocomplete: "username",
+					isPassword: false
+				},
+
+				{
+					name: "Password",
+					autocomplete: "current-password",
+					isPassword: true
+				}
+			],
+			OnSuccess: async (Form: Dict<string>) => {
+				try {
+					const UserIdJson = await ApiConnector.GetUserFromUsername(
+						Form.Username
+					);
+
+					await ApiConnector.LoginUser(UserIdJson.ID, Form.Password);
+				} catch (error) {
+					return {
+						ok: false,
+						statusCode: 400,
+						message: "Password doesn't match"
+					};
+				}
+
+				return { ok: true, statusCode: 200 };
+			}
+		}
+	],
+	[
+		AuthType.Signup,
+		{
+			name: "Signup",
+			confirmText: "Sign up",
+			Inputs: [
+				{
+					name: "Username",
+					autocomplete: "username",
+					isPassword: false
+				},
+
+				{
+					name: "Email",
+					autocomplete: "off",
+					isPassword: false
+				},
+
+				{
+					name: "Password",
+					autocomplete: "new-password",
+					isPassword: true
+				}
+			],
+			OnSuccess: async (Form: Dict<string>) => {
+				try {
+					await ApiConnector.AddUser({
+						username: Form.Username,
+						email: Form.Email,
+						password: Form.Password
+					});
+				} catch (error) {
+					// May have condition if server is down
+					return { ok: false, statusCode: 401, message: "User already exists" };
+				}
+
+				return { ok: true, statusCode: 201 };
+			}
+		}
+	]
 ]);
 
+/**
+ * The props for the {@link UserInterface}
+ */
 interface AuthInterfaceProps {
 	Auth: AuthType;
 }
 
+/**
+ * A mult-page component for:
+ * * Log in,
+ * * Sign up
+ * @param props Contains Auth type
+ * @returns Auth Page Component
+ */
 const UserInterface: Component<AuthInterfaceProps> = (
 	props: AuthInterfaceProps
 ) => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [_, setErrors] = useErrorList();
 	const AuthProp: AuthProp | undefined = AuthInputs.get(props.Auth);
 
 	if (AuthProp === undefined) {
@@ -122,19 +192,23 @@ const UserInterface: Component<AuthInterfaceProps> = (
 		// Does match needed length
 
 		if (Object.keys(FormDict).length !== AuthProp.Inputs.length) {
-			// Not enough inputs
 			return;
 		}
 
-		AuthProp.OnSuccess(Form()).then(res => {
-			console.log(res);
-
+		AuthProp.OnSuccess(FormDict).then((res: SubmitResult) => {
 			if (res.ok) {
-				location.href = "http://localhost:8000/"; // Go to home page
+				location.href = "/"; // Go to home page
 				return;
 			}
 
-			// TODO
+			setErrors(prev => {
+				const ErrorObject: ErrorMessage = {
+					code: res.statusCode,
+					message: res.message
+				};
+
+				return [...prev, ErrorObject];
+			});
 		});
 
 		e.preventDefault();

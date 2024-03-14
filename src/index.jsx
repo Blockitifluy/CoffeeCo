@@ -23,7 +23,6 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 }
 
 const RouteElement = () => {
-	// TODO Ulitise ErrorMessages
 	const [ErrorSignal, setErrorSignal] = createSignal([]);
 
 	return (

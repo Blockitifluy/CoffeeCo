@@ -15,6 +15,12 @@ import Header from "../components/Header";
 
 // Contexts
 
+/**
+ * Shown in the URL `/`, is the home page of the app
+ *
+ * This can change when the user is log in or not.
+ * @returns Main Page Component
+ */
 const MainPage: Component = () => {
 	return (
 		<>

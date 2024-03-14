@@ -1,14 +1,26 @@
 import { Accessor, JSX, Setter } from "solid-js";
 
+/**
+ * Message result:
+ * * ok
+ * * message
+ */
 export interface MessageResult {
 	ok: boolean;
 	message: string;
 }
 
-export type Dict<V> = { [key: string]: V };
+/**
+ * @example { [key: string]: t }
+ */
+export type Dict<t> = { [key: string]: t };
 
-export const HIDE_RESULT: string = "DON'T SHOW";
-
+/**
+ * Removes a item based of an index
+ * @param arr The list
+ * @param index Index of the item
+ * @returns the array
+ */
 export function removeItemOnce<t>(arr: t[], index: number): t[] {
 	arr.splice(index, 1);
 	return arr;
@@ -19,6 +31,9 @@ type UnionInput = InputEvent & {
 	target: Element;
 };
 
+/**
+ * The dict version of {@link useInput}
+ */
 export function useInputDict(
 	Form: Accessor<Dict<string>>,
 	setForm: Setter<Dict<string>>,
@@ -26,8 +41,6 @@ export function useInputDict(
 ): JSX.EventHandlerUnion<HTMLInputElement, InputEvent> {
 	return (event: UnionInput) => {
 		const Clone: Dict<string> = { ...Form(), [key]: event.currentTarget.value };
-
-		console.log(Clone, event.currentTarget.value);
 
 		setForm(Clone);
 	};

@@ -11,6 +11,10 @@ import Header from "../components/Header";
 import PostUI from "../components/Post";
 import SideBars from "../components/SideBars";
 
+/**
+ * The profile page based on the URL given in the browser
+ * @returns Profile Page
+ */
 const Profile: Component = () => {
 	const params = useParams();
 

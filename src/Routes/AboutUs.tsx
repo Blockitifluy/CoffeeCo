@@ -2,6 +2,9 @@ import { Component } from "solid-js";
 import Header from "../components/Header";
 import TitleSetter from "../components/SetTitle";
 
+/**
+ * We don't talk about this page
+ */
 const AboutUs: Component = () => {
 	return (
 		//TODO
