@@ -102,15 +102,15 @@ const PostForm: Component = () => {
 
 const NotLoggedMessage: Component = () => {
 	return (
-		<div class='bg-white md-rounded p-4'>
+		<div class='p-4'>
 			<p class='text-slate-600 text-center'>
 				Doesn't look like you are logged in, try:
 			</p>
 			<div class='flex flex-row my-4 justify-center pl-4'>
-				<a href='/signup' class='p-2 bg-persian-500 text-white rounded mr-4'>
+				<a href='/sign-up' class='p-2 bg-persian-500 text-white rounded mr-4'>
 					Sign up
 				</a>
-				<a href='/login' class='p-2 bg-white text-slate-600 rounded'>
+				<a href='/log-in' class='p-2 bg-white text-slate-600 rounded'>
 					Log in
 				</a>
 			</div>

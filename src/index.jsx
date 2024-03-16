@@ -39,10 +39,13 @@ const RouteElement = () => {
 					<Route path='/users/:id' component={Profile} />
 					<Route path='/about' component={AboutUs} />
 					<Route
-						path='/signup'
+						path='/sign-up'
 						component={<AuthPage Auth={AuthType.Signup} />}
 					/>
-					<Route path='/login' component={<AuthPage Auth={AuthType.Login} />} />
+					<Route
+						path='/log-in'
+						component={<AuthPage Auth={AuthType.Login} />}
+					/>
 				</Router>
 
 				<ErrorUI />
