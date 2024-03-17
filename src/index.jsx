@@ -25,6 +25,9 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 const RouteElement = () => {
 	const [ErrorSignal, setErrorSignal] = createSignal([]);
 
+	const SignupPage = <AuthPage Auth={AuthType.Signup} />,
+		LoginPage = <AuthPage Auth={AuthType.Login} />;
+
 	return (
 		<Errors.Provider value={[ErrorSignal, setErrorSignal]}>
 			<MetaProvider>
@@ -38,14 +41,8 @@ const RouteElement = () => {
 					<Route path='/' component={MainPage} />
 					<Route path='/users/:id' component={Profile} />
 					<Route path='/about' component={AboutUs} />
-					<Route
-						path='/sign-up'
-						component={<AuthPage Auth={AuthType.Signup} />}
-					/>
-					<Route
-						path='/log-in'
-						component={<AuthPage Auth={AuthType.Login} />}
-					/>
+					<Route path='/sign-up' component={SignupPage} />
+					<Route path='/log-in' component={LoginPage} />
 				</Router>
 
 				<ErrorUI />

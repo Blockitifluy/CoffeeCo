@@ -1,11 +1,19 @@
+import Cookies from "js-cookie";
+
 export interface PublicUser {
-	ID: number;
-	USERNAME: string;
+	id: number;
+	username: string;
+	handle: string;
+	bio: string;
+	followersCount: number;
+	Banner: string;
+	Profile: string;
 }
 
 export interface SigninUser {
-	password: string;
 	username: string;
+	handle: string;
+	password: string;
 	email: string;
 }
 
@@ -47,9 +55,19 @@ export async function GetUserFromUsername(
 	return UserFetch.json();
 }
 
+export const DEFAULT_PUBLIC_USER = {
+	id: 0,
+	username: "Loading",
+	bio: "Loading...",
+	handle: "@loading",
+	followersCount: 0,
+	Banner: "",
+	Profile: ""
+};
+
 export async function GetUserFromUserId(userId: number): Promise<PublicUser> {
 	const UserFetch = await fetch(
-		`http://localhost:8000/api/user/getfromid/${userId}`
+		`http://localhost:8000/api/user/get-user-from-id/${userId}`
 	);
 
 	if (!UserFetch.ok) {
@@ -115,13 +133,18 @@ export async function AddUser(
  * @example {ID: 1}
  */
 export async function AuthToId(): Promise<number> {
-	const AuthFetch = await fetch("http://localhost:8000/api/user/authtoid", {
-		method: "GET",
-		headers: { Accept: "application/json" },
-		body: null,
-		mode: "no-cors",
-		cache: "default"
-	});
+	const Login = Cookies.get("LOGIN");
+
+	const AuthFetch = await fetch(
+		`http://localhost:8000/api/user/auth-to-id/${Login}`,
+		{
+			method: "GET",
+			headers: { Accept: "application/json" },
+			body: null,
+			mode: "no-cors",
+			cache: "default"
+		}
+	);
 
 	if (!AuthFetch.ok) {
 		throw new Error(`Fetch wasn't ok: ${AuthFetch.status}`);

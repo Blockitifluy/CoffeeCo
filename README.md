@@ -52,9 +52,9 @@ All the compiled content will be found in `dist/` and `dist/assets/` directories
 
 #### User
 
-- `/api/user/getfromid/<int:id>`, _(GET)_ Gets the `username` and `id` from the user based the `id`
+- `/api/user/get-user-from-id/<int:id>`, _(GET)_ Gets the `username` and `id` from the user based the `id`
 - `/api/user/add` _(POST)_, Add an user using `username` and `id`
-- `/api/user/authtoid` _(GET)_ make the `auth` (from cookies) to `id`
+- `/api/user/auth-to-id` _(GET)_ make the `auth` (from cookies) to `id`
 - `/api/user/login` _(POST)_ Logins (Password needed) in user by using `LOGIN` cookie
 
 #### Post

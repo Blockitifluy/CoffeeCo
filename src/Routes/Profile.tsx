@@ -3,6 +3,7 @@ import { A, useParams } from "@solidjs/router";
 import { Meta } from "@solidjs/meta";
 import {
 	AuthToId,
+	DEFAULT_PUBLIC_USER,
 	GetUserFromUserId,
 	PublicUser
 } from "../Libraries/ApiConnector";
@@ -18,10 +19,7 @@ import SideBars from "../components/SideBars";
 const Profile: Component = () => {
 	const params = useParams();
 
-	const [Profile, SetProfile] = createSignal<PublicUser>({
-		ID: 0,
-		USERNAME: "Loading"
-	});
+	const [Profile, SetProfile] = createSignal<PublicUser>(DEFAULT_PUBLIC_USER);
 
 	const [OwnsProfile, SetOwns] = createSignal<boolean>(false);
 
@@ -46,10 +44,10 @@ const Profile: Component = () => {
 
 	return (
 		<>
-			<TitleSetter title={`CoffeeCo - ${Profile().USERNAME}`} />
+			<TitleSetter title={`CoffeeCo - ${Profile().username}`} />
 			<Meta
 				name='description'
-				content={`View ${Profile().USERNAME} - A open-source social media app`}
+				content={`View ${Profile().username} - A open-source social media app`}
 			/>
 
 			<Meta charset='UTF-8' />
@@ -77,7 +75,7 @@ const Profile: Component = () => {
 					</div>
 
 					<h1 class='font-bold text-3xl text-slate-800'>
-						{Profile().USERNAME}
+						{Profile().username}
 					</h1>
 
 					<p class='w-full mb-2 h-max box-border text-slate-600'>

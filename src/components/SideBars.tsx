@@ -10,7 +10,8 @@ import { A } from "@solidjs/router";
 import {
 	AuthToId,
 	PublicUser,
-	GetUserFromUserId
+	GetUserFromUserId,
+	DEFAULT_PUBLIC_USER
 } from "../Libraries/ApiConnector";
 import logo256 from "../assets/logos/logo256.png";
 import Cookies from "js-cookie";
@@ -33,10 +34,7 @@ function NoEnterKey(event: KeyboardInput<HTMLTextAreaElement>) {
 
 const PostForm: Component = () => {
 	const maxLength = 100,
-		[UserData, setUser] = createSignal<PublicUser>({
-			ID: 0,
-			USERNAME: "Loading..."
-		});
+		[UserData, setUser] = createSignal<PublicUser>(DEFAULT_PUBLIC_USER);
 
 	onMount(async () => {
 		try {
@@ -73,7 +71,7 @@ const PostForm: Component = () => {
 
 			<div>
 				<h1 class='text-2xl font-semibold my-2 text-slate-800'>
-					Hello, {UserData().USERNAME}
+					Hello, {UserData().username}
 				</h1>
 				<textarea
 					onInput={onPostTyped}

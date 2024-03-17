@@ -1,7 +1,6 @@
 import { Component, For, createSignal } from "solid-js";
 import logo from "../assets/logos/logo256.png";
 import { useInputDict, Dict } from "../Libraries/Utilities";
-import { useErrorList, ErrorMessage } from "../Libraries/ErrorUI";
 import * as ApiConnector from "../Libraries/ApiConnector";
 
 /**
@@ -11,8 +10,8 @@ import * as ApiConnector from "../Libraries/ApiConnector";
  * @enum
  */
 export enum AuthType {
-	Login = "Login",
-	Signup = "Signup"
+	Login,
+	Signup
 }
 
 /**
@@ -104,7 +103,7 @@ const AuthInputs: Map<AuthType, AuthProp> = new Map([
 						Form.Username
 					);
 
-					await ApiConnector.LoginUser(UserIdJson.ID, Form.Password);
+					await ApiConnector.LoginUser(UserIdJson.id, Form.Password);
 				} catch (error) {
 					return {
 						ok: false,
@@ -144,6 +143,7 @@ const AuthInputs: Map<AuthType, AuthProp> = new Map([
 			OnSuccess: async (Form: Dict<string>) => {
 				try {
 					await ApiConnector.AddUser({
+						handle: Form.Username,
 						username: Form.Username,
 						email: Form.Email,
 						password: Form.Password
@@ -176,8 +176,6 @@ interface AuthInterfaceProps {
 const UserInterface: Component<AuthInterfaceProps> = (
 	props: AuthInterfaceProps
 ) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [_, setErrors] = useErrorList();
 	const AuthProp: AuthProp | undefined = AuthInputs.get(props.Auth);
 
 	if (AuthProp === undefined) {
@@ -200,15 +198,6 @@ const UserInterface: Component<AuthInterfaceProps> = (
 				location.href = "/"; // Go to home page
 				return;
 			}
-
-			setErrors(prev => {
-				const ErrorObject: ErrorMessage = {
-					code: res.statusCode,
-					message: res.message
-				};
-
-				return [...prev, ErrorObject];
-			});
 		});
 
 		e.preventDefault();
