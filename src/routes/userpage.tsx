@@ -5,7 +5,8 @@ import {
 	createContext,
 	Show,
 	useContext,
-	createResource
+	createResource,
+	JSX
 } from "solid-js";
 import { DefaultUser, GetUserFromID } from "../requests/user";
 import { useParams } from "@solidjs/router";
@@ -18,23 +19,34 @@ const PageUser = createContext(DefaultUser);
 const UserInfo: Component = () => {
 	const User = useContext(PageUser);
 
-	return (
-		<div class='gap-1 grid grid-cols-[1fr_4fr] bg-white drop-shadow-lg p-4 rounded max-w-lg'>
-			<section class='flex flex-col gap-2 pb-2'>
-				<img class='rounded-full' width={90} src={User.Profile} />
-				<h1 class='font-medium text-2xl'>{User.username}</h1>
-				<sub>@{User.handle}</sub>
-			</section>
+	const BannerImage: JSX.CSSProperties = {
+		"background-image": `url(${User.Banner})`
+	};
 
-			<section class='flex flex-col justify-around'>
-				<h2 class='font-semibold text-xl'>About Me</h2>
-				<p>
-					Lorem ipsum dolor sit, amet consectetur adipisicing elit. Cum quae quo
-					sit repudiandae, expedita deleniti iure veritatis recusandae aliquam
-					consequuntur odio, tempora architecto? Magnam adipisci deleniti totam
-					voluptate cumque ratione.
-				</p>
-			</section>
+	return (
+		<div class='flex flex-col gap-2 max-w-xl'>
+			<div
+				style={BannerImage}
+				class='grid grid-rows-2 bg-cover bg-no-repeat bg-center py-2 rounded w-[36rem]'
+			>
+				<section class='flex flex-row items-center row-start-2 p-2'>
+					<img
+						src={User.Profile}
+						alt={`User Profile for @${User.handle}`}
+						class='rounded-full'
+						width={100}
+						height={100}
+					/>
+
+					<div class='gap-4 grid grid-rows-2 ml-4'>
+						<h1 class='font-semibold text-2xl'>{User.username}</h1>
+						<sub class='text-md'>@{User.handle}</sub>
+					</div>
+				</section>
+			</div>
+
+			<h2 class='font-semibold text-xl'>About Me</h2>
+			<p>{User.bio}</p>
 		</div>
 	);
 };
@@ -48,7 +60,7 @@ const UserPage: Component = () => {
 				<main class='flex flex-col items-center gap-8'>
 					<UserInfo />
 
-					<PostList amount={1} />
+					<PostList amount={10} />
 				</main>
 			</Sides>
 		</>

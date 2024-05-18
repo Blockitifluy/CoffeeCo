@@ -84,7 +84,7 @@ func (srv *Server) InitTable() {
 
 func (srv *Server) getHTMLRoutes() []string {
 	return []string{
-		"/users/{id}",
+		"/user/{id}",
 		"/new-post",
 		"/sign-up",
 		"/log-in",
