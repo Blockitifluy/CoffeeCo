@@ -19,18 +19,6 @@ CoffeeCo's main goal focuses on:
 
 CoffeeCo ensures privacy by you being able to run and compile on your own home PC. The benefit of an open source website, is that anyone can rapidly update to be come better. To compile download [Go](https://go.dev) and [npm](https://nodejs.org/download).
 
-Compile Server:
-
-```bash
-  go build
-```
-
-And to compile the Frontend:
-
-```bash
-  npm run build
-```
-
 ## Built With
 
 - [Go](https://www.go.dev/)
