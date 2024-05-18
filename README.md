@@ -29,7 +29,7 @@ CoffeeCo ensures privacy by you being able to run and compile on your own home P
 
 ## Built With
 
-- [Go]([https://www.go.dev/]
+- [Go](https://www.go.dev/)
 - [Solid.js](https://www.solidjs.com/)
 - [Typescript](https://www.typescriptlang.org/)
 - [Tailwind.css](https://www.tailwindcss.com/)
