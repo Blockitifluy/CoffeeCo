@@ -1,6 +1,8 @@
 package api
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -205,8 +207,17 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var b bytes.Buffer
+	gw := gzip.NewWriter(&b)
+	if _, err := gw.Write(PostsJSON); err != nil {
+		http.Error(w, "Failed to Encode", http.StatusInternalServerError)
+		return
+	}
+	gw.Close()
+
+	w.Header().Set("Content-Encoding", "gzip")
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(PostsJSON)
+	w.Write(b.Bytes())
 }
 
 // APIPostFeed is an API call do not use outside of http requests
