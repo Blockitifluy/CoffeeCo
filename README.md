@@ -1,11 +1,5 @@
 <!--Used https://github.com/othneildrew/Best-README-Template/blob/master/README.md-->
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
 <div align="center">
   <img src="src/assets/logos/logo128.png" alt="CoffeeCo Logo"/>
   <h3>CoffeeCo - The Social Media App</h3>
