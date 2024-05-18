@@ -1,8 +1,8 @@
 # PR-Template 1
 
-| Status  | Type  | Env Vars Change | Review App | Ticket |
-| :---: | :---: | :---: | :--: | :--: |
-| Ready/Hold | Feature/Bug/Tooling/Refactor/Hotfix | Yes/No | [Link](<Review app link here>) | [Link](<ticket link here>) |
+|   Status   |                Type                 | Env Vars Change |           Review App           |           Ticket           |
+| :--------: | :---------------------------------: | :-------------: | :----------------------------: | :------------------------: |
+| Ready/Hold | Feature/Bug/Tooling/Refactor/Hotfix |     Yes/No      | [Link](<Review app link here>) | [Link](<ticket link here>) |
 
 > ⚠️ NOTE: use notes like this to emphasize something about the PR. This could include other PRs this PR is built on top of; new or removed environment variables; reasons for why the PR is on hold; or anything else you would like to draw attention to.
 
@@ -10,11 +10,9 @@
 
 _What problem are you trying to solve?_
 
-
 ## Solution
 
 _How did you solve the problem?_
-
 
 ## Before & After Screenshots
 
@@ -24,9 +22,7 @@ _How did you solve the problem?_
 **AFTER**:
 [insert screenshot here]
 
-
 ## Other changes (e.g. bug fixes, UI tweaks, small refactors)
-
 
 ## Deploy Notes
 
@@ -48,7 +44,6 @@ new dependencies, new scripts, etc._
 **New dev dependencies**:
 
 - `dependency` : dependency details
-
 
 ## Checklist
 
@@ -100,13 +95,13 @@ Try to give as much context as you can to the reviewer. Include links to previou
 
 This pull request completes story [FRK-XX].
 
-### What's changed
+# What's changed
 
-### Why
+## Why
 
-### How
+## How
 
-## How to Test
+### How to Test
 
 <!-- For example:
 
@@ -144,4 +139,3 @@ General
 - [ ] I have performed a self-review of my code
 - [ ] Vercel deployments pass with my changes
 - [ ] My code contains no conflicts and is up to date with the latest main branch
-
