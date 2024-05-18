@@ -4,7 +4,14 @@ import (
 	"bytes"
 	"compress/gzip"
 	"database/sql"
+	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
 	"net/url"
@@ -72,6 +79,91 @@ func canImageBeAccepted(r *http.Request, mimetype string) imageAccept {
 	}
 }
 
+func compressJPEG(b []byte, quality int) ([]byte, error) {
+	var out []byte = make([]byte, 0)
+
+	r := bytes.NewReader(b)
+
+	img, _, err := image.Decode(r)
+	if err != nil {
+		return out, err
+	}
+
+	options := &jpeg.Options{Quality: quality}
+
+	var buf bytes.Buffer
+	encodeErr := jpeg.Encode(&buf, img, options)
+	if encodeErr != nil {
+		return make([]byte, 0), err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func compressPNG(b []byte, compressionLevel png.CompressionLevel) ([]byte, error) {
+	img, _, err := image.Decode(bytes.NewReader(b))
+	if err != nil {
+		return make([]byte, 0), err
+	}
+
+	var buf bytes.Buffer
+	encoder := png.Encoder{CompressionLevel: compressionLevel}
+
+	encodeErr := encoder.Encode(&buf, img)
+	if encodeErr != nil {
+		return make([]byte, 0), encodeErr
+	}
+
+	return buf.Bytes(), nil
+}
+
+func compressGIF(b []byte, numColors int) ([]byte, error) {
+	img, err := gif.DecodeAll(bytes.NewReader(b))
+	if err != nil {
+		return make([]byte, 0), err
+	}
+
+	if numColors > 0 && len(img.Image[0].Palette) > numColors {
+		for i := range img.Image {
+			img.Image[i] = reduceColors(img.Image[i], numColors)
+		}
+	}
+
+	var buf bytes.Buffer
+	encodeErr := gif.EncodeAll(&buf, img)
+	if encodeErr != nil {
+		return make([]byte, 0), encodeErr
+	}
+
+	return buf.Bytes(), nil
+}
+
+func reduceColors(img *image.Paletted, numColors int) *image.Paletted {
+	palette := make([]color.Color, numColors)
+	copy(palette, img.Palette)
+
+	// Convert the frame to use the new reduced palette
+	bounds := img.Bounds()
+	newImg := image.NewPaletted(bounds, palette)
+
+	draw.FloydSteinberg.Draw(newImg, bounds, img, image.ZP)
+
+	return newImg
+}
+
+func autoCompress(mimetype string, img []byte) ([]byte, error) {
+	switch mimetype {
+	case "image/png":
+		return compressPNG(img, png.DefaultCompression)
+	case "image/jpeg":
+		return compressJPEG(img, jpeg.DefaultQuality)
+	case "image/gif":
+		return compressGIF(img, 25)
+	default:
+		return nil, errors.New("No compress found for mimetype")
+	}
+}
+
 // APIUploadImage is an api call. Doesn't work as expected when called outside an API context
 //
 // Uploads an image (png, jpeg and gif) with a limited size, compresses it and add to database
@@ -88,11 +180,17 @@ func (srv *Server) APIUploadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	compress, compErr := autoCompress(mimetype, img)
+	if compErr != nil {
+		http.Error(w, compErr.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	ID := uuid.New()
 
 	var b bytes.Buffer
 	gw := gzip.NewWriter(&b)
-	if _, err := gw.Write(img); err != nil {
+	if _, err := gw.Write(compress); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
