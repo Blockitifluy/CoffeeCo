@@ -1,0 +1,30 @@
+CREATE TABLE Images (
+    url TEXT PRIMARY KEY,
+    content BLOB,
+    mimetype TEXT
+);
+
+CREATE TABLE Posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    PostedBy INTEGER,
+    content TEXT,
+    timeCreated DATETIME,
+    ParentId INTEGER,
+    images TEXT
+);
+
+CREATE TABLE Users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    password BLOB,
+    handle TEXT UNIQUE,
+    email TEXT NULL,
+    auth TEXT NOT NULL,
+    timeCreated DATETIME,
+    followers INTEGER DEFAULT 0,
+    followersCount INTEGER DEFAULT 0,
+    bio TEXT DEFAULT "",
+    Posts INTEGER DEFAULT 0,
+    Profile TEXT DEFAULT "",
+    Banner TEXT DEFAULT ""
+);
