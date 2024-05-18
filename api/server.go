@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"compress/gzip"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -234,10 +236,10 @@ func (srv *Server) AssetFiles() http.HandlerFunc {
 			return
 		}
 
-		FileData, err := createAssetCache(fileName)
+		FileData, code, err := createAssetCache(fileName)
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), code)
 			return
 		}
 
@@ -248,15 +250,24 @@ func (srv *Server) AssetFiles() http.HandlerFunc {
 	}
 }
 
+func isFileValid(name string) bool {
+	return !(strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, ".."))
+}
+
 // createAssetCache should only be used by [coffeecoserver/api.AssetFile],
 // when a asset file (in cache) doesn't exists, then create one and return it
-func createAssetCache(fileName string) (*FileMime, error) {
+func createAssetCache(fileName string) (*FileMime, int, error) {
 	path := os.Getenv("ASSETS_PATH") + fileName // Example: dist/assets/hello.world
 
+	if !isFileValid(fileName) {
+		return nil, http.StatusBadRequest, errors.New("Invalid File Name")
+	}
+
 	read, readErr := os.ReadFile(path)
+
 	mtype := MimeExpection(mimetype.Detect(read), path)
 	if readErr != nil {
-		return nil, readErr
+		return nil, http.StatusInternalServerError, readErr
 	}
 
 	var buffer bytes.Buffer
@@ -271,7 +282,7 @@ func createAssetCache(fileName string) (*FileMime, error) {
 
 	openedCache[fileName] = FileData
 
-	return FileData, nil
+	return FileData, 200, nil
 }
 
 // ConstantFile is an api call. Doesn't work as expected when called outside an API context
