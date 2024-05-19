@@ -1,5 +1,13 @@
 <!--Used https://github.com/othneildrew/Best-README-Template/blob/master/README.md-->
 
+![License](https://img.shields.io/github/license/Blockitifluy/CoffeeCo.svg)
+![Release](https://img.shields.io/github/release/Blockitifluy/CoffeeCo.svg)
+![Downloads](https://img.shields.io/github/downloads/Blockitifluy/CoffeeCo/total.svg)
+![Stars](	https://img.shields.io/github/stars/Blockitifluy/CoffeeCo.svg)
+![Contributions](https://img.shields.io/github/contributors/Blockitifluy/CoffeeCo)
+![Activity](https://img.shields.io/github/commit-activity/m/Blockitifluy/CoffeeCo)
+![Coverage](https://img.shields.io/coveralls/github/badges/shields)
+
 <div align="center">
   <img src="src/assets/logos/logo128.png" alt="CoffeeCo Logo"/>
   <h3>CoffeeCo - The Social Media App</h3>
