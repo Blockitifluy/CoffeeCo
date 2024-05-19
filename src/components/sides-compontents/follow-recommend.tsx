@@ -19,7 +19,7 @@ const FollowItem: Component = () => {
 
 const FollowRecommend: Component = () => {
 	return (
-		<Island title='Follower Recommendations'>
+		<Island title='Intresting People'>
 			<ul>
 				<FollowItem />
 				<FollowItem />

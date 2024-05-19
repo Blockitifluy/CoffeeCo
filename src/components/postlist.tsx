@@ -1,10 +1,10 @@
 import { Component, For, Show, createResource } from "solid-js";
-import { Post, PostFeedList } from "../requests/post";
+import { GetPostsFromUser, Post, PostFeedList } from "../requests/post";
 import PostUI from "./post";
 import Logo256 from "../assets/logos/logo256.png";
 
 /**
- * Used by {@link PostsGet}
+ * Used by {@link GetPostsGlobal}
  */
 interface PostListReq {
 	/** The posts response */
@@ -18,9 +18,23 @@ interface PostListReq {
  * @param amount The amount of posts wanted
  * @returns
  */
-async function PostsGet(amount: number): Promise<PostListReq> {
+async function GetPostsGlobal(amount: number): Promise<PostListReq> {
 	try {
 		const Res = await PostFeedList(amount);
+
+		const JSON: Post[] = await Res.json();
+
+		return { Posts: JSON, ok: Res.ok };
+	} catch (error) {
+		console.error(error);
+
+		return { Posts: [], ok: false };
+	}
+}
+
+async function GetPostUser(amount: number, ID: number): Promise<PostListReq> {
+	try {
+		const Res = await GetPostsFromUser(amount, ID);
 
 		const JSON: Post[] = await Res.json();
 
@@ -54,6 +68,7 @@ interface PostListProps {
 	 * The amount of Posts in the PostList
 	 */
 	amount: number;
+	ID?: number;
 }
 
 /**
@@ -61,9 +76,13 @@ interface PostListProps {
  * @param props The amount of the PostList
  */
 const PostList: Component<PostListProps> = props => {
-	const [posts] = createResource<PostListReq>(
-		PostsGet.bind(globalThis, props.amount)
-	);
+	const [posts] = createResource<PostListReq>(() => {
+		if (props.ID) {
+			return GetPostUser(props.amount, props.ID);
+		}
+
+		return GetPostsGlobal(props.amount);
+	});
 
 	return (
 		<div class='flex flex-col items-center gap-4'>

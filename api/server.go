@@ -84,7 +84,7 @@ func (srv *Server) InitTable() {
 
 func (srv *Server) getHTMLRoutes() []string {
 	return []string{
-		"/users/{id}",
+		"/user/{id}",
 		"/new-post",
 		"/sign-up",
 		"/log-in",
@@ -154,6 +154,12 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 			Queries: map[string]string{},
 			Funct:   srv.APIAddPost,
 		},
+		{
+			path:    "/api/post/get-posts-from-user",
+			Methods: []string{"GET"},
+			Queries: map[string]string{},
+			Funct:   srv.APIGetPostsFromUser,
+		},
 
 		// Image API
 		{
@@ -188,10 +194,10 @@ func (srv *Server) Routes() {
 			handle.Queries(name, pattern)
 		}
 
-		regex, _ := handle.GetPathRegexp()
-		queriesRegex, _ := handle.GetQueriesRegexp()
+		// regex, _ := handle.GetPathRegexp()
+		// queriesRegex, _ := handle.GetQueriesRegexp()
 
-		fmt.Printf("'%s' has loaded (%s, %v)\n", rout.path, regex, queriesRegex)
+		fmt.Printf("'%s' has loaded\n", rout.path)
 	}
 
 	srv.assetsRoutes()

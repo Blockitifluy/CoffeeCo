@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,8 +41,8 @@ type PostListBody struct {
 
 // getFeed gets a random Post from the DB.
 // This is used by PostFeedList and PostFeed
-func (srv *Server) getFeed() (*PostDB, int, error) {
-	rows, err := srv.Query("SELECT * FROM Posts WHERE ParentId = -1")
+func (srv *Server) getFeed(query string) (*PostDB, int, error) {
+	rows, err := srv.Query(query)
 	if err != nil {
 		return nil, 500, err
 	}
@@ -193,7 +194,7 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 
 	var Posts []PostDB
 	for i := 0; i < amount; i++ {
-		Feed, code, err := srv.getFeed()
+		Feed, code, err := srv.getFeed("SELECT * FROM Posts WHERE ParentId = -1")
 		if err != nil {
 			http.Error(w, err.Error(), code)
 			return
@@ -224,7 +225,7 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 //
 // This is a work in progress will change in the future
 func (srv *Server) APIPostFeed(w http.ResponseWriter, r *http.Request) {
-	Feed, code, err := srv.getFeed()
+	Feed, code, err := srv.getFeed("SELECT * FROM Posts WHERE ParentId = -1")
 	if err != nil {
 		http.Error(w, err.Error(), code)
 		return
@@ -268,4 +269,58 @@ func (srv *Server) APIAddPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("Success"))
+}
+
+// APIGetPostsFromUser is an API call do not use outside of http requests
+//
+// Gets a x amount of  Posts from a User (Provided by ID)
+func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
+	Queries := r.URL.Query()
+	userID, err := strconv.Atoi(Queries.Get("ID"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	amount, err := strconv.Atoi(Queries.Get("amount"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var Posts []PostDB
+	for i := 0; i < amount; i++ {
+		queryStr := fmt.Sprintf("SELECT * FROM Posts WHERE ParentId = -1 AND PostedBy = %d", userID)
+
+		pst, code, err := srv.getFeed(queryStr)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "no rows found", http.StatusBadRequest)
+				return
+			}
+			http.Error(w, err.Error(), code)
+			return
+		}
+
+		Posts = append(Posts, *pst)
+	}
+
+	JSONPosts, err := json.Marshal(Posts)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var b bytes.Buffer
+	gw := gzip.NewWriter(&b)
+	if _, err := gw.Write(JSONPosts); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	gw.Close()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Write(b.Bytes())
 }

@@ -46,8 +46,8 @@ export const DefaultUser: User = {
 	username: "default",
 	handle: "default",
 	bio: "Lorem Ipsum",
-	Banner: "https://placehold.co/1080x512",
-	Profile: "https://placehold.co/128",
+	Banner: "https://placehold.co/1080x256",
+	Profile: "https://placehold.co/64",
 	FollowersCount: 0
 };
 
