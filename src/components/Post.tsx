@@ -19,6 +19,10 @@ export interface PostSkeletonProps extends ChildrenProps {
 	 * A subtitle for a post, such as a date
 	 */
 	subtitle: string;
+	/**
+	 * The URL clicked on the Profile Image
+	 */
+	url?: string;
 }
 
 /**
@@ -28,13 +32,25 @@ export interface PostSkeletonProps extends ChildrenProps {
 export const PostSkeleton: Component<PostSkeletonProps> = props => {
 	return (
 		<div class='gap-2 grid grid-cols-post grid-rows-post bg-white drop-shadow-lg px-4 py-6 rounded w-post h-fit'>
-			<img
-				src={ProfileIcon}
-				width={32}
-				height={32}
-				class='rounded-full'
-				alt=''
-			/>
+			{props.url ? (
+				<A href={props.url} aria-label={`Go to ${props.title}'s page`}>
+					<img
+						src={ProfileIcon}
+						width={32}
+						height={32}
+						class='rounded-full'
+						alt=''
+					/>
+				</A>
+			) : (
+				<img
+					src={ProfileIcon}
+					width={32}
+					height={32}
+					class='rounded-full'
+					alt=''
+				/>
+			)}
 
 			<div class='flex flex-col justify-center'>
 				<h1 class='font-medium text-charcoal-950 text-ms leading-4'>
@@ -173,7 +189,11 @@ const PostUI: Component<PostProps> = props => {
 
 	return (
 		<Show when={!user.loading} fallback={<DummyPost />}>
-			<PostSkeleton title={`@${user()!.handle}`} subtitle={date}>
+			<PostSkeleton
+				title={`@${user()!.handle}`}
+				subtitle={date}
+				url={`http://localhost:8000/user/${props.post.postedBy}`}
+			>
 				<div class='flex flex-col gap-2 col-start-2'>
 					<p class='text-charcoal-950'>{pst.content}</p>
 

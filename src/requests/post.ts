@@ -1,5 +1,8 @@
 import { ValidImages } from "./images";
 
+/**
+ * Database posts from The Database
+ */
 export interface Post {
 	ID: number;
 	postedBy: number;
@@ -90,4 +93,26 @@ export async function AddPost(Req: AddPostRequest): Promise<Response> {
 	});
 
 	return AddRes;
+}
+
+/**
+ * Get x amount of Posts from User by ID
+ * @param amount The amount of Posts wanted
+ * @param ID The ID of user
+ * @returns The API response
+ */
+export async function GetPostsFromUser(
+	amount: number,
+	ID: number
+): Promise<Response> {
+	const Res = await fetch(
+		`http://localhost:8000/api/post/get-posts-from-user?amount=${amount}&ID=${ID}`,
+		{
+			method: "GET",
+			mode: "no-cors",
+			cache: "no-cache"
+		}
+	);
+
+	return Res;
 }
