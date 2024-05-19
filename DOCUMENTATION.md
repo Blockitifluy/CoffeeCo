@@ -198,9 +198,9 @@ Returns `application/json`:
 		"images": "image-url-here (alternate text), a (b)"
 	},
 	{
-		"ID": 1,
-		"postedBy": 1,
-		"content": "Foo Bar",
+		"ID": 2,
+		"postedBy": 2,
+		"content": "Hello World",
 		"parentID": -1,
 		"images": "image-url-here (alternate text), a (b)"
 	},
@@ -267,6 +267,72 @@ Returns:
 
 ```txt
 Success
+```
+
+## /api/post/get-posts-from-user
+
+`GET` Method
+
+Gets a requested amount of posts from a user (similar to `/api/post/feedlist)
+
+Query Params:
+
+- ID (_number_): The ID of the given user,
+- amount (_number_): The amount of wanted posts
+
+Returns `application/json`:
+
+```json
+[
+	{
+		"ID": 1234, // ID of the post
+		"postedBy": 12, // The ID of the person who posted the post
+		"content": "Hello World", // The text content of the post
+		"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
+		"images": "image-url-here (alternate text), a (b)" // A string verison of a list
+	},
+
+	{
+		"ID": 1234, // ID of the post
+		"postedBy": 12, // The ID of the person who posted the post
+		"content": "Hello World", // The text content of the post
+		"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
+		"images": "image-url-here (alternate text), a (b)" // A string verison of a list
+	}
+]
+```
+
+### Example
+
+### Example
+
+`/api/post/get-posts-from-user?amount=3&ID=1`
+
+```json
+// Notice it is all from the same user
+[
+	{
+		"ID": 1,
+		"postedBy": 1,
+		"content": "Foo Bar",
+		"parentID": -1,
+		"images": "image-url-here (alternate text), a (b)"
+	},
+	{
+		"ID": 3,
+		"postedBy": 1,
+		"content": "Foo Bar",
+		"parentID": -1,
+		"images": "image-url-here (alternate text), a (b)"
+	},
+	{
+		"ID": 2,
+		"postedBy": 1,
+		"content": "Foo Bar",
+		"parentID": -1,
+		"images": "image-url-here (alternate text), a (b)"
+	}
+]
 ```
 
 ## /api/images/upload
