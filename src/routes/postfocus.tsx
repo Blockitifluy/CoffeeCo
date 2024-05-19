@@ -24,10 +24,7 @@ function PostResource(ID: number): () => Promise<Post> {
 				content: "",
 				timeCreated: "",
 				parentID: -1,
-				images: {
-					Valid: false,
-					String: ""
-				}
+				images: ""
 			};
 
 			return Placeholder;
@@ -82,10 +79,7 @@ const PostFocus: Component = () => {
 		ID: -1,
 		postedBy: 0,
 		timeCreated: "",
-		images: {
-			Valid: false,
-			String: ""
-		}
+		images: ""
 	};
 
 	const [Post] = createResource<Post>(PostResource(ID));
