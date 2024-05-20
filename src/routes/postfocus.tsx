@@ -6,6 +6,7 @@ import { Post, PostGetFromID } from "../requests/post";
 import { useParams } from "@solidjs/router";
 import { OcArrowswitch2, OcSearch2 } from "solid-icons/oc";
 import { DefaultUser, GetUserFromID, User } from "../requests/user";
+import { Meta, Title } from "@solidjs/meta";
 
 // TODO
 
@@ -83,8 +84,21 @@ const PostFocus: Component = () => {
 	};
 
 	const [Post] = createResource<Post>(PostResource(ID));
+
+	const [user] = createResource(
+		CommentGetUser.bind(globalThis, DefaultPost.postedBy)
+	);
+
 	return (
 		<>
+			<Show when={!Post.loading}>
+				<Meta name='description' content={Post()!.content} />
+			</Show>
+			<Show when={!user.loading}>
+				<Meta name='author' content={`@${user()!.handle}`} />
+				<Title>CoffeeCo - @{user()!.handle}</Title>
+			</Show>
+
 			<Header />
 
 			<Sides>

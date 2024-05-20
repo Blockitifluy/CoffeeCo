@@ -1,4 +1,4 @@
-import { Meta } from "@solidjs/meta";
+import { Meta, Title } from "@solidjs/meta";
 import Header from "../components/header";
 import Sides from "../components/sides";
 import { Component } from "solid-js";
@@ -14,6 +14,9 @@ const MainPage: Component = () => {
 				name='description'
 				content='CoffeeCo is a place for Social Discussions, Art and Politics'
 			/>
+
+			<Title>CoffeeCo</Title>
+
 			<Header />
 
 			<Sides>

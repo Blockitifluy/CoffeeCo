@@ -2,6 +2,7 @@ import * as Solid from "solid-js";
 import { OcArrowleft2 } from "solid-icons/oc";
 import { Status, DefaultStatus, BasicStatus } from "../common";
 import { A } from "@solidjs/router";
+import { Meta, Title } from "@solidjs/meta";
 
 export namespace Input {
 	export type InputMap = Map<string, string>;
@@ -177,53 +178,58 @@ const AuthComponent: Solid.Component<{ page: Input.AuthProps }> = props => {
 	const [status, setStatus] = Solid.createSignal<Status>(DefaultStatus);
 
 	return (
-		<div class='justify-center items-center grid bg-background w-screen h-screen'>
-			<form class='flex flex-col gap-4 bg-white drop-shadow-lg px-8 py-10 rounded w-80'>
-				<h1 class='mt-2 font-bold text-3xl leading-4'>{props.page.title}</h1>
-				<sub class='mb-2 text-sm'>{props.page.subtitle}</sub>
+		<>
+			<Meta name='description' content={props.page.subtitle} />
+			<Title>CoffeeCo - {props.page.title}</Title>
 
-				<Solid.Show when={status().show}>
-					<span
-						class={
-							status().ok
-								? "text-persian-500"
-								: "text-sandy-500" + " my-0 font-semibold"
-						}
-					>
-						{status().msg}
-					</span>
-				</Solid.Show>
+			<div class='justify-center items-center grid bg-background w-screen h-screen'>
+				<form class='flex flex-col gap-4 bg-white drop-shadow-lg px-8 py-10 rounded w-80'>
+					<h1 class='mt-2 font-bold text-3xl leading-4'>{props.page.title}</h1>
+					<sub class='mb-2 text-sm'>{props.page.subtitle}</sub>
 
-				<section class='flex flex-col gap-2 mx-auto mb-2 w-64'>
-					<Solid.For each={props.page.Inputs}>
-						{input => (
-							<InputComponent
-								isPassword={input.isPassword}
-								key={input.key}
-								placeholder={input.placeholder}
-							/>
-						)}
-					</Solid.For>
-				</section>
+					<Solid.Show when={status().show}>
+						<span
+							class={
+								status().ok
+									? "text-persian-500"
+									: "text-sandy-500" + " my-0 font-semibold"
+							}
+						>
+							{status().msg}
+						</span>
+					</Solid.Show>
 
-				<section>
-					<button
-						onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
-						class='bg-charcoal-700 hover:bg-charcoal-600 mx-auto py-2 rounded-full w-full font-medium text-2xl text-white transition-colors'
-					>
-						{props.page.confirmText}
-					</button>
+					<section class='flex flex-col gap-2 mx-auto mb-2 w-64'>
+						<Solid.For each={props.page.Inputs}>
+							{input => (
+								<InputComponent
+									isPassword={input.isPassword}
+									key={input.key}
+									placeholder={input.placeholder}
+								/>
+							)}
+						</Solid.For>
+					</section>
 
-					<A
-						class='flex justify-end items-center mt-4 text-charcoal-600 hover:text-charcoal-500 transition-colors'
-						href='/'
-					>
-						<OcArrowleft2 />
-						Back
-					</A>
-				</section>
-			</form>
-		</div>
+					<section>
+						<button
+							onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
+							class='bg-charcoal-700 hover:bg-charcoal-600 mx-auto py-2 rounded-full w-full font-medium text-2xl text-white transition-colors'
+						>
+							{props.page.confirmText}
+						</button>
+
+						<A
+							class='flex justify-end items-center mt-4 text-charcoal-600 hover:text-charcoal-500 transition-colors'
+							href='/'
+						>
+							<OcArrowleft2 />
+							Back
+						</A>
+					</section>
+				</form>
+			</div>
+		</>
 	);
 };
 

@@ -13,6 +13,7 @@ import { useParams } from "@solidjs/router";
 import PostList from "../components/postlist";
 import { useUser } from "../contexts/usercontext";
 import { OcGear2 } from "solid-icons/oc";
+import { Meta, Title } from "@solidjs/meta";
 
 /**
  * The Page User (Stored in a Context)
@@ -93,6 +94,11 @@ const UserPage: Component = () => {
 
 	return (
 		<>
+			<Meta name='author' content={`@${User.handle}`} />
+			<Meta name='description' content={User.bio ?? "No bio"} />
+
+			<Title>{`CoffeeCo - @${User.handle}`}</Title>
+
 			<Header />
 
 			<div

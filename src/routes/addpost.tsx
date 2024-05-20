@@ -10,6 +10,7 @@ import { AuthToID } from "../requests/user";
 import Header from "../components/header";
 import Sides from "../components/sides";
 import { useInput } from "../hooks";
+import { Meta } from "@solidjs/meta";
 
 /**
  * Propetries for {@link AddImageButton}
@@ -311,6 +312,11 @@ const Prompt: Solid.Component = () => {
 const AddPostUI: Solid.Component = () => {
 	return (
 		<>
+			<Meta
+				name='description'
+				content='CoffeeCo is a place for Social Discussions, Art and Politics'
+			/>
+
 			<Header />
 
 			<Sides>
