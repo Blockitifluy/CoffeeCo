@@ -124,11 +124,8 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 		{
 			path:    "/api/post/get-comments-from-post",
 			Methods: []string{"GET"},
-			Queries: map[string]string{
-				"amount": "{amount:[0-9]+}",
-				"ID":     "{ID:[0-9]+}",
-			},
-			Funct: srv.APIGetCommentsFromPost,
+			Queries: map[string]string{},
+			Funct:   srv.APIGetCommentsFromPost,
 		},
 		{
 			path:    "/api/post/get-post-from-id/{ID}",
@@ -197,7 +194,7 @@ func (srv *Server) Routes() {
 		// regex, _ := handle.GetPathRegexp()
 		// queriesRegex, _ := handle.GetQueriesRegexp()
 
-		fmt.Printf("'%s' has loaded\n", rout.path)
+		fmt.Printf("> %s\n", rout.path)
 	}
 
 	srv.assetsRoutes()
@@ -208,7 +205,7 @@ func (srv *Server) assetsRoutes() {
 
 	HTMLMethod := srv.ConstantFile(os.Getenv("HTML_PATH"), "text/html", weekLength)
 	for _, path := range srv.getHTMLRoutes() {
-		fmt.Printf("'%s' has loaded\n", path)
+		fmt.Printf("> %s\n", path)
 		srv.HandleFunc(path, HTMLMethod).Methods("GET")
 	}
 

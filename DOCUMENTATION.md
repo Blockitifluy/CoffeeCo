@@ -10,7 +10,11 @@ This is the Documentation of CoffeeCo.
 
 Gets an User based on it's `ID`.
 
-Returns `application/json`:
+Returns `application/json`.
+
+### Example
+
+`/api/user/get-user-from-id/1`
 
 ```json
 {
@@ -23,32 +27,11 @@ Returns `application/json`:
 }
 ```
 
-### Example
-
-`/api/user/get-user-from-id/1`
-
-```json
-{
-	"username": "a",
-	"handle": "a",
-	"followersCount": 0,
-	"Banner": "https://placehold.co/1080x512",
-	"Profile": "https://placehold.co/64",
-	"bio": "Lorem Ipsum"
-}
-```
-
 ## /api/user/auth-to-id/{auth}
 
 `GET` Method
 
 Gets an User's `id` based on it's `AuthToken`.
-
-```json
-{
-	"Id": 1 // The user's id
-}
-```
 
 ### Example
 
@@ -56,7 +39,7 @@ Gets an User's `id` based on it's `AuthToken`.
 
 ```json
 {
-	"Id": 8721
+	"Id": 8721 // The user's id
 }
 ```
 
@@ -65,13 +48,6 @@ Gets an User's `id` based on it's `AuthToken`.
 `POST` Method
 
 Has a request body `application/json`:
-
-```json
-{
-	"handle": "a",
-	"password": "helloworld"
-}
-```
 
 Logins into a user, if the password is correct.
 
@@ -130,7 +106,40 @@ Adds a new user
 
 ## /api/post/get-comments-from-post
 
-NOT IMPLEMENTED/TEST TO DO LATER!
+`GET` Method
+
+Gets a requested amount of comments from a post
+
+Query Params:
+
+- ID (_number_): The ID of the given user,
+- amount (_number_): The amount of wanted posts
+
+Returns `application/json`.
+
+### Example
+
+`/api/user/get-comments-from-post?ID=3&amount=2`
+
+```json
+// Notice how the parentID is the same
+[
+	{
+		"ID": 4,
+		"postedBy": 2,
+		"content": "Chocolate Bar",
+		"parentID": 3,
+		"images": ""
+	},
+	{
+		"ID": 3,
+		"postedBy": 1,
+		"content": "Ice Cream",
+		"parentID": 3,
+		"images": "image-url-here (image-alt-text-here)"
+	}
+]
+```
 
 ## /api/post/get-post-from-id/{ID}
 
@@ -138,7 +147,11 @@ NOT IMPLEMENTED/TEST TO DO LATER!
 
 Gets a post from it's `ID`.
 
-Returns `application/json`:
+Returns `application/json`.
+
+### Example
+
+`/api/post/get-post-from-id/1`
 
 ```JSON
 {
@@ -150,39 +163,13 @@ Returns `application/json`:
 }
 ```
 
-### Example
-
-`/api/post/get-post-from-id/1`
-
-```JSON
-{
-  "ID": 1,
-  "postedBy": 1,
-  "content": "Foo Bar",
-  "parentID": -1,
-  "images": "image-url-here (alternate text), a (b)"
-}
-```
-
 ## /api/post/feedlist/amount
 
 `GET` Method
 
 Gets x amount of posts
 
-Returns `application/json`:
-
-```json
-[
-	{
-		"ID": 1234, // ID of the post
-		"postedBy": 12, // The ID of the person who posted the post
-		"content": "Hello World", // The text content of the post
-		"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
-		"images": "image-url-here (alternate text), a (b)" // A string verison of a list
-	}
-]
-```
+Returns `application/json`.
 
 ### Example
 
@@ -220,17 +207,7 @@ Returns `application/json`:
 
 Gets a random post
 
-Returns `application/json`:
-
-```json
-{
-	"ID": 1234, // ID of the post
-	"postedBy": 12, // The ID of the person who posted the post
-	"content": "Hello World", // The text content of the post
-	"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
-	"images": "image-url-here (alternate text), a (b)" // A string verison of a list
-}
-```
+Returns `application/json`.
 
 ### Example
 
@@ -252,7 +229,9 @@ Returns `application/json`:
 
 Uploads a Post
 
-Has a request body `application/json`:
+Has a request body `application/json`.
+
+### Example
 
 ```json
 {
@@ -280,29 +259,7 @@ Query Params:
 - ID (_number_): The ID of the given user,
 - amount (_number_): The amount of wanted posts
 
-Returns `application/json`:
-
-```json
-[
-	{
-		"ID": 1234, // ID of the post
-		"postedBy": 12, // The ID of the person who posted the post
-		"content": "Hello World", // The text content of the post
-		"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
-		"images": "image-url-here (alternate text), a (b)" // A string verison of a list
-	},
-
-	{
-		"ID": 1234, // ID of the post
-		"postedBy": 12, // The ID of the person who posted the post
-		"content": "Hello World", // The text content of the post
-		"parentID": -1, // If the parentID is -1 it's a sole post, else it parentID is the parent ID's post
-		"images": "image-url-here (alternate text), a (b)" // A string verison of a list
-	}
-]
-```
-
-### Example
+Returns `application/json`.
 
 ### Example
 
