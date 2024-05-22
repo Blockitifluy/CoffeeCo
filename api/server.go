@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/fatih/color"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gorilla/mux"
@@ -34,7 +35,7 @@ type RouteTemplate struct {
 	Funct   http.HandlerFunc
 }
 
-var openedCache map[string]*FileMime = map[string]*FileMime{}
+var openedCache map[string]*utility.FileMime = map[string]*utility.FileMime{}
 
 // NewServer creates a server with the database and routes added
 func NewServer() *Server {
@@ -226,15 +227,15 @@ func (srv *Server) AssetFiles() http.HandlerFunc {
 		if cache != nil { // Cache exists
 
 			w.Header().Set("Cache-Control", CacheControl)
-			w.Header().Set("Content-Type", cache.mtype)
+			w.Header().Set("Content-Type", cache.Mime)
 			w.Header().Set("Content-Encoding", "gzip")
-			w.Write(cache.file)
+			w.Write(cache.File)
 			return
 		}
 
 		path := os.Getenv("ASSETS_PATH") + fileName
 
-		if !DoesFileExist(path) {
+		if !utility.DoesFileExist(path) {
 			http.Error(w, "file path doesn't exist", http.StatusBadRequest)
 			return
 		}
@@ -248,8 +249,8 @@ func (srv *Server) AssetFiles() http.HandlerFunc {
 
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Header().Set("Cache-Control", CacheControl)
-		w.Header().Set("Content-Type", FileData.mtype)
-		w.Write(FileData.file)
+		w.Header().Set("Content-Type", FileData.Mime)
+		w.Write(FileData.File)
 	}
 }
 
@@ -259,7 +260,7 @@ func isFileValid(name string) bool {
 
 // createAssetCache should only be used by [coffeecoserver/api.AssetFile],
 // when a asset file (in cache) doesn't exists, then create one and return it
-func createAssetCache(fileName string) (*FileMime, int, error) {
+func createAssetCache(fileName string) (*utility.FileMime, int, error) {
 	path := os.Getenv("ASSETS_PATH") + fileName // Example: dist/assets/hello.world
 
 	if !isFileValid(fileName) {
@@ -268,7 +269,7 @@ func createAssetCache(fileName string) (*FileMime, int, error) {
 
 	read, readErr := os.ReadFile(path)
 
-	mtype := MimeExpection(mimetype.Detect(read), path)
+	mtype := utility.MimeExpection(mimetype.Detect(read), path)
 	if readErr != nil {
 		return nil, http.StatusInternalServerError, readErr
 	}
@@ -278,9 +279,9 @@ func createAssetCache(fileName string) (*FileMime, int, error) {
 	gzipWriter.Write(read)
 	gzipWriter.Close()
 
-	FileData := &FileMime{
-		mtype: mtype,
-		file:  buffer.Bytes(),
+	FileData := &utility.FileMime{
+		Mime: mtype,
+		File: buffer.Bytes(),
 	}
 
 	openedCache[fileName] = FileData

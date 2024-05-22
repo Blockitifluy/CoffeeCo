@@ -1,10 +1,11 @@
 package main
 
 import (
-	"coffeecoserver/api"
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/Blockitifluy/CoffeeCo/api"
 
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"

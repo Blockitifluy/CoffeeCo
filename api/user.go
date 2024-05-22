@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/gorilla/mux"
 )
 
@@ -160,7 +161,7 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPass := I32toB(hashString([]byte(user.Password)))
+	hashedPass := utility.I32toB(hashString([]byte(user.Password)))
 
 	var hashedUser User = User{
 		PublicUser: user.PublicUser,
@@ -234,7 +235,7 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPass := I32toB(hashString([]byte(Req.Password)))
+	hashedPass := utility.I32toB(hashString([]byte(Req.Password)))
 	if string(hashedPass) != string(password) {
 		http.Error(w, "password incorrect", http.StatusBadRequest)
 		return

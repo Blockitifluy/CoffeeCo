@@ -1,4 +1,4 @@
-module coffeecoserver
+module github.com/Blockitifluy/CoffeeCo
 
 go 1.22.1
 

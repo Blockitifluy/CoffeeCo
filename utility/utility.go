@@ -1,4 +1,4 @@
-package api
+package utility
 
 import (
 	"bytes"
@@ -13,8 +13,8 @@ import (
 
 // FileMime contains a file (bytes) and a mimetype (Content-Type)
 type FileMime struct {
-	file  []byte
-	mtype string
+	File []byte
+	Mime string
 }
 
 // GZipBytes compress a byte array using GZip

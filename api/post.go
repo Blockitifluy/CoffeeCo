@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3" // Used for a driver by database/sql
 )
@@ -65,7 +66,7 @@ func (srv *Server) getFeed(query string) (*PostDB, int, error) {
 		return nil, 500, err
 	}
 
-	var RandPost PostDB = GetRandFromSlice(Posts)
+	var RandPost PostDB = utility.GetRandFromSlice(Posts)
 	return &RandPost, 200, nil
 }
 
