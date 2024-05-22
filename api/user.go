@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
+	"github.com/blockloop/scan"
 	"github.com/gorilla/mux"
 )
 
@@ -18,18 +19,18 @@ import (
 //   - Handle
 //   - Password (hasn't been hashed yet)
 type LoginUser struct {
-	Handle   string `json:"handle"`   // A unique name of the User
-	Password string `json:"password"` // Unhashed password
+	Handle   string `json:"handle" db:"handle"` // A unique name of the User
+	Password string `json:"password"`           // Unhashed password
 }
 
 // PublicUser is the root of most User structs contains non-personal information about the user
 type PublicUser struct {
-	Username       string `json:"username"`       // A non-unique name
-	Handle         string `json:"handle"`         // An unique handle
-	Bio            string `json:"bio"`            // The description (biography)
-	FollowersCount int    `json:"followersCount"` // How many users following
-	Banner         string `json:"Banner"`         // Url to the Banner
-	Profile        string `json:"Profile"`        // Url to the Profile
+	Username       string `json:"username" db:"username"`             // A non-unique name
+	Handle         string `json:"handle" db:"handle"`                 // An unique handle
+	Bio            string `json:"bio" db:"bio"`                       // The description (biography)
+	FollowersCount int    `json:"followersCount" db:"followersCount"` // How many users following
+	Banner         string `json:"Banner" db:"Banner"`                 // Url to the Banner
+	Profile        string `json:"Profile" db:"Profile"`               // Url to the Profile
 }
 
 // SentUser contains all the regular information from [coffeecoserver/api.PublicUser] as well as:
@@ -40,16 +41,16 @@ type SentUser struct {
 	*PublicUser
 
 	Password string `json:"password"` // unhashed password
-	Email    string `json:"email"`
+	Email    string `json:"email" db:"email"`
 }
 
 // User contains all the user information provided from the database
 type User struct {
 	*PublicUser
 
-	password []byte // hashed password
-	Email    string `json:"email"`
-	Auth     string `json:"auth"` // Authorisation Token
+	password []byte `db:"password"` // hashed password
+	Email    string `json:"email" db:"email"`
+	Auth     string `json:"auth" db:"auth"` // Authorisation Token
 }
 
 func hashString(b []byte) uint32 {
@@ -79,11 +80,13 @@ func (u *User) GenerateAuth() string {
 
 // IDToUser get the ID from the User
 func (srv *Server) IDToUser(ID int) (*User, error) {
-	res := srv.QueryRow("SELECT FROM Users WHERE id = ?", ID)
+	res, err := srv.Query("SELECT * FROM Users WHERE id = ?", ID)
+	if err != nil {
+		return nil, err
+	}
 
 	var user User
-
-	if err := res.Scan(&user); err != nil {
+	if err := scan.Row(user, res); err != nil {
 		return nil, err
 	}
 
@@ -92,11 +95,13 @@ func (srv *Server) IDToUser(ID int) (*User, error) {
 
 // AuthToID is the non-api version of APIAuthToID
 func (srv *Server) AuthToID(auth string) (int, error) {
-	response := srv.QueryRow("SELECT id AS ID FROM Users WHERE auth = ?", auth)
+	rows, err := srv.Query("SELECT id AS ID FROM Users WHERE auth = ?", auth)
+	if err != nil {
+		return 0, err
+	}
 
 	var ID int
-
-	if err := response.Scan(&ID); err != nil {
+	if err := scan.Row(&ID, rows); err != nil {
 		return 0, err
 	}
 
@@ -108,13 +113,16 @@ func (srv *Server) AuthToID(auth string) (int, error) {
 // Get a user based on the id given via url.
 func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 	id, idErr := strconv.Atoi(mux.Vars(r)["id"])
-
 	if idErr != nil {
 		http.Error(w, idErr.Error(), http.StatusBadRequest)
 		return
 	}
 
-	response := srv.QueryRow("SELECT username, handle, followersCount, Banner, Profile, bio FROM Users WHERE id = ?", id)
+	rows, err := srv.Query("SELECT * FROM Users WHERE id = ?", id)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
 	type UFIUser struct {
 		Username       string `json:"username"`
@@ -126,8 +134,7 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var u UFIUser
-
-	if err := response.Scan(&u.Username, &u.Handle, &u.FollowersCount, &u.Banner, &u.Profile, &u.Bio); err != nil {
+	if err := scan.Row(&u, rows); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "no rows found", http.StatusBadRequest)
 			return
@@ -184,14 +191,16 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 //
 // Get a user's id using authorisation token via url
 func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
-
 	sentAuth := mux.Vars(r)["auth"]
 
-	response := srv.QueryRow("SELECT id AS Id FROM Users WHERE auth = ?", sentAuth)
+	rows, err := srv.Query("SELECT id AS Id FROM Users WHERE auth = ?", sentAuth)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
 	var ID int
-
-	if err := response.Scan(&ID); err != nil {
+	if err := scan.Row(&ID, rows); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "no rows found", http.StatusBadRequest)
 			return

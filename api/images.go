@@ -9,9 +9,16 @@ import (
 	"time"
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
+	"github.com/blockloop/scan"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
+
+type imageData struct {
+	URL         string `db:"url"`
+	Content     []byte `db:"Content"`
+	ContentType string `db:"mimetype"`
+}
 
 // APIUploadImage is an api call. Doesn't work as expected when called outside an API context
 //
@@ -63,14 +70,14 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageRow := srv.QueryRow("SELECT content, mimetype FROM Images WHERE url = ?", imageURL)
+	rows, queryErr := srv.Query("SELECT content, mimetype FROM Images WHERE url = ?", imageURL)
+	if queryErr != nil {
+		http.Error(w, queryErr.Error(), 500)
+		return
+	}
 
-	var (
-		Image    []byte = make([]byte, 0)
-		mimetype string = ""
-	)
-
-	if err := imageRow.Scan(&Image, &mimetype); err != nil {
+	var Image imageData
+	if err := scan.Row(&Image, rows); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "No Image Found", http.StatusNotFound)
 			return
@@ -83,6 +90,6 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", maxAge))
 	w.Header().Set("Content-Encoding", "gzip")
-	w.Header().Set("Content-Type", mimetype)
-	w.Write(Image) // Faster Speed over network
+	w.Header().Set("Content-Type", Image.ContentType)
+	w.Write(Image.Content) // Faster Speed over network
 }
