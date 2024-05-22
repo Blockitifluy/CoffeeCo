@@ -1,8 +1,6 @@
 package api
 
 import (
-	"bytes"
-	"compress/gzip"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -209,17 +207,15 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var b bytes.Buffer
-	gw := gzip.NewWriter(&b)
-	if _, err := gw.Write(PostsJSON); err != nil {
+	compress, err := utility.GZipBytes(PostsJSON)
+	if err != nil {
 		http.Error(w, "Failed to Encode", http.StatusInternalServerError)
 		return
 	}
-	gw.Close()
 
 	w.Header().Set("Content-Encoding", "gzip")
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(b.Bytes())
+	w.Write(compress)
 }
 
 // APIPostFeed is an API call do not use outside of http requests
@@ -313,15 +309,13 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var b bytes.Buffer
-	gw := gzip.NewWriter(&b)
-	if _, err := gw.Write(JSONPosts); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	compress, err := utility.GZipBytes(JSONPosts)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 		return
 	}
-	gw.Close()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")
-	w.Write(b.Bytes())
+	w.Write(compress)
 }

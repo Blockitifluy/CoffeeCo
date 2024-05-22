@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"flag"
 	"os"
 
 	"github.com/Blockitifluy/CoffeeCo/api"
@@ -11,27 +10,29 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	godotenv.Load()
-
-	args := os.Args[1:] // Removes the command string
-
-	var port string = os.Getenv("DEFAULT_PORT") // Port arguement
-	if len(args) == 1 && args[0] != "" {
-		color.Green("Arguements have changed the port to %s; unexpected changes may happen.\n", args[0])
-		port = ":" + args[0]
-	}
-
-	fmt.Printf("\nHosting on port %s\n", port)
-	fmt.Printf("Press Ctrl + C to stop server\n\n")
-
-	srv := api.NewServer()
-	defer srv.Close() // Closes until the script ends
-
-	err := http.ListenAndServe(port, srv)
-
+func loadEnv() {
+	err := godotenv.Load()
 	if err != nil {
-		color.Red(err.Error())
+		color.Red("Couldn't load env variables: %s", err.Error())
 		os.Exit(1)
 	}
+	return
+}
+
+func main() {
+	loadEnv()
+
+	var (
+		port  string
+		debug bool
+	)
+
+	flag.StringVar(&port, "port", os.Getenv("DEFAULT_PORT"), "The hosted port")
+	flag.BoolVar(&debug, "debug", false, "Debugs the server")
+
+	flag.Parse()
+
+	srv := api.NewServer(port, debug)
+	defer srv.Close() // Closes until the script ends
+	srv.Run()
 }

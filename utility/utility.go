@@ -7,9 +7,15 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
 )
+
+// IsFileValid Checks if a file is legal based on it's url
+func IsFileValid(name string) bool {
+	return !(strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, ".."))
+}
 
 // FileMime contains a file (bytes) and a mimetype (Content-Type)
 type FileMime struct {
@@ -19,13 +25,12 @@ type FileMime struct {
 
 // GZipBytes compress a byte array using GZip
 func GZipBytes(content []byte) ([]byte, error) {
-	var buffer bytes.Buffer
-	gzipWriter := gzip.NewWriter(&buffer)
-	gzipWriter.Close()
+	var b bytes.Buffer
+	gw := gzip.NewWriter(&b)
+	_, err := gw.Write(content)
+	gw.Close()
 
-	_, err := gzipWriter.Write(content)
-
-	return buffer.Bytes(), err
+	return b.Bytes(), err
 }
 
 // GetRandFromSlice gets an random element from a slice
