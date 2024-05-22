@@ -1,14 +1,11 @@
 package api
 
 import (
-	"bytes"
-	"compress/gzip"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
@@ -25,36 +22,119 @@ import (
 type Server struct {
 	*mux.Router
 	*sql.DB
+
+	Address string
+	Debug   bool
 }
 
 // RouteTemplate is a server route, not yet loaded by the server
 type RouteTemplate struct {
 	path    string
 	Methods []string
-	Queries map[string]string
 	Funct   http.HandlerFunc
+}
+
+func (srv *Server) getHTMLRoutes() []string {
+	return []string{
+		"/user/{id}",
+		"/new-post",
+		"/sign-up",
+		"/log-in",
+		"/",
+	}
+}
+
+func (srv *Server) getRouteTemplates() []RouteTemplate {
+	return []RouteTemplate{
+		// USER API
+		{
+			path:    "/api/user/get-user-from-id/{id}",
+			Methods: []string{"GET"},
+			Funct:   srv.APIUserFromID,
+		},
+		{
+			path:    "/api/user/auth-to-id/{auth}",
+			Methods: []string{"GET"},
+			Funct:   srv.APIAuthToID,
+		},
+		{
+			path:    "/api/user/log-in",
+			Methods: []string{"POST"},
+			Funct:   srv.APILoginUser,
+		},
+		{
+			path:    "/api/user/add",
+			Methods: []string{"POST"},
+			Funct:   srv.APIAddUser,
+		},
+
+		// POST API
+		{
+			path:    "/api/post/get-comments-from-post",
+			Methods: []string{"GET"},
+			Funct:   srv.APIGetCommentsFromPost,
+		},
+		{
+			path:    "/api/post/get-post-from-id/{ID}",
+			Methods: []string{"GET"},
+			Funct:   srv.APIGetPostFromID,
+		},
+		{
+			path:    "/api/post/feedlist/{amount}",
+			Methods: []string{"GET"},
+			Funct:   srv.APIPostFeedList,
+		},
+		{
+			path:    "/api/post/feed",
+			Methods: []string{"GET"},
+			Funct:   srv.APIPostFeed,
+		},
+		{
+			path:    "/api/post/add",
+			Methods: []string{"POST"},
+			Funct:   srv.APIAddPost,
+		},
+		{
+			path:    "/api/post/get-posts-from-user",
+			Methods: []string{"GET"},
+			Funct:   srv.APIGetPostsFromUser,
+		},
+
+		// Image API
+		{
+			path:    "/api/images/upload",
+			Methods: []string{"POST"},
+			Funct:   srv.APIUploadImage,
+		},
+		{
+			path:    "/api/images/download/{url}",
+			Methods: []string{"GET"},
+			Funct:   srv.APIDownloadImage,
+		},
+	}
 }
 
 var openedCache map[string]*utility.FileMime = map[string]*utility.FileMime{}
 
 // NewServer creates a server with the database and routes added
-func NewServer() *Server {
+func NewServer(address string, debug bool) *Server {
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
-
 	if err != nil {
 		color.Red("Database could't be initalised: %s", err.Error())
 		os.Exit(1)
 	}
 
 	srv := &Server{
-		Router: mux.NewRouter(),
-		DB:     db,
+		Router:  mux.NewRouter(),
+		DB:      db,
+		Address: address,
+		Debug:   debug,
 	}
 
-	color.Cyan("Server Created\nRoutes Created\n\n")
-
 	srv.InitTable()
+
 	srv.Routes()
+	color.Cyan("\nServer Created\nRoutes Created\n\n")
 
 	return srv
 }
@@ -83,98 +163,6 @@ func (srv *Server) InitTable() {
 	fmt.Printf("Success!\n\n")
 }
 
-func (srv *Server) getHTMLRoutes() []string {
-	return []string{
-		"/user/{id}",
-		"/new-post",
-		"/sign-up",
-		"/log-in",
-		"/",
-	}
-}
-
-func (srv *Server) getRouteTemplates() []RouteTemplate {
-	return []RouteTemplate{
-		// USER API
-		{
-			path:    "/api/user/get-user-from-id/{id}",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIUserFromID,
-		},
-		{
-			path:    "/api/user/auth-to-id/{auth}",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIAuthToID,
-		},
-		{
-			path:    "/api/user/log-in",
-			Methods: []string{"POST"},
-			Queries: map[string]string{},
-			Funct:   srv.APILoginUser,
-		},
-		{
-			path:    "/api/user/add",
-			Methods: []string{"POST"},
-			Queries: map[string]string{},
-			Funct:   srv.APIAddUser,
-		},
-
-		// POST API
-		{
-			path:    "/api/post/get-comments-from-post",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIGetCommentsFromPost,
-		},
-		{
-			path:    "/api/post/get-post-from-id/{ID}",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIGetPostFromID,
-		},
-		{
-			path:    "/api/post/feedlist/{amount}",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIPostFeedList,
-		},
-		{
-			path:    "/api/post/feed",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIPostFeed,
-		},
-		{
-			path:    "/api/post/add",
-			Methods: []string{"POST"},
-			Queries: map[string]string{},
-			Funct:   srv.APIAddPost,
-		},
-		{
-			path:    "/api/post/get-posts-from-user",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIGetPostsFromUser,
-		},
-
-		// Image API
-		{
-			path:    "/api/images/upload",
-			Methods: []string{"POST"},
-			Queries: map[string]string{},
-			Funct:   srv.APIUploadImage,
-		},
-		{
-			path:    "/api/images/download/{url}",
-			Methods: []string{"GET"},
-			Queries: map[string]string{},
-			Funct:   srv.APIDownloadImage,
-		},
-	}
-}
-
 // Routes method adds routes to the server (Self explainitary)
 func (srv *Server) Routes() {
 	var Routes []RouteTemplate = srv.getRouteTemplates()
@@ -188,132 +176,170 @@ func (srv *Server) Routes() {
 			os.Exit(1)
 		}
 
-		for name, pattern := range rout.Queries {
-			handle.Queries(name, pattern)
+		if srv.Debug {
+			fmt.Printf("> %s\n", rout.path)
 		}
-
-		// regex, _ := handle.GetPathRegexp()
-		// queriesRegex, _ := handle.GetQueriesRegexp()
-
-		fmt.Printf("> %s\n", rout.path)
 	}
 
-	srv.assetsRoutes()
+	srv.LoadAssets()
 }
 
-func (srv *Server) assetsRoutes() {
+// Run runs the server
+func (srv *Server) Run() {
+	fmt.Printf("Hosting on port %s\nPress Ctrl + C to stop server\n\n", srv.Address)
+
+	err := http.ListenAndServe(srv.Address, srv)
+
+	if err != nil {
+		color.Red(err.Error())
+		os.Exit(1)
+	}
+}
+
+// LoadAssets loads asset urls
+func (srv *Server) LoadAssets() {
 	const weekLength int = 2 * 7 * 24 * int(time.Hour)
 
-	HTMLMethod := srv.ConstantFile(os.Getenv("HTML_PATH"), "text/html", weekLength)
+	HTMLOptions := ConstantFileOptions{
+		Path:   os.Getenv("HTML_PATH"),
+		Mime:   "text/html",
+		MaxAge: weekLength,
+	}
+
+	HTMLMethod := srv.ConstantFile(HTMLOptions)
 	for _, path := range srv.getHTMLRoutes() {
-		fmt.Printf("> %s\n", path)
+		if srv.Debug {
+			fmt.Printf("> %s\n", path)
+		}
 		srv.HandleFunc(path, HTMLMethod).Methods("GET")
 	}
 
-	srv.HandleFunc("/manifest.json", srv.ConstantFile("manifest.json", "application/json", weekLength)).Methods("GET")
-	srv.HandleFunc("/assets/{filename}", srv.AssetFiles()).Methods("GET")
+	ManifestOptions := ConstantFileOptions{
+		Path:   "manifest.json",
+		Mime:   "application/json",
+		MaxAge: weekLength,
+	}
+	srv.HandleFunc("/manifest.json", srv.ConstantFile(ManifestOptions)).
+		Methods("GET")
+	srv.HandleFunc("/assets/{filename}", srv.AssetFiles).
+		Methods("GET")
 }
 
 // AssetFiles is an api call. Doesn't work as expected when called outside an API context
 //
 // Sends files from `dist/assets` and caches it
-func (srv *Server) AssetFiles() http.HandlerFunc {
+func (srv *Server) AssetFiles(w http.ResponseWriter, r *http.Request) {
 	const CacheControl string = "must-revalidate, private, max-age=604800" // Caches for one week
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		fileName := mux.Vars(r)["filename"]
-		cache := openedCache[fileName]
+	fileName := mux.Vars(r)["filename"]
+	cache := openedCache[fileName]
 
-		if cache != nil { // Cache exists
-
-			w.Header().Set("Cache-Control", CacheControl)
-			w.Header().Set("Content-Type", cache.Mime)
-			w.Header().Set("Content-Encoding", "gzip")
-			w.Write(cache.File)
-			return
-		}
-
-		path := os.Getenv("ASSETS_PATH") + fileName
-
-		if !utility.DoesFileExist(path) {
-			http.Error(w, "file path doesn't exist", http.StatusBadRequest)
-			return
-		}
-
-		FileData, code, err := createAssetCache(fileName)
-
-		if err != nil {
-			http.Error(w, err.Error(), code)
-			return
-		}
-
-		w.Header().Set("Content-Encoding", "gzip")
+	if cache != nil { // Cache exists
 		w.Header().Set("Cache-Control", CacheControl)
-		w.Header().Set("Content-Type", FileData.Mime)
-		w.Write(FileData.File)
+		w.Header().Set("Content-Type", cache.Mime)
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Write(cache.File)
+		return
 	}
+
+	path := os.Getenv("ASSETS_PATH") + fileName
+	if !utility.DoesFileExist(path) {
+		http.Error(w, "file path doesn't exist", http.StatusBadRequest)
+		return
+	}
+
+	newCache := createAssetCache(fileName)
+	if newCache.Err != nil {
+		http.Error(w, newCache.Err.Error(), newCache.Code)
+		return
+	}
+
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Header().Set("Cache-Control", CacheControl)
+	w.Header().Set("Content-Type", newCache.File.Mime)
+	w.Write(newCache.File.File)
 }
 
-func isFileValid(name string) bool {
-	return !(strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, ".."))
+type assetCache struct {
+	File *utility.FileMime
+	Code int
+	Err  error
 }
 
 // createAssetCache should only be used by [coffeecoserver/api.AssetFile],
 // when a asset file (in cache) doesn't exists, then create one and return it
-func createAssetCache(fileName string) (*utility.FileMime, int, error) {
+func createAssetCache(fileName string) assetCache {
 	path := os.Getenv("ASSETS_PATH") + fileName // Example: dist/assets/hello.world
-
-	if !isFileValid(fileName) {
-		return nil, http.StatusBadRequest, errors.New("Invalid File Name")
+	if !utility.IsFileValid(fileName) {
+		return assetCache{
+			File: nil,
+			Code: http.StatusBadRequest,
+			Err:  errors.New("Invalid File Name"),
+		}
 	}
 
 	read, readErr := os.ReadFile(path)
 
 	mtype := utility.MimeExpection(mimetype.Detect(read), path)
 	if readErr != nil {
-		return nil, http.StatusInternalServerError, readErr
+		return assetCache{
+			File: nil,
+			Code: 500,
+			Err:  readErr,
+		}
 	}
 
-	var buffer bytes.Buffer
-	gzipWriter := gzip.NewWriter(&buffer)
-	gzipWriter.Write(read)
-	gzipWriter.Close()
+	compress, err := utility.GZipBytes(read)
+	if err != nil {
+		return assetCache{
+			File: nil,
+			Code: 500,
+			Err:  err,
+		}
+	}
 
 	FileData := &utility.FileMime{
 		Mime: mtype,
-		File: buffer.Bytes(),
+		File: compress,
 	}
 
 	openedCache[fileName] = FileData
 
-	return FileData, 200, nil
+	return assetCache{
+		File: FileData,
+		Code: 200,
+		Err:  nil,
+	}
+}
+
+// ConstantFileOptions is for the method [github.com/Blockitifluy/CoffeeCo/api.ConstantFile]
+type ConstantFileOptions struct {
+	Path   string
+	Mime   string
+	MaxAge int
 }
 
 // ConstantFile is an api call. Doesn't work as expected when called outside an API context
 //
 // First, reads and caches file then sends to client
-func (srv *Server) ConstantFile(path string, mime string, maxAge int) http.HandlerFunc {
-	read, readErr := os.ReadFile(path)
-
+func (srv *Server) ConstantFile(Options ConstantFileOptions) http.HandlerFunc {
+	const CacheControl string = "must-revalidate, private, max-age=604800" // Caches for one week
+	read, readErr := os.ReadFile(Options.Path)
 	if readErr != nil {
-		color.Red("Error: `%s` can't be found; Server will not start (%s)", path, readErr.Error())
+		color.Red("Error: `%s` can't be found; Server will not start (%s)", Options.Path, readErr.Error())
 		os.Exit(1)
 	}
 
-	var buffer bytes.Buffer
-	gzipWriter := gzip.NewWriter(&buffer)
-	if _, err := gzipWriter.Write(read); err != nil {
+	compress, err := utility.GZipBytes(read)
+	if err != nil {
 		color.Red("Error: '%s' couldn't be compressed; Server will not start")
 		os.Exit(1)
 	}
-	gzipWriter.Close()
-
-	const CacheControl string = "must-revalidate, private, max-age=604800" // Caches for one week
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", mime)
+		w.Header().Set("Content-Type", Options.Mime)
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Header().Set("Cache-Control", CacheControl)
-		w.Write(buffer.Bytes())
+		w.Write(compress)
 	}
 }

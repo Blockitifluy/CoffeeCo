@@ -3,13 +3,21 @@ package utility
 import (
 	"bytes"
 	"compress/gzip"
+	"database/sql"
 	"errors"
 	"math/rand"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
 )
+
+// IsFileValid Checks if a file is legal based on it's url
+func IsFileValid(name string) bool {
+	return !(strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, ".."))
+}
 
 // FileMime contains a file (bytes) and a mimetype (Content-Type)
 type FileMime struct {
@@ -17,15 +25,24 @@ type FileMime struct {
 	Mime string
 }
 
+// SendScanErr sends a special http error message when no rows found
+func SendScanErr(w http.ResponseWriter, err error) {
+	if err == sql.ErrNoRows {
+		http.Error(w, "no rows found", 400)
+		return
+	}
+
+	http.Error(w, err.Error(), 500)
+}
+
 // GZipBytes compress a byte array using GZip
 func GZipBytes(content []byte) ([]byte, error) {
-	var buffer bytes.Buffer
-	gzipWriter := gzip.NewWriter(&buffer)
-	gzipWriter.Close()
+	var b bytes.Buffer
+	gw := gzip.NewWriter(&b)
+	_, err := gw.Write(content)
+	gw.Close()
 
-	_, err := gzipWriter.Write(content)
-
-	return buffer.Bytes(), err
+	return b.Bytes(), err
 }
 
 // GetRandFromSlice gets an random element from a slice
