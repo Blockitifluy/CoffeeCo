@@ -146,10 +146,7 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 
 	var Posts []PostDB
 	if err := scan.Rows(&Posts, querys); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "no rows found", 400)
-		}
-		http.Error(w, err.Error(), 500)
+		utility.SendScanErr(w, err)
 		return
 	}
 
@@ -187,11 +184,7 @@ func (srv *Server) APIGetPostFromID(w http.ResponseWriter, r *http.Request) {
 
 	var pst PostDB
 	if err := scan.Row(&pst, query); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "no rows found", 400)
-			return
-		}
-		http.Error(w, err.Error(), 500)
+		utility.SendScanErr(w, err)
 		return
 	}
 
@@ -319,11 +312,7 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 		Feed, err := srv.getFeed(queryStr)
 
 		if err != nil {
-			if err == sql.ErrNoRows {
-				http.Error(w, "no rows found", http.StatusBadRequest)
-				return
-			}
-			http.Error(w, err.Error(), Feed.Code)
+			utility.SendScanErr(w, err)
 			return
 		}
 

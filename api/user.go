@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
@@ -135,12 +134,7 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 
 	var u UFIUser
 	if err := scan.Row(&u, rows); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "no rows found", http.StatusBadRequest)
-			return
-		}
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utility.SendScanErr(w, err)
 		return
 	}
 
@@ -201,12 +195,7 @@ func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 
 	var ID int
 	if err := scan.Row(&ID, rows); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "no rows found", http.StatusBadRequest)
-			return
-		}
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utility.SendScanErr(w, err)
 		return
 	}
 
@@ -235,12 +224,7 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err := response.Scan(&password, &auth); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "no rows found", http.StatusBadRequest)
-			return
-		}
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utility.SendScanErr(w, err)
 		return
 	}
 

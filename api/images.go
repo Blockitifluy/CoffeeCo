@@ -1,12 +1,10 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/blockloop/scan"
@@ -14,7 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type imageData struct {
+// ImageData contains the URL, content, content-type of an image
+type ImageData struct {
 	URL         string `db:"url"`
 	Content     []byte `db:"Content"`
 	ContentType string `db:"mimetype"`
@@ -32,13 +31,13 @@ func (srv *Server) APIUploadImage(w http.ResponseWriter, r *http.Request) {
 
 	img, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	compress, compErr := utility.AutoCompress(mimetype, img)
 	if compErr != nil {
-		http.Error(w, compErr.Error(), http.StatusInternalServerError)
+		http.Error(w, compErr.Error(), 500)
 		return
 	}
 
@@ -51,7 +50,7 @@ func (srv *Server) APIUploadImage(w http.ResponseWriter, r *http.Request) {
 
 	_, resultErr := srv.Exec("INSERT INTO Images (url, content, mimetype) VALUES (?, ?, ?)", ID.String(), zipped, mimetype)
 	if resultErr != nil {
-		http.Error(w, resultErr.Error(), http.StatusInternalServerError)
+		http.Error(w, resultErr.Error(), 500)
 		return
 	}
 
@@ -66,7 +65,7 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 	URLParams := mux.Vars(r)
 	imageURL, err := url.QueryUnescape(URLParams["url"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), 400)
 		return
 	}
 
@@ -76,19 +75,13 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var Image imageData
+	var Image ImageData
 	if err := scan.Row(&Image, rows); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "No Image Found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utility.SendScanErr(w, err)
 		return
 	}
 
-	const maxAge int = 14 * 7 * 24 * int(time.Hour)
-
-	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", maxAge))
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.ImageMaxAge))
 	w.Header().Set("Content-Encoding", "gzip")
 	w.Header().Set("Content-Type", Image.ContentType)
 	w.Write(Image.Content) // Faster Speed over network

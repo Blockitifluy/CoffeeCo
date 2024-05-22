@@ -12,10 +12,14 @@ import (
 	"image/png"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // ImageSizeLimit is the size limit of all uploaded images
-const ImageSizeLimit int = 5000 * 1000
+const ImageSizeLimit = 5000 * 1000
+
+// ImageMaxAge is the cache length
+const ImageMaxAge = 14 * 7 * 24 * int(time.Hour)
 
 // IsImageSurported checks if a content-type is surported
 func IsImageSurported(contentType string) bool {
