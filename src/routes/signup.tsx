@@ -5,8 +5,7 @@ import {
 	ADD_USER_ERROR,
 	BASIC_STATUS_SUCCESS,
 	BasicStatus,
-	FORM_NOT_FILLED,
-	LOGIN_FAILED
+	FORM_NOT_FILLED
 } from "../common";
 
 const Submit: Input.AuthSubmit = async Inputs => {
@@ -18,14 +17,14 @@ const Submit: Input.AuthSubmit = async Inputs => {
 
 	try {
 		const Res = await NewUser(handle, password, email);
+
 		if (!Res.ok) return ADD_USER_ERROR;
 
-		const LoginRes = await UserLogin(handle, password),
-			resultStatus = LoginRes.ok ? BASIC_STATUS_SUCCESS : LOGIN_FAILED;
+		await UserLogin(handle, password);
 
-		return resultStatus;
-	} catch {
-		return new BasicStatus("Not Connected", false);
+		return BASIC_STATUS_SUCCESS;
+	} catch (err) {
+		return new BasicStatus((err as Error).message, false);
 	}
 };
 

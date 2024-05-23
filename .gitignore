@@ -1,11 +1,9 @@
-node_modules
-dist
-fontawesome-free-6.5.1-web
-api/api.sql
-api/api.sql-journal
-api/__pycache__
-release
-desktop.ini
+api/database/db.sql
 coffeecoserver.exe
+api/__pycache__
 CoffeeCo.exe
+node_modules
+desktop.ini
+release
+dist
 temp

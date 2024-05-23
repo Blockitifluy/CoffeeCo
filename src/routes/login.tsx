@@ -1,11 +1,7 @@
 import { Component } from "solid-js";
 import AuthComponent, { Input } from "../components/auth";
 import { UserLogin } from "../requests/user";
-import {
-	BASIC_STATUS_SUCCESS,
-	FORM_NOT_FILLED,
-	STATUS_FAILED
-} from "../common";
+import { BASIC_STATUS_SUCCESS, BasicStatus, FORM_NOT_FILLED } from "../common";
 
 const Submit: Input.AuthSubmit = async Inputs => {
 	const handle: string | undefined = Inputs.get("Handle"),
@@ -14,12 +10,13 @@ const Submit: Input.AuthSubmit = async Inputs => {
 	if (!handle || !password) return FORM_NOT_FILLED;
 
 	try {
-		const Res = await UserLogin(handle, password),
-			resultStatus = Res.ok ? BASIC_STATUS_SUCCESS : STATUS_FAILED;
+		await UserLogin(handle, password);
 
-		return resultStatus;
-	} catch {
 		return BASIC_STATUS_SUCCESS;
+	} catch (err) {
+		console.error(err);
+
+		return new BasicStatus((err as Error).message, false);
 	}
 };
 

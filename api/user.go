@@ -195,7 +195,7 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 
 	if execErr != nil {
 		utility.Error(w, utility.HTTPError{
-			Public:  utility.PublicBadRequest,
+			Public:  "Unable to Add User",
 			Message: execErr.Error(),
 			Code:    400,
 		})
@@ -209,26 +209,24 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 	sentAuth := mux.Vars(r)["auth"]
 
-	rows, err := srv.Query("SELECT id AS Id FROM Users WHERE auth = ?", sentAuth)
-	if err != nil {
+	row := srv.QueryRow("SELECT id FROM Users WHERE auth = ?", sentAuth)
+	if row.Err() != nil {
 		utility.Error(w, utility.HTTPError{
 			Public:  utility.PublicServerError,
-			Message: err.Error(),
+			Message: row.Err().Error(),
 			Code:    500,
 		})
 		return
 	}
 
 	var ID int
-	if err := scan.Row(&ID, rows); err != nil {
+	if err := row.Scan(&ID); err != nil {
 		utility.SendScanErr(w, err)
 		return
 	}
 
-	b := fmt.Sprintf(`{"Id": %d}`, ID)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(b))
+	w.Header().Set("Content-Type", "text/text")
+	w.Write([]byte(fmt.Sprintf("%d", ID)))
 }
 
 // APILoginUser is an api call. Doesn't work as expected when called outside an API context

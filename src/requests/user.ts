@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { FetchError } from "../common";
 
 /**
  * Properties of a User:
@@ -52,11 +53,6 @@ export const DefaultUser: User = {
 };
 
 /**
- * The baseURL of the website
- */
-const baseURL = "http://localhost:8000";
-
-/**
  * Get the Auth Token cookie
  * @returns The auth token (could be undefined)
  */
@@ -87,7 +83,7 @@ export async function UserLogin(
 		password: password
 	};
 
-	const LoginRes = await fetch("/api/user/log-in", {
+	const Res = await fetch("/api/user/log-in", {
 		method: "POST",
 		body: JSON.stringify(LoginBody),
 		mode: "no-cors",
@@ -97,7 +93,15 @@ export async function UserLogin(
 		}
 	});
 
-	return LoginRes;
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
+	return Res;
 }
 
 /**
@@ -120,14 +124,22 @@ export async function NewUser(handle: string, password: string, email: string) {
 		email: email
 	};
 
-	const AddRes: Response = await fetch("/api/user/add", {
+	const Res: Response = await fetch("/api/user/add", {
 		method: "POST",
 		body: JSON.stringify(ResBody),
 		mode: "no-cors",
 		cache: "no-store"
 	});
 
-	return AddRes;
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
+	return Res;
 }
 
 /**
@@ -140,17 +152,19 @@ export async function AuthToID(auth?: string): Promise<number> {
 
 	if (!authToken) throw new Error("AuthToken is undefined");
 
-	const url = baseURL + `/api/user/auth-to-id/${authToken}`;
+	const Res = await fetch(
+		`http://localhost:8000/api/user/auth-to-id/${authToken}`,
+		{
+			method: "GET",
+			mode: "no-cors"
+		}
+	);
 
-	const IDRes = await fetch(url, { method: "GET", mode: "no-cors" });
-
-	if (!IDRes.ok) {
+	if (!Res.ok) {
 		return -1;
 	}
 
-	const json = await IDRes.json();
-
-	return json.Id;
+	return parseInt(await Res.text());
 }
 
 /**
@@ -159,12 +173,21 @@ export async function AuthToID(auth?: string): Promise<number> {
  * @returns An User Object
  */
 export async function GetUserFromID(ID: number): Promise<User> {
-	const UserRes = await fetch(baseURL + `/api/user/get-user-from-id/${ID}`, {
-		method: "GET",
-		mode: "no-cors"
-	});
+	const Res = await fetch(
+		`http://localhost:8000/api/user/get-user-from-id/${ID}`,
+		{
+			method: "GET",
+			mode: "no-cors"
+		}
+	);
 
-	const json = await UserRes.json();
+	const json = await Res.json();
+
+	if (!Res.ok) {
+		console.error(json);
+
+		throw new Error(json.public);
+	}
 
 	return json;
 }
@@ -177,14 +200,9 @@ export async function GetUserFromID(ID: number): Promise<User> {
 export async function GetUserFromAuth(
 	auth?: string
 ): Promise<User | undefined> {
-	try {
-		const ID = await AuthToID(auth);
+	const ID = await AuthToID(auth);
 
-		if (ID === -1) return undefined;
+	if (ID === -1) return undefined;
 
-		const User = await GetUserFromID(ID);
-		return User;
-	} catch {
-		throw new Error("Error whilst fetching");
-	}
+	return GetUserFromID(ID);
 }

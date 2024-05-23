@@ -1,4 +1,5 @@
 import { ValidImages } from "./images";
+import { FetchError } from "../common";
 
 /**
  * Database posts from The Database
@@ -19,6 +20,14 @@ export interface Post {
 export async function PostGetFromID(ID: number): Promise<Response> {
 	const Res = await fetch(`/api/post/get-post-from-id/${ID}`);
 
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
 	return Res;
 }
 
@@ -28,13 +37,21 @@ export async function PostGetFromID(ID: number): Promise<Response> {
  * @returns Response
  */
 export async function PostFeedList(amount: number): Promise<Response> {
-	const FeedRes = await fetch(`/api/post/feedlist/${amount}`, {
+	const Res = await fetch(`/api/post/feedlist/${amount}`, {
 		cache: "no-cache",
 		mode: "no-cors",
 		method: "GET"
 	});
 
-	return FeedRes;
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
+	return Res;
 }
 
 /**
@@ -42,13 +59,21 @@ export async function PostFeedList(amount: number): Promise<Response> {
  * @returns Response
  */
 export async function PostFeed(): Promise<Response> {
-	const FeedRes = await fetch("/api/post/feed", {
+	const Res = await fetch("/api/post/feed", {
 		cache: "no-cache",
 		mode: "no-cors",
 		method: "GET"
 	});
 
-	return FeedRes;
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
+	return Res;
 }
 
 /**
@@ -82,7 +107,7 @@ export async function AddPost(Req: AddPostRequest): Promise<Response> {
 		throw new Error("Invalid image");
 	}
 
-	const AddRes = await fetch("/api/post/add", {
+	const Res = await fetch("/api/post/add", {
 		cache: "no-cache",
 		mode: "no-cors",
 		method: "POST",
@@ -92,7 +117,15 @@ export async function AddPost(Req: AddPostRequest): Promise<Response> {
 		body: JSON.stringify(Req)
 	});
 
-	return AddRes;
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
+
+	return Res;
 }
 
 /**
@@ -113,6 +146,14 @@ export async function GetPostsFromUser(
 			cache: "no-cache"
 		}
 	);
+
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
 
 	return Res;
 }
