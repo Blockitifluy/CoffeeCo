@@ -111,15 +111,19 @@ func (srv *Server) AuthToID(auth string) (int, error) {
 //
 // Get a user based on the id given via url.
 func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
-	id, idErr := strconv.Atoi(mux.Vars(r)["id"])
-	if idErr != nil {
-		http.Error(w, idErr.Error(), http.StatusBadRequest)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
 	rows, err := srv.Query("SELECT * FROM Users WHERE id = ?", id)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.SendScanErr(w, err)
 		return
 	}
 
@@ -138,9 +142,13 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json, jsonErr := json.Marshal(u)
-	if jsonErr != nil {
-		http.Error(w, jsonErr.Error(), 500)
+	json, err := json.Marshal(u)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  "No User Found",
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -153,12 +161,14 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 // Add user using the SentUser struct
 func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 	var user SentUser
-
 	decoder := json.NewDecoder(r.Body)
-	bodyErr := decoder.Decode(&user)
-
-	if bodyErr != nil {
-		http.Error(w, bodyErr.Error(), http.StatusBadRequest)
+	err := decoder.Decode(&user)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -173,10 +183,22 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 
 	nowDate := time.Now()
 
-	_, execErr := srv.Exec("INSERT INTO Users (username, handle, password, email, timeCreated, auth) VALUES (?, ?, ?, ?, ?, ?)", hashedUser.Username, hashedUser.Handle, hashedUser.password, hashedUser.Email, nowDate, hashedUser.GenerateAuth())
+	var Options []any = []any{
+		hashedUser.Username,
+		hashedUser.Handle,
+		hashedUser.password,
+		hashedUser.Email,
+		nowDate,
+		hashedUser.GenerateAuth(),
+	}
+	_, execErr := srv.Exec("INSERT INTO Users (username, handle, password, email, timeCreated, auth) VALUES (?, ?, ?, ?, ?, ?)", Options...)
 
 	if execErr != nil {
-		http.Error(w, execErr.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: execErr.Error(),
+			Code:    400,
+		})
 		return
 	}
 }
@@ -189,7 +211,11 @@ func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := srv.Query("SELECT id AS Id FROM Users WHERE auth = ?", sentAuth)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -212,7 +238,11 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 	var Req LoginUser
 
 	if err := json.NewDecoder(r.Body).Decode(&Req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -230,7 +260,11 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 
 	hashedPass := utility.I32toB(hashString([]byte(Req.Password)))
 	if string(hashedPass) != string(password) {
-		http.Error(w, "password incorrect", http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Incorrect Password",
+			Message: "password wrong",
+			Code:    400,
+		})
 		return
 	}
 

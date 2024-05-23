@@ -28,11 +28,19 @@ type FileMime struct {
 // SendScanErr sends a special http error message when no rows found
 func SendScanErr(w http.ResponseWriter, err error) {
 	if err == sql.ErrNoRows {
-		http.Error(w, "no rows found", 400)
+		Error(w, HTTPError{
+			Public:  PublicNotFoundError,
+			Message: "no rows found",
+			Code:    404,
+		})
 		return
 	}
 
-	http.Error(w, err.Error(), 500)
+	Error(w, HTTPError{
+		Public:  PublicServerError,
+		Message: err.Error(),
+		Code:    500,
+	})
 }
 
 // GZipBytes compress a byte array using GZip
