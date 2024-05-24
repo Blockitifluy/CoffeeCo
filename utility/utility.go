@@ -8,8 +8,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gabriel-vasile/mimetype"
+)
+
+const (
+	HourCache   int = int(time.Hour)
+	MinuteCache int = int(time.Minute)
 )
 
 // IsFileValid Checks if a file is legal based on it's url
@@ -19,8 +25,8 @@ func IsFileValid(name string) bool {
 
 // FileMime contains a file (bytes) and a mimetype (Content-Type)
 type FileMime struct {
-	File []byte
-	Mime string
+	Content []byte
+	Mime    string
 }
 
 // GZipBytes compress a byte array using GZip
