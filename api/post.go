@@ -158,7 +158,7 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 
 	var Posts []PostDB
 	if err := scan.Rows(&Posts, querys); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -212,7 +212,7 @@ func (srv *Server) APIGetPostFromID(w http.ResponseWriter, r *http.Request) {
 
 	var pst PostDB
 	if err := scan.Row(&pst, query); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -387,7 +387,7 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 		Feed, err := srv.getFeed(queryStr)
 
 		if err != nil {
-			utility.SendScanErr(w, err)
+			utility.SendScanErr(w, err, nil)
 			return
 		}
 

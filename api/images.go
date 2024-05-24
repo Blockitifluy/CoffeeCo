@@ -105,7 +105,7 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 
 	var Image ImageData
 	if err := scan.Row(&Image, rows); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 

@@ -3,10 +3,8 @@ package utility
 import (
 	"bytes"
 	"compress/gzip"
-	"database/sql"
 	"errors"
 	"math/rand"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,24 +21,6 @@ func IsFileValid(name string) bool {
 type FileMime struct {
 	File []byte
 	Mime string
-}
-
-// SendScanErr sends a special http error message when no rows found
-func SendScanErr(w http.ResponseWriter, err error) {
-	if err == sql.ErrNoRows {
-		Error(w, HTTPError{
-			Public:  PublicNotFoundError,
-			Message: "no rows found",
-			Code:    404,
-		})
-		return
-	}
-
-	Error(w, HTTPError{
-		Public:  PublicServerError,
-		Message: err.Error(),
-		Code:    500,
-	})
 }
 
 // GZipBytes compress a byte array using GZip

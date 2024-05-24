@@ -123,7 +123,7 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := srv.Query("SELECT * FROM Users WHERE id = ?", id)
 	if err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -138,7 +138,7 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 
 	var u UFIUser
 	if err := scan.Row(&u, rows); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -221,7 +221,7 @@ func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 
 	var ID int
 	if err := row.Scan(&ID); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -252,7 +252,8 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err := response.Scan(&password, &auth); err != nil {
-		utility.SendScanErr(w, err)
+		var sendErr string = "Couldn't find User"
+		utility.SendScanErr(w, err, &sendErr)
 		return
 	}
 
@@ -261,7 +262,7 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 		utility.Error(w, utility.HTTPError{
 			Public:  "Incorrect Password",
 			Message: "password wrong",
-			Code:    400,
+			Code:    401,
 		})
 		return
 	}

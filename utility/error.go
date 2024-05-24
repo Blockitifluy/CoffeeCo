@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 )
@@ -33,4 +34,29 @@ func Error(w http.ResponseWriter, sentErr HTTPError) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(sentErr.Code)
 	w.Write(json)
+}
+
+// SendScanErr sends a special http error message when no rows found.
+//
+// By default the noRow is "Something Went Wrong With your Request"
+func SendScanErr(w http.ResponseWriter, err error, noRow *string) {
+	msg := PublicBadRequest
+	if noRow != nil {
+		msg = *noRow
+	}
+
+	if err == sql.ErrNoRows {
+		Error(w, HTTPError{
+			Public:  msg,
+			Message: "no rows found",
+			Code:    404,
+		})
+		return
+	}
+
+	Error(w, HTTPError{
+		Public:  PublicServerError,
+		Message: err.Error(),
+		Code:    500,
+	})
 }

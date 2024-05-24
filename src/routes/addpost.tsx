@@ -10,7 +10,7 @@ import { AuthToID } from "../requests/user";
 import Header from "../components/header";
 import Sides from "../components/sides";
 import { useInput } from "../hooks";
-import { Meta } from "@solidjs/meta";
+import { Meta, Title } from "@solidjs/meta";
 
 /**
  * Propetries for {@link AddImageButton}
@@ -101,13 +101,13 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
 		});
 
 		if (Res.ok) location.href = "/";
-	} catch (error) {
-		console.error(error);
+	} catch (err) {
+		console.error(err);
 
 		inputs.setStatus({
 			show: true,
 			ok: false,
-			msg: "User invaild or Not Connected"
+			msg: (err as Error).message
 		});
 	}
 };
@@ -312,6 +312,8 @@ const Prompt: Solid.Component = () => {
 const AddPostUI: Solid.Component = () => {
 	return (
 		<>
+			<Title>CoffeeCo - New Post</Title>
+
 			<Meta
 				name='description'
 				content='CoffeeCo is a place for Social Discussions, Art and Politics'
