@@ -1,3 +1,5 @@
+import { FetchError } from "../common";
+
 /**
  * Regex for Validating multiple images
  * @example "src1 (alt1),src2 (alt2)"
@@ -83,11 +85,15 @@ export async function UploadImage(img: Blob): Promise<string> {
 		method: "POST"
 	});
 
-	if (!Res.ok) throw new Error("Uploading image was not ok");
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
 
-	const json: { fileName: string } = await Res.json();
+		console.error(ResError);
 
-	return json.fileName;
+		throw new Error(ResError.public);
+	}
+
+	return Res.text();
 }
 
 /**
@@ -99,6 +105,14 @@ export async function DownloadImage(name: string): Promise<Blob> {
 	const Res = await fetch(`http://localhost:8000/api/images/download/${name}`, {
 		method: "GET"
 	});
+
+	if (!Res.ok) {
+		const ResError: FetchError = await Res.json();
+
+		console.error(ResError);
+
+		throw new Error(ResError.public);
+	}
 
 	return Res.blob();
 }

@@ -163,9 +163,39 @@ func (srv *Server) InitTable() {
 	fmt.Printf("Success!\n\n")
 }
 
+func (srv *Server) notFound() http.HandlerFunc {
+	NotFoundError := utility.HTTPError{
+		Public:  "Method Couldn't Be Found",
+		Message: "Page/Method not found",
+		Code:    404,
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		utility.Error(w, NotFoundError)
+	}
+}
+
+func (srv *Server) methodNotAllowed() http.HandlerFunc {
+	MethodNotAllowedError := utility.HTTPError{
+		Public:  "Method was incorrect",
+		Message: "Illegal method for route",
+		Code:    405,
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		utility.Error(w, MethodNotAllowedError)
+	}
+}
+
 // Routes method adds routes to the server (Self explainitary)
 func (srv *Server) Routes() {
 	var Routes []RouteTemplate = srv.getRouteTemplates()
+
+	srv.NotFoundHandler = srv.notFound()
+	color.Cyan("NotFound Method loaded")
+
+	srv.MethodNotAllowedHandler = srv.methodNotAllowed()
+	color.Cyan("IllegalMethod Method loaded")
 
 	for _, rout := range Routes {
 		handle := srv.HandleFunc(rout.path, rout.Funct).
@@ -244,13 +274,21 @@ func (srv *Server) AssetFiles(w http.ResponseWriter, r *http.Request) {
 
 	path := os.Getenv("ASSETS_PATH") + fileName
 	if !utility.DoesFileExist(path) {
-		http.Error(w, "file path doesn't exist", http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  "File doesn't exist",
+			Message: "file path doesn't exist",
+			Code:    400,
+		})
 		return
 	}
 
 	newCache := createAssetCache(fileName)
 	if newCache.Err != nil {
-		http.Error(w, newCache.Err.Error(), newCache.Code)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't get file",
+			Message: newCache.Err.Error(),
+			Code:    newCache.Code,
+		})
 		return
 	}
 

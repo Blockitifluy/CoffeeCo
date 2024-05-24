@@ -126,38 +126,58 @@ func (srv *Server) isPostAllowed(Post AddPostRequest, r *http.Request) (bool, st
 // Get a the comment from a Post
 func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request) {
 	URLQuery := r.URL.Query()
-	ID, IDErr := strconv.Atoi(URLQuery.Get("ID"))
+	ID, err := strconv.Atoi(URLQuery.Get("ID"))
 	amount, amountErr := strconv.Atoi(URLQuery.Get("amount"))
 
-	if IDErr != nil {
-		http.Error(w, IDErr.Error(), http.StatusBadRequest)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	} else if amountErr != nil {
-		http.Error(w, amountErr.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: amountErr.Error(),
+			Code:    400,
+		})
 		return
 	}
 
-	querys, queryErr := srv.Query("SELECT * FROM Posts WHERE ParentId = ? LIMIT ?", ID, amount)
+	querys, err := srv.Query("SELECT * FROM Posts WHERE ParentId = ? LIMIT ?", ID, amount)
 	defer querys.Close()
-	if queryErr != nil {
-		http.Error(w, queryErr.Error(), http.StatusInternalServerError)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	var Posts []PostDB
 	if err := scan.Rows(&Posts, querys); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
 	if len(Posts) == 0 {
-		http.Error(w, "Empty Array", http.StatusInternalServerError)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicNotFoundError,
+			Message: "Empty Array",
+			Code:    404,
+		})
 		return
 	}
 
-	JSON, JSONErr := json.Marshal(Posts)
-	if JSONErr != nil {
-		http.Error(w, JSONErr.Error(), http.StatusInternalServerError)
+	JSON, err := json.Marshal(Posts)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -170,27 +190,39 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 // Get a post based on the ID given
 func (srv *Server) APIGetPostFromID(w http.ResponseWriter, r *http.Request) {
 	URLParams := mux.Vars(r)
-	ID, IDErr := strconv.Atoi(URLParams["ID"])
-	if IDErr != nil {
-		http.Error(w, IDErr.Error(), http.StatusBadRequest)
+	ID, err := strconv.Atoi(URLParams["ID"])
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
 	query, err := srv.Query("SELECT * FROM Posts WHERE id = ?", ID)
 	if err != nil {
-		http.Error(w, query.Err().Error(), http.StatusInternalServerError)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	var pst PostDB
 	if err := scan.Row(&pst, query); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
-	JSON, JSONErr := json.Marshal(pst)
-	if JSONErr != nil {
-		http.Error(w, JSONErr.Error(), http.StatusInternalServerError)
+	JSON, err := json.Marshal(pst)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -205,9 +237,13 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 	URLParams := mux.Vars(r)
 	amountString := URLParams["amount"]
 
-	amount, amountErr := strconv.Atoi(amountString)
-	if amountErr != nil {
-		http.Error(w, amountErr.Error(), http.StatusBadRequest)
+	amount, err := strconv.Atoi(amountString)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -215,7 +251,11 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < amount; i++ {
 		Feed, err := srv.getFeed("SELECT * FROM Posts WHERE ParentId = -1")
 		if err != nil {
-			http.Error(w, err.Error(), Feed.Code)
+			utility.Error(w, utility.HTTPError{
+				Public:  utility.PublicServerError,
+				Message: err.Error(),
+				Code:    Feed.Code,
+			})
 			return
 		}
 		Posts = append(Posts, *Feed.Post)
@@ -223,13 +263,21 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 
 	PostsJSON, err := json.Marshal(Posts)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	compress, err := utility.GZipBytes(PostsJSON)
 	if err != nil {
-		http.Error(w, "Failed to Encode", http.StatusInternalServerError)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: "Failed to Encode",
+			Code:    500,
+		})
 		return
 	}
 
@@ -244,13 +292,21 @@ func (srv *Server) APIPostFeedList(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) APIPostFeed(w http.ResponseWriter, r *http.Request) {
 	Feed, err := srv.getFeed("SELECT * FROM Posts WHERE ParentId = -1")
 	if err != nil {
-		http.Error(w, err.Error(), Feed.Code)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    Feed.Code,
+		})
 		return
 	}
 
 	PostsJSON, err := json.Marshal(Feed.Post)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -265,13 +321,21 @@ func (srv *Server) APIAddPost(w http.ResponseWriter, r *http.Request) {
 	var RequestPost AddPostRequest
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&RequestPost); err != nil {
-		http.Error(w, "Body can't be decoded", http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Body can't be decoded",
+			Code:    400,
+		})
 		return
 	}
 
 	postAllowed, reason := srv.isPostAllowed(RequestPost, r)
 	if !postAllowed {
-		http.Error(w, reason, http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  reason,
+			Message: reason,
+			Code:    400,
+		})
 		return
 	}
 
@@ -280,8 +344,11 @@ func (srv *Server) APIAddPost(w http.ResponseWriter, r *http.Request) {
 	_, err := srv.Exec("INSERT INTO Posts (PostedBy, Content, TimeCreated, ParentId, images) VALUES (?, ?, ?, ?, ?)", RequestPost.PostedBy, RequestPost.Content, time.Now(), RequestPost.ParentID, RequestPost.Images)
 
 	if err != nil {
-		http.Error(w, "DB had an error", http.StatusInternalServerError)
-		fmt.Printf("DB error (%s)", err)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -295,13 +362,21 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 	Queries := r.URL.Query()
 	userID, err := strconv.Atoi(Queries.Get("ID"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
 	amount, err := strconv.Atoi(Queries.Get("amount"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -312,7 +387,7 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 		Feed, err := srv.getFeed(queryStr)
 
 		if err != nil {
-			utility.SendScanErr(w, err)
+			utility.SendScanErr(w, err, nil)
 			return
 		}
 
@@ -321,13 +396,21 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 
 	JSONPosts, err := json.Marshal(Posts)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	compress, err := utility.GZipBytes(JSONPosts)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 

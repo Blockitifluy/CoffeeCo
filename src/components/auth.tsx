@@ -167,7 +167,11 @@ const AuthOnClick = async (
 
 	inputs.setStatus(resultStatus);
 
-	if (result.ok) location.href = "/";
+	console.log(result);
+
+	if (result.ok) {
+		location.href = "/";
+	}
 };
 
 /**

@@ -25,37 +25,57 @@ type ImageData struct {
 func (srv *Server) APIUploadImage(w http.ResponseWriter, r *http.Request) {
 	mimetype := r.Header.Get("Content-Type")
 	if Accepted := utility.CanImageBeAccepted(r, mimetype); !Accepted.Ok {
-		http.Error(w, Accepted.Msg, Accepted.Code)
+		utility.Error(w, utility.HTTPError{
+			Public:  Accepted.Msg,
+			Message: Accepted.Msg,
+			Code:    Accepted.Code,
+		})
 		return
 	}
 
 	img, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Read Image",
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	compress, compErr := utility.AutoCompress(mimetype, img)
 	if compErr != nil {
-		http.Error(w, compErr.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Compress Image",
+			Message: compErr.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	ID := uuid.New()
 	zipped, err := utility.GZipBytes(compress)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Zip Image",
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	_, resultErr := srv.Exec("INSERT INTO Images (url, content, mimetype) VALUES (?, ?, ?)", ID.String(), zipped, mimetype)
 	if resultErr != nil {
-		http.Error(w, resultErr.Error(), 500)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Add image to Server",
+			Message: resultErr.Error(),
+			Code:    500,
+		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(fmt.Sprintf(`{"fileName": "%s"}`, ID.String())))
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte(ID.String()))
 }
 
 // APIDownloadImage is an api call. Doesn't work as expected when called outside an API context
@@ -65,19 +85,27 @@ func (srv *Server) APIDownloadImage(w http.ResponseWriter, r *http.Request) {
 	URLParams := mux.Vars(r)
 	imageURL, err := url.QueryUnescape(URLParams["url"])
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Write Image",
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
-	rows, queryErr := srv.Query("SELECT content, mimetype FROM Images WHERE url = ?", imageURL)
-	if queryErr != nil {
-		http.Error(w, queryErr.Error(), 500)
+	rows, err := srv.Query("SELECT content, mimetype FROM Images WHERE url = ?", imageURL)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  "Couldn't Get Image",
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	var Image ImageData
 	if err := scan.Row(&Image, rows); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 

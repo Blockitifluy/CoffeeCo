@@ -22,11 +22,9 @@ async function GetPostsGlobal(amount: number): Promise<PostListReq> {
 	try {
 		const Res = await PostFeedList(amount);
 
-		const JSON: Post[] = await Res.json();
-
-		return { Posts: JSON, ok: Res.ok };
+		return { Posts: await Res.json(), ok: Res.ok };
 	} catch (error) {
-		console.error(error);
+		console.error("Failed to Connect to Server");
 
 		return { Posts: [], ok: false };
 	}

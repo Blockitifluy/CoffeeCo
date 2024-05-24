@@ -111,15 +111,19 @@ func (srv *Server) AuthToID(auth string) (int, error) {
 //
 // Get a user based on the id given via url.
 func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
-	id, idErr := strconv.Atoi(mux.Vars(r)["id"])
-	if idErr != nil {
-		http.Error(w, idErr.Error(), http.StatusBadRequest)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
 	rows, err := srv.Query("SELECT * FROM Users WHERE id = ?", id)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
@@ -134,13 +138,17 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 
 	var u UFIUser
 	if err := scan.Row(&u, rows); err != nil {
-		utility.SendScanErr(w, err)
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
-	json, jsonErr := json.Marshal(u)
-	if jsonErr != nil {
-		http.Error(w, jsonErr.Error(), 500)
+	json, err := json.Marshal(u)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  "No User Found",
+			Message: err.Error(),
+			Code:    500,
+		})
 		return
 	}
 
@@ -153,12 +161,14 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 // Add user using the SentUser struct
 func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 	var user SentUser
-
 	decoder := json.NewDecoder(r.Body)
-	bodyErr := decoder.Decode(&user)
-
-	if bodyErr != nil {
-		http.Error(w, bodyErr.Error(), http.StatusBadRequest)
+	err := decoder.Decode(&user)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -173,10 +183,22 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 
 	nowDate := time.Now()
 
-	_, execErr := srv.Exec("INSERT INTO Users (username, handle, password, email, timeCreated, auth) VALUES (?, ?, ?, ?, ?, ?)", hashedUser.Username, hashedUser.Handle, hashedUser.password, hashedUser.Email, nowDate, hashedUser.GenerateAuth())
+	var Options []any = []any{
+		hashedUser.Username,
+		hashedUser.Handle,
+		hashedUser.password,
+		hashedUser.Email,
+		nowDate,
+		hashedUser.GenerateAuth(),
+	}
+	_, execErr := srv.Exec("INSERT INTO Users (username, handle, password, email, timeCreated, auth) VALUES (?, ?, ?, ?, ?, ?)", Options...)
 
 	if execErr != nil {
-		http.Error(w, execErr.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Unable to Add User",
+			Message: execErr.Error(),
+			Code:    400,
+		})
 		return
 	}
 }
@@ -187,22 +209,24 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 	sentAuth := mux.Vars(r)["auth"]
 
-	rows, err := srv.Query("SELECT id AS Id FROM Users WHERE auth = ?", sentAuth)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
+	row := srv.QueryRow("SELECT id FROM Users WHERE auth = ?", sentAuth)
+	if row.Err() != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: row.Err().Error(),
+			Code:    500,
+		})
 		return
 	}
 
 	var ID int
-	if err := scan.Row(&ID, rows); err != nil {
-		utility.SendScanErr(w, err)
+	if err := row.Scan(&ID); err != nil {
+		utility.SendScanErr(w, err, nil)
 		return
 	}
 
-	b := fmt.Sprintf(`{"Id": %d}`, ID)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(b))
+	w.Header().Set("Content-Type", "text/text")
+	w.Write([]byte(fmt.Sprintf("%d", ID)))
 }
 
 // APILoginUser is an api call. Doesn't work as expected when called outside an API context
@@ -212,7 +236,11 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 	var Req LoginUser
 
 	if err := json.NewDecoder(r.Body).Decode(&Req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
 		return
 	}
 
@@ -224,13 +252,18 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err := response.Scan(&password, &auth); err != nil {
-		utility.SendScanErr(w, err)
+		var sendErr string = "Couldn't find User"
+		utility.SendScanErr(w, err, &sendErr)
 		return
 	}
 
 	hashedPass := utility.I32toB(hashString([]byte(Req.Password)))
 	if string(hashedPass) != string(password) {
-		http.Error(w, "password incorrect", http.StatusBadRequest)
+		utility.Error(w, utility.HTTPError{
+			Public:  "Incorrect Password",
+			Message: "password wrong",
+			Code:    401,
+		})
 		return
 	}
 

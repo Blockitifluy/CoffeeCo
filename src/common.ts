@@ -1,5 +1,10 @@
 import { JSX } from "solid-js";
 
+export interface FetchError {
+	public: string;
+	message: string;
+}
+
 /**
  * A basic status with a `msg` and an `ok` boolean
  */
