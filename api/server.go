@@ -2,15 +2,12 @@ package api
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/fatih/color"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3" // Used for a driver by database/sql
 )
@@ -113,8 +110,6 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 		},
 	}
 }
-
-var openedCache map[string]*utility.FileMime = map[string]*utility.FileMime{}
 
 // NewServer creates a server with the database and routes added
 func NewServer(address string, debug bool) *Server {
@@ -223,161 +218,5 @@ func (srv *Server) Run() {
 	if err != nil {
 		color.Red(err.Error())
 		os.Exit(1)
-	}
-}
-
-// LoadAssets loads asset urls
-func (srv *Server) LoadAssets() {
-	const weekLength int = 2 * 7 * 24 * int(time.Hour)
-
-	HTMLOptions := ConstantFileOptions{
-		Path:   os.Getenv("HTML_PATH"),
-		Mime:   "text/html",
-		MaxAge: weekLength,
-	}
-
-	HTMLMethod := srv.ConstantFile(HTMLOptions)
-	for _, path := range srv.getHTMLRoutes() {
-		if srv.Debug {
-			fmt.Printf("> %s\n", path)
-		}
-		srv.HandleFunc(path, HTMLMethod).Methods("GET")
-	}
-
-	ManifestOptions := ConstantFileOptions{
-		Path:   "manifest.json",
-		Mime:   "application/json",
-		MaxAge: weekLength,
-	}
-	srv.HandleFunc("/manifest.json", srv.ConstantFile(ManifestOptions)).
-		Methods("GET")
-	srv.HandleFunc("/assets/{filename}", srv.AssetFiles).
-		Methods("GET")
-}
-
-// AssetFiles is an api call. Doesn't work as expected when called outside an API context
-//
-// Sends files from `dist/assets` and caches it
-func (srv *Server) AssetFiles(w http.ResponseWriter, r *http.Request) {
-	const CacheControl string = "must-revalidate, private, max-age=604800" // Caches for one week
-
-	fileName := mux.Vars(r)["filename"]
-	cache := openedCache[fileName]
-
-	if cache != nil { // Cache exists
-		w.Header().Set("Cache-Control", CacheControl)
-		w.Header().Set("Content-Type", cache.Mime)
-		w.Header().Set("Content-Encoding", "gzip")
-		w.Write(cache.File)
-		return
-	}
-
-	path := os.Getenv("ASSETS_PATH") + fileName
-	if !utility.DoesFileExist(path) {
-		utility.Error(w, utility.HTTPError{
-			Public:  "File doesn't exist",
-			Message: "file path doesn't exist",
-			Code:    400,
-		})
-		return
-	}
-
-	newCache := createAssetCache(fileName)
-	if newCache.Err != nil {
-		utility.Error(w, utility.HTTPError{
-			Public:  "Couldn't get file",
-			Message: newCache.Err.Error(),
-			Code:    newCache.Code,
-		})
-		return
-	}
-
-	w.Header().Set("Content-Encoding", "gzip")
-	w.Header().Set("Cache-Control", CacheControl)
-	w.Header().Set("Content-Type", newCache.File.Mime)
-	w.Write(newCache.File.File)
-}
-
-type assetCache struct {
-	File *utility.FileMime
-	Code int
-	Err  error
-}
-
-// createAssetCache should only be used by [coffeecoserver/api.AssetFile],
-// when a asset file (in cache) doesn't exists, then create one and return it
-func createAssetCache(fileName string) assetCache {
-	path := os.Getenv("ASSETS_PATH") + fileName // Example: dist/assets/hello.world
-	if !utility.IsFileValid(fileName) {
-		return assetCache{
-			File: nil,
-			Code: http.StatusBadRequest,
-			Err:  errors.New("Invalid File Name"),
-		}
-	}
-
-	read, readErr := os.ReadFile(path)
-
-	mtype := utility.MimeExpection(mimetype.Detect(read), path)
-	if readErr != nil {
-		return assetCache{
-			File: nil,
-			Code: 500,
-			Err:  readErr,
-		}
-	}
-
-	compress, err := utility.GZipBytes(read)
-	if err != nil {
-		return assetCache{
-			File: nil,
-			Code: 500,
-			Err:  err,
-		}
-	}
-
-	FileData := &utility.FileMime{
-		Mime: mtype,
-		File: compress,
-	}
-
-	openedCache[fileName] = FileData
-
-	return assetCache{
-		File: FileData,
-		Code: 200,
-		Err:  nil,
-	}
-}
-
-// ConstantFileOptions is for the method [github.com/Blockitifluy/CoffeeCo/api.ConstantFile]
-type ConstantFileOptions struct {
-	Path   string
-	Mime   string
-	MaxAge int
-}
-
-// ConstantFile is an api call. Doesn't work as expected when called outside an API context
-//
-// First, reads and caches file then sends to client
-func (srv *Server) ConstantFile(Options ConstantFileOptions) http.HandlerFunc {
-	const CacheControl string = "must-revalidate, private, max-age=604800" // Caches for one week
-	read, readErr := os.ReadFile(Options.Path)
-	if readErr != nil {
-		color.Red("Error: `%s` can't be found; Server will not start (%s)", Options.Path, readErr.Error())
-		os.Exit(1)
-	}
-
-	compress, err := utility.GZipBytes(read)
-	if err != nil {
-		color.Red("Error: '%s' couldn't be compressed; Server will not start")
-		os.Exit(1)
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", Options.Mime)
-		w.Header().Set("Content-Encoding", "gzip")
-		w.Header().Set("Cache-Control", CacheControl)
-		w.Write(compress)
 	}
 }

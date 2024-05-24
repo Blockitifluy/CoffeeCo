@@ -181,6 +181,7 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.MinuteCache))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(JSON)
 }
@@ -226,6 +227,7 @@ func (srv *Server) APIGetPostFromID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.HourCache))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(JSON)
 }
@@ -414,6 +416,7 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.HourCache))
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")
 	w.Write(compress)

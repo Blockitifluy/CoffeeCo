@@ -177,7 +177,9 @@ export async function GetUserFromID(ID: number): Promise<User> {
 		`http://localhost:8000/api/user/get-user-from-id/${ID}`,
 		{
 			method: "GET",
-			mode: "no-cors"
+			headers: {
+				"Content-Type": "application/json"
+			}
 		}
 	);
 
