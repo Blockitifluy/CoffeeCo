@@ -152,7 +152,6 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.HourCache))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
 }
@@ -226,7 +225,6 @@ func (srv *Server) APIAuthToID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.HourCache))
 	w.Header().Set("Content-Type", "text/text")
 	w.Write([]byte(fmt.Sprintf("%d", ID)))
 }
