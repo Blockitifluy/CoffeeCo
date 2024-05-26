@@ -2,6 +2,32 @@
 
 The changelog is based on the github's release or important commits.
 
+## v0.1.3 (26/05/2024)
+
+- `/api/images/upload` and `/api/user/auth-to-id/` returns `txt` now.
+- Added Meta Elements and Title Elements from All Pages
+- More gzip and cache for Routes
+- Password Uncontrolled Issue
+- json for Sending Errors
+- Updated License to MIT
+- Pull Request Templates
+- Changed go.mod module
+- Image Compression
+- Updated README.md
+- Basic User Page
+- Readme shields
+- ETags
+
+### Documentation
+
+- Database Tables (Images, Posts, Users)
+- .exe Flags
+- Sending Server
+
+### Notes
+
+- Auth Token isn't secured
+
 ## v0.1.2 (18/05/2024)
 
 - Image's to posts
