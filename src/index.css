@@ -4,16 +4,25 @@
 @tailwind components;
 @tailwind utilities;
 
-.button {
-	padding: 0.25rem 0.5rem;
-	border-radius: 0.25rem;
-	font-weight: 600;
-
-	display: flex;
-	gap: 0.5rem;
-	align-items: center;
+.full-center {
+	@apply flex flex-row justify-center items-center;
 }
 
+.head-btn {
+	@apply p-2 rounded text-lg outline outline-1 outline-outline h-8 gap-2 full-center;
+}
+
+.btn {
+	@apply px-2 py-1 font-medium rounded text-white;
+}
+
+.island-link {
+	@apply flex flex-row items-center text-lg gap-1 font-medium pl-4 py-1 transition-colors;
+}
+
+.post {
+	@apply gap-2 grid grid-cols-post grid-rows-post px-4 py-6 border-b last:border-none border-outline w-post h-fit;
+}
 textarea {
 	background-color: rgb(177 187 200 / 0.25);
 	border-radius: 0.25rem;

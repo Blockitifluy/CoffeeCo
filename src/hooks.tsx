@@ -1,8 +1,8 @@
-import { Accessor, createSignal, JSX } from "solid-js";
+import { Accessor, createSignal, JSX } from 'solid-js';
 
 export type InputHook<T> = [
-	JSX.EventHandlerUnion<T, KeyboardEvent>,
-	Accessor<string>
+  JSX.EventHandlerUnion<T, KeyboardEvent>,
+  Accessor<string>,
 ];
 
 /**
@@ -11,12 +11,12 @@ export type InputHook<T> = [
  * @returns Event connecter and gets the input string
  */
 export function useInput<T>(def?: string): InputHook<T> {
-	const [getter, setter] = createSignal<string>(def || "");
+  const [getter, setter] = createSignal<string>(def || '');
 
-	const Connecter: JSX.EventHandlerUnion<T, KeyboardEvent> = e => {
-		const value: string = (e.target as any).value;
-		setter(value);
-	};
+  const Connecter: JSX.EventHandlerUnion<T, KeyboardEvent> = (event) => {
+    const value: string = (event.target as any).value;
+    setter(value);
+  };
 
-	return [Connecter, getter];
+  return [Connecter, getter];
 }

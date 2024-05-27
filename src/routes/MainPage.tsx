@@ -1,31 +1,31 @@
-import { Meta, Title } from "@solidjs/meta";
-import Header from "../components/header";
-import Sides from "../components/sides";
-import { Component } from "solid-js";
-import PostList from "../components/postlist";
+import { Meta, Title } from '@solidjs/meta';
+import Header from '../components/Header';
+import Sides from '../components/sides';
+import { Component } from 'solid-js';
+import PostList from '../components/postlist';
 
 /**
  * The main front page of website
  */
 const MainPage: Component = () => {
-	return (
-		<>
-			<Meta
-				name='description'
-				content='CoffeeCo is a place for Social Discussions, Art and Politics'
-			/>
+  return (
+    <>
+      <Meta
+        name='description'
+        content='CoffeeCo is a place for Social Discussions, Art and Politics'
+      />
 
-			<Title>CoffeeCo</Title>
+      <Title>CoffeeCo</Title>
 
-			<Header />
+      <Header />
 
-			<Sides>
-				<main>
-					<PostList amount={10} />
-				</main>
-			</Sides>
-		</>
-	);
+      <Sides>
+        <main>
+          <PostList amount={10} />
+        </main>
+      </Sides>
+    </>
+  );
 };
 
 export default MainPage;
