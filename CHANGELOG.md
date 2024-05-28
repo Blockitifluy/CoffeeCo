@@ -2,6 +2,10 @@
 
 The changelog is based on the github's release or important commits.
 
+## v0.1.4 (28/05/2024)
+
+- Frontend Redesign and Cleanup
+
 ## v0.1.3 (26/05/2024)
 
 - `/api/images/upload` and `/api/user/auth-to-id/` returns `txt` now.
