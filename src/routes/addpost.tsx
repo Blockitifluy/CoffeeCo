@@ -1,5 +1,5 @@
 import { NoEnter, Status, Statuses } from '../common';
-import { Accessor, Component, createEffect, For, Setter, Show } from 'solid-js';
+import { Accessor, Component, createEffect, For, Show } from 'solid-js';
 
 import { AddPost as addPost, AddPostRequest } from '../requests/post';
 import { PostSkeleton } from '../components/Post';
@@ -60,18 +60,16 @@ const AddImageButton: Component<AddImageProps> = (props) => {
  * Inputs need to {@link OnSubmit submit} a post.
  */
 interface SubmitInputs {
-  /**
-   * The content of the post
-   */
+  /*The content of the post*/
   input: Accessor<string>;
   /**
-   * The images contained the post
+   * Gets the status and images
    */
-  images: Accessor<ImageObj[]>;
+  state: PromptState;
   /**
-   * Set the status of page
+   * Sets the status and images
    */
-  setStatus: Setter<Status>;
+  setState: SetStoreFunction<PromptState>;
 }
 
 /**
@@ -87,14 +85,14 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
 
     const Req: AddPostRequest = {
       content: inputs.input(),
-      images: reformatImages(inputs.images()),
+      images: reformatImages(inputs.state.Images),
       postedBy: usr,
       parentID: -1, // Sole Post
     };
 
     const Res = await addPost(Req);
 
-    inputs.setStatus({
+    inputs.setState('status', {
       show: true,
       ok: Res.ok,
       msg: Res.ok ? 'Success' : 'Something Went Wrong',
@@ -104,7 +102,7 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
   } catch (err) {
     console.error(err);
 
-    inputs.setStatus({
+    inputs.setState('status', {
       show: true,
       ok: false,
       msg: (err as Error).message,
@@ -245,7 +243,7 @@ const Prompt: Component = () => {
 
   let color = '';
   createEffect(() => {
-    color = state.status.ok ? 'text-persian-500' : 'text-sandy-500';
+    color = state.status.ok ? 'text-accent' : 'text-warning';
   });
 
   return (
@@ -294,7 +292,10 @@ const Prompt: Component = () => {
         <button
           class='btn button flex w-fit items-center gap-2 bg-accent'
           type='submit'
-          onClick={[OnSubmit as any, { input: getInput, state: state }]}
+          onClick={[
+            OnSubmit,
+            { input: getInput, state: state, setState: setState },
+          ]}
         >
           <OcPaperairplane2 />
           Submit
