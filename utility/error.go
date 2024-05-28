@@ -7,8 +7,11 @@ import (
 )
 
 const (
-	PublicBadRequest    = "Something Went Wrong With your Request"
-	PublicServerError   = "Something Went Wrong"
+	// PublicBadRequest is public message for 400
+	PublicBadRequest = "Something Went Wrong With your Request"
+	// PublicServerError is public message for 500
+	PublicServerError = "Something Went Wrong"
+	// PublicNotFoundError is public message for 404
 	PublicNotFoundError = "Nothing was Found"
 )
 

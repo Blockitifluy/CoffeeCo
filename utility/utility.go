@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	HourCache   int = int(time.Hour)
+	// HourCache caches for an hour
+	HourCache int = int(time.Hour)
+	// MinuteCache caches for a minute
 	MinuteCache int = int(time.Minute)
 )
 

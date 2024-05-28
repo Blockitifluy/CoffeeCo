@@ -1,16 +1,16 @@
-import { ValidImages } from "./images";
-import { FetchError } from "../common";
+import { ValidImages } from './images';
+import { FetchError } from '../common';
 
 /**
  * Database posts from The Database
  */
 export interface Post {
-	ID: number;
-	postedBy: number;
-	content: string;
-	timeCreated: string;
-	parentID: number;
-	images: string;
+  ID: number;
+  postedBy: number;
+  content: string;
+  timeCreated: string;
+  parentID: number;
+  images: string;
 }
 
 /**
@@ -18,17 +18,17 @@ export interface Post {
  * @param ID The identifaction of post
  */
 export async function PostGetFromID(ID: number): Promise<Response> {
-	const Res = await fetch(`/api/post/get-post-from-id/${ID}`);
+  const Res = await fetch(`/api/post/get-post-from-id/${ID}`);
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -37,21 +37,21 @@ export async function PostGetFromID(ID: number): Promise<Response> {
  * @returns Response
  */
 export async function PostFeedList(amount: number): Promise<Response> {
-	const Res = await fetch(`/api/post/feedlist/${amount}`, {
-		cache: "no-cache",
-		mode: "no-cors",
-		method: "GET"
-	});
+  const Res = await fetch(`/api/post/feedlist/${amount}`, {
+    cache: 'no-cache',
+    mode: 'no-cors',
+    method: 'GET',
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -59,21 +59,21 @@ export async function PostFeedList(amount: number): Promise<Response> {
  * @returns Response
  */
 export async function PostFeed(): Promise<Response> {
-	const Res = await fetch("/api/post/feed", {
-		cache: "no-cache",
-		mode: "no-cors",
-		method: "GET"
-	});
+  const Res = await fetch('/api/post/feed', {
+    cache: 'no-cache',
+    mode: 'no-cors',
+    method: 'GET',
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -83,14 +83,14 @@ export async function PostFeed(): Promise<Response> {
  * - `content` - The text of the post
  */
 export interface AddPostRequest {
-	/** The ID of the user */
-	postedBy: number;
-	/** If a comment the parent ID is the post's id, if not is equal to -1 */
-	parentID: number;
-	/** The text of the post */
-	content: string;
-	/** The images of the post; formed by (seperated by commas): url (alt) */
-	images: string;
+  /** The ID of the user */
+  postedBy: number;
+  /** If a comment the parent ID is the post's id, if not is equal to -1 */
+  parentID: number;
+  /** The text of the post */
+  content: string;
+  /** The images of the post; formed by (seperated by commas): url (alt) */
+  images: string;
 }
 
 /**
@@ -99,33 +99,33 @@ export interface AddPostRequest {
  * @returns Response
  */
 export async function AddPost(Req: AddPostRequest): Promise<Response> {
-	const imageCheck = ValidImages.test(Req.images);
+  const imageCheck = ValidImages.test(Req.images);
 
-	console.log(Req.images);
+  console.log(Req.images);
 
-	if (!imageCheck && Req.images !== "") {
-		throw new Error("Invalid image");
-	}
+  if (!imageCheck && Req.images !== '') {
+    throw new Error('Invalid image');
+  }
 
-	const Res = await fetch("/api/post/add", {
-		cache: "no-cache",
-		mode: "no-cors",
-		method: "POST",
-		headers: {
-			"Content-Type": "appliction/json"
-		},
-		body: JSON.stringify(Req)
-	});
+  const Res = await fetch('/api/post/add', {
+    cache: 'no-cache',
+    mode: 'no-cors',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'appliction/json',
+    },
+    body: JSON.stringify(Req),
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -135,25 +135,25 @@ export async function AddPost(Req: AddPostRequest): Promise<Response> {
  * @returns The API response
  */
 export async function GetPostsFromUser(
-	amount: number,
-	ID: number
+  amount: number,
+  ID: number,
 ): Promise<Response> {
-	const Res = await fetch(
-		`http://localhost:8000/api/post/get-posts-from-user?amount=${amount}&ID=${ID}`,
-		{
-			method: "GET",
-			mode: "no-cors",
-			cache: "no-cache"
-		}
-	);
+  const Res = await fetch(
+    `http://localhost:8000/api/post/get-posts-from-user?amount=${amount}&ID=${ID}`,
+    {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'no-cache',
+    },
+  );
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }

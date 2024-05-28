@@ -1,15 +1,15 @@
-import { FetchError } from "../common";
+import { FetchError } from '../common';
 
 /**
  * Regex for Validating multiple images
  * @example "src1 (alt1),src2 (alt2)"
  */
 export const ValidImages: RegExp = /(?:.+ \(.+?\),)*.+ \(.+?\)/,
-	/**
-	 * Regex for Validating a single image
-	 * @example "src (alt)"
-	 */
-	ValidImage: RegExp = /(.+) \((.+?)\)/;
+  /**
+   * Regex for Validating a single image
+   * @example "src (alt)"
+   */
+  ValidImage: RegExp = /(.+) \((.+?)\)/;
 
 /**
  * Image object with:
@@ -17,14 +17,14 @@ export const ValidImages: RegExp = /(?:.+ \(.+?\),)*.+ \(.+?\)/,
  * - alt
  */
 export interface ImageObj {
-	/**
-	 * The source url of the image
-	 */
-	src: string;
-	/**
-	 * The alternate text of the image
-	 */
-	alt: string;
+  /**
+   * The source url of the image
+   */
+  src: string;
+  /**
+   * The alternate text of the image
+   */
+  alt: string;
 }
 
 /**
@@ -38,20 +38,21 @@ const ImageParse: string = '{"src": "$1", "alt": "$2"}';
  * @param images A images string (see {@link ValidImages})
  * @returns A list of {@link ImageObj ImageObject}
  */
-export function DeformatImages(images: string): ImageObj[] {
-	const total: ImageObj[] = [],
-		split: string[] = images.split(",");
+export function deformatImages(images: string): ImageObj[] {
+  const total: ImageObj[] = [],
+    split: string[] = images.split(',');
 
-	for (let i = 0; i < split.length; i++) {
-		const item: string = split[i];
+  let index = 0;
+  while (index < split.length) {
+    const item: string = split[index];
 
-		const replaced: string = item.replace(ValidImage, ImageParse),
-			parsed: ImageObj = JSON.parse(replaced);
+    const replaced: string = item.replace(ValidImage, ImageParse);
 
-		total.push(parsed);
-	}
+    total.push(JSON.parse(replaced));
+    index++;
+  }
 
-	return total;
+  return total;
 }
 
 /**
@@ -59,16 +60,18 @@ export function DeformatImages(images: string): ImageObj[] {
  * @param images  A list of {@link ImageObj ImageObject}
  * @returns A images string (see {@link ValidImages})
  */
-export function ReformatImages(images: ImageObj[]): string {
-	const total: string[] = [];
+export function reformatImages(images: ImageObj[]): string {
+  const total: string[] = [];
 
-	for (let i = 0; i < images.length; i++) {
-		const item = images[i];
+  let index = 0;
+  while (index < images.length) {
+    const item = images[index];
 
-		total[i] = `${item.src} (${item.alt})`;
-	}
+    total.push(`${item.src} (${item.alt})`);
+    index++;
+  }
 
-	return total.join(",");
+  return total.join(',');
 }
 
 /**
@@ -76,24 +79,24 @@ export function ReformatImages(images: ImageObj[]): string {
  * @param img The image represented as a Blob
  * @returns The filename of the uploaded image
  */
-export async function UploadImage(img: Blob): Promise<string> {
-	const Res = await fetch("http://localhost:8000/api/images/upload", {
-		body: img,
-		headers: {
-			"Content-Type": img.type
-		},
-		method: "POST"
-	});
+export async function uploadImage(img: Blob): Promise<string> {
+  const Res = await fetch('http://localhost:8000/api/images/upload', {
+    body: img,
+    headers: {
+      'Content-Type': img.type,
+    },
+    method: 'POST',
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res.text();
+  return Res.text();
 }
 
 /**
@@ -101,18 +104,18 @@ export async function UploadImage(img: Blob): Promise<string> {
  * @param name The filename of the image
  * @returns The blob of the image
  */
-export async function DownloadImage(name: string): Promise<Blob> {
-	const Res = await fetch(`http://localhost:8000/api/images/download/${name}`, {
-		method: "GET"
-	});
+export async function downloadImage(name: string): Promise<Blob> {
+  const Res = await fetch(`http://localhost:8000/api/images/download/${name}`, {
+    method: 'GET',
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res.blob();
+  return Res.blob();
 }

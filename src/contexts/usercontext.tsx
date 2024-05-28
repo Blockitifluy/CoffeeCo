@@ -1,6 +1,7 @@
-import * as Solid from "solid-js";
-import * as UserReq from "../requests/user";
-import Cookies from "js-cookie";
+import * as Solid from 'solid-js';
+import * as UserReq from '../requests/user';
+import Cookies from 'js-cookie';
+import { ChildrenProps } from '../common';
 
 /**
  * The User stored in a Context (Variable stored in an element)
@@ -12,25 +13,25 @@ const User = Solid.createContext<UserReq.User | undefined>(UserReq.DefaultUser);
  * @returns The User
  */
 async function GetUser(): Promise<UserReq.User> {
-	try {
-		const User = await UserReq.GetUserFromAuth();
+  try {
+    const User = await UserReq.getUserFromAuth();
 
-		if (!User) {
-			// refresh page
-			Cookies.remove("AuthToken");
+    if (!User) {
+      // refresh page
+      Cookies.remove('AuthToken');
 
-			console.error("Invalid Auth Token; Refreshing.");
+      console.error('Invalid Auth Token; Refreshing.');
 
-			location.reload();
-			return undefined as never;
-		}
+      location.reload();
+      return undefined as never;
+    }
 
-		return User;
-	} catch (error) {
-		console.error(error);
-	}
+    return User;
+  } catch {
+    /* empty */
+  }
 
-	return UserReq.DefaultUser;
+  return UserReq.DefaultUser;
 }
 
 /**
@@ -38,26 +39,23 @@ async function GetUser(): Promise<UserReq.User> {
  */
 const UserResource = Solid.createResource(GetUser);
 
-export interface UserProviderProps {
-	children: Solid.JSX.Element;
-}
-
 /**
  * Context provider for the current user
+ * @param props Only contains Children as a Propertry
  */
-export const UserProvider: Solid.Component<UserProviderProps> = props => {
-	const [user] = UserResource;
+export const UserProvider: Solid.Component<ChildrenProps> = (props) => {
+  const [user] = UserResource;
 
-	const Auth = UserReq.GetAuthToken(),
-		isInDevelopment = import.meta.env.DEV;
+  const Auth = UserReq.getAuth(),
+    isInDevelopment = import.meta.env.DEV;
 
-	return !Auth || isInDevelopment ? (
-		<User.Provider value={undefined}>{props.children}</User.Provider>
-	) : (
-		<Solid.Show when={user.state === "ready"}>
-			<User.Provider value={user()}>{props.children}</User.Provider>
-		</Solid.Show>
-	);
+  return !Auth || isInDevelopment ? (
+    <User.Provider value={undefined}>{props.children}</User.Provider>
+  ) : (
+    <Solid.Show when={user.state === 'ready'}>
+      <User.Provider value={user()}>{props.children}</User.Provider>
+    </Solid.Show>
+  );
 };
 
 /**
@@ -65,5 +63,5 @@ export const UserProvider: Solid.Component<UserProviderProps> = props => {
  * @returns The user context
  */
 export function useUser() {
-	return Solid.useContext(User);
+  return Solid.useContext(User);
 }
