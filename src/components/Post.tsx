@@ -49,8 +49,8 @@ export const PostSkeleton: Component<PostSkeletonProps> = (props) => {
       )}
 
       <div class='flex flex-col justify-center'>
-        <h1 class='font-medium text-ms text-title leading-4'>{props.title}</h1>
-        <p class='text-subtitle text-xs'>{props.subtitle}</p>
+        <h1 class='text-ms font-medium leading-4 text-title'>{props.title}</h1>
+        <p class='text-xs text-subtitle'>{props.subtitle}</p>
       </div>
 
       {props.children}
@@ -89,7 +89,7 @@ const PostButton: Component<PostButtonProps> = (props) => {
   ) : (
     <A
       href={props.url || '/not-found'}
-      class='flex flex-row items-center gap-1 text-charcoal-700 text-sm'
+      class='flex flex-row items-center gap-1 text-sm text-text'
     >
       {props.children}
       <span>{props.text}</span>
@@ -104,7 +104,7 @@ export const DummyPost: Component = () => {
   return (
     <PostSkeleton title='Waiting for Response' subtitle='loading'>
       <div class='col-start-2 w-full'>
-        <p class='text-charcoal-950'>loading</p>
+        <p class='text-text'>loading</p>
       </div>
     </PostSkeleton>
   );
@@ -179,14 +179,14 @@ const PostUI: Component<PostProps> = (props) => {
         subtitle={date}
         url={`http://localhost:8000/user/${props.post.postedBy}`}
       >
-        <div class='flex flex-col gap-2 col-start-2'>
-          <p class='text-charcoal-950'>{pst.content}</p>
+        <div class='col-start-2 flex flex-col gap-2'>
+          <p class='text-text'>{pst.content}</p>
 
           <Show when={ValidImages.test(pst.images)}>
             <PostImages images={pst.images} />
           </Show>
 
-          <div class='flex flex-rows gap-3 text-lg'>
+          <div class='flex-rows flex gap-3 text-lg'>
             <PostButton text='197' url={`/post/${pst.ID}`} isButton={false}>
               <OcComment2 />
             </PostButton>

@@ -13,9 +13,9 @@ interface LeftLinkProps extends ChildrenProps {
 const LeftLink: Component<LeftLinkProps> = (props) => {
   const background = createMemo(() => (props.selected ? 'bg-header' : ''));
   return (
-    <li class='border-outline py-1 border-b last:border-none w-full'>
+    <li class='w-full border-b border-outline py-1 last:border-none'>
       <A
-        class={`flex flex-row items-center text-lg gap-1 font-medium text-charcoal-600 hover:bg-slate-950/25 active:bg-slate-950/35 pl-4 py-1 ${background} transition-colors`}
+        class={`text-charcoal-600 hover:bg-slate-950/25 active:bg-slate-950/35 flex flex-row items-center gap-1 py-1 pl-4 text-lg font-medium ${background} transition-colors`}
         href={props.url}
       >
         {props.children}

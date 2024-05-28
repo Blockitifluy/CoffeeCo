@@ -39,7 +39,7 @@ const AddImageButton: Component<AddImageProps> = (props) => {
     <>
       <label
         for='image-picker'
-        class='bg-slate-400/25 px-2 py-1 rounded w-fit font-semibold text-slate-500 cursor-pointer button'
+        class='btn flex w-fit cursor-pointer flex-row items-center gap-2 bg-button text-text'
       >
         <OcImage2 />
         Add Images
@@ -47,7 +47,7 @@ const AddImageButton: Component<AddImageProps> = (props) => {
       <input
         type='file'
         id='image-picker'
-        class='z-[-1] absolute opacity-0'
+        class='absolute z-[-1] opacity-0'
         onInput={[props.OnFileAdd, props.Params as any]}
         accept='image/png, image/jpeg, image/gif'
         multiple
@@ -207,7 +207,7 @@ module ImagePreview {
     return (
       <li class='grid grid-rows-[0px_1fr]'>
         <button
-          class='relative right-2 bottom-1 bg-sandy-500 rounded text-white leading-none size-6'
+          class='bg-sandy-500 relative size-6 rounded leading-none text-warning'
           onClick={[ImagePreview.Close, props]}
         >
           <OcX2 class='m-auto text-lg' />
@@ -250,15 +250,15 @@ const Prompt: Component = () => {
 
   return (
     <PostSkeleton title='Create New Post' subtitle={`As @${User!.handle}`}>
-      <div class='flex flex-col gap-1 col-start-2'>
+      <div class='col-start-2 flex flex-col gap-1'>
         <Show when={state.status.show}>
-          <span class={`${color} font-semibold my-0`}>{state.status.msg}</span>
+          <span class={`${color} my-0 font-semibold`}>{state.status.msg}</span>
         </Show>
 
         <div class='grid grid-cols-[1fr_0px]'>
           <textarea
             id='post-content'
-            class='drop-shadow-lg'
+            class='bg-header text-text outline outline-1 outline-outline placeholder:text-subtitle'
             placeholder='Express Yourself'
             cols={50}
             rows={4}
@@ -266,14 +266,16 @@ const Prompt: Component = () => {
             onKeyUp={Connecter}
             onkeyup={NoEnter}
           />
-          <p class='relative top-full right-16 text-slate-400/50 -translate-y-6'>
+          <p class='relative right-16 top-full -translate-y-8 text-title/50'>
             {getInput().length}/100
           </p>
         </div>
 
-        <section class='flex flex-col gap-2 my-2'>
+        <section class='my-2 flex flex-col gap-2'>
+          <AddImageButton OnFileAdd={OnFileAdd} Params={{ state, setState }} />
+
           <Show when={state.Images.length > 0}>
-            <ul class='flex flex-row justify-left gap-3'>
+            <ul class='justify-left flex flex-row gap-3'>
               <For each={state.Images}>
                 {(img, index) => {
                   return (
@@ -287,20 +289,16 @@ const Prompt: Component = () => {
               </For>
             </ul>
           </Show>
-
-          <AddImageButton OnFileAdd={OnFileAdd} Params={{ state, setState }} />
         </section>
 
-        <div class='flex flex-row items-center gap-4'>
-          <button
-            class='bg-persian-500 text-white button'
-            type='submit'
-            onClick={[OnSubmit as any, { input: getInput, state: state }]}
-          >
-            <OcPaperairplane2 />
-            Submit
-          </button>
-        </div>
+        <button
+          class='btn button flex w-fit items-center gap-2 bg-accent'
+          type='submit'
+          onClick={[OnSubmit as any, { input: getInput, state: state }]}
+        >
+          <OcPaperairplane2 />
+          Submit
+        </button>
       </div>
     </PostSkeleton>
   );

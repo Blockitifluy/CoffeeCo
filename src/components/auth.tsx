@@ -12,7 +12,7 @@ import { Status, Statuses, BasicStatus } from '../common';
 import { A } from '@solidjs/router';
 import { Meta, Title } from '@solidjs/meta';
 
-export namespace Input {
+export namespace FormInput {
   export type InputMap = Map<string, string>;
   export type AuthSubmit = (Inputs: InputMap) => Promise<BasicStatus>;
 
@@ -20,7 +20,7 @@ export namespace Input {
    * Used by {@link AuthOnClick}
    */
   export interface AuthOnClickInputs {
-    page: Input.AuthProps;
+    page: FormInput.AuthProps;
     /**
      * Sets the status
      */
@@ -41,7 +41,7 @@ export namespace Input {
   }
 
   /**
-   * The Propetries of {@link AuthComponent}
+   * The Propetries of {@link Auth}
    */
   export interface AuthProps {
     /**
@@ -53,21 +53,21 @@ export namespace Input {
      */
     subtitle: string;
     /**
-     * The button's {@link Input.AuthProps.confirmText} text
+     * The button's {@link FormInput.AuthProps.confirmText} text
      */
     confirmText: string;
     /**
      * The Input templetes
      */
-    Inputs: Input.AuthInput[];
+    Inputs: FormInput.AuthInput[];
     /**
      * Happens on button click (On Submit)
      */
-    submit: Input.AuthSubmit;
+    submit: FormInput.AuthSubmit;
   }
 
   /**
-   * An template of a {@link InputComponent}
+   * An template of a {@link FormInput.AuthInput}
    */
   export class AuthInput {
     /**
@@ -88,8 +88,8 @@ export namespace Input {
     public limit?: number;
 
     /**
-     * Constructs a {@link Input.AuthInput AuthInput}
-     * @param text The {@link Input.AuthInput.key key} value
+     * Constructs a {@link FormInput.AuthInput AuthInput}
+     * @param text The {@link FormInput.AuthInput.key key} value
      * @param placeholder Automatic input fill in
      * @param isPassword If false, the input is hidden (shown in •••)
      * @param limit Maximum character limit for the input
@@ -111,11 +111,11 @@ export namespace Input {
 /**
  * A map of input's name and value/data
  */
-const InputMap: Input.InputMap = new Map<string, string>();
+const InputMap: FormInput.InputMap = new Map<string, string>();
 
 /**
  * Happens the input has a keyup event, then updates the signal and adds from {@link InputMap}
- * @param key The name of {@link InputComponent Input}
+ * @param key The name of {@link InputUI Input}
  * @param Signal Contains getter (0) and setter (1)
  * @returns An event connecter
  */
@@ -132,10 +132,10 @@ function onInput(
 }
 
 /**
- * The InputComponent included in {@link AuthComponent}
+ * The InputComponent included in {@link Auth}
  * @param props The InputComponent's propetries
  */
-const InputComponent: Component<Input.AuthInput> = (props) => {
+const InputUI: Component<FormInput.AuthInput> = (props) => {
   const [input, setInput] = createSignal<string>('');
 
   return (
@@ -143,10 +143,10 @@ const InputComponent: Component<Input.AuthInput> = (props) => {
       <input
         id={props.key}
         onKeyUp={onInput(props.key, [input, setInput])}
-        class='border-2 border-outline p-2 rounded text-text placeholder:text-outline focus:outline-accent'
+        class='rounded border-2 border-outline bg-background p-2 text-text placeholder:text-subtitle focus:outline-accent'
         placeholder={props.key}
         autocomplete={props.placeholder}
-        maxLength={props.limit}
+        maxlength={props.limit}
         type={props.isPassword ? 'password' : 'text'}
       />
 
@@ -159,11 +159,11 @@ const InputComponent: Component<Input.AuthInput> = (props) => {
 
 /**
  * When the submit button is clicked
- * @param inputs Includes the {@link Input.AuthOnClickInputs.page page} and sets the status
+ * @param inputs Includes the {@link InputUI.AuthOnClickInputs.page page} and sets the status
  * @param event The event occured on Mouse Click
  */
 const AuthOnClick = async (
-  inputs: Input.AuthOnClickInputs,
+  inputs: FormInput.AuthOnClickInputs,
   event: MouseEvent,
 ) => {
   event.preventDefault();
@@ -184,7 +184,7 @@ const AuthOnClick = async (
  * The Auth Page (could be Login / Signin)
  * @param props The page's propetries
  */
-const AuthComponent: Component<{ page: Input.AuthProps }> = (props) => {
+const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
   const [status, setStatus] = createSignal<Status>(Statuses.DefaultStatus);
 
   return (
@@ -192,9 +192,9 @@ const AuthComponent: Component<{ page: Input.AuthProps }> = (props) => {
       <Meta name='description' content={props.page.subtitle} />
       <Title>CoffeeCo - {props.page.title}</Title>
 
-      <div class='justify-center items-center grid bg-background w-screen h-screen'>
-        <form class='flex flex-col gap-4 bg-header drop-shadow-lg px-8 py-10 rounded w-80'>
-          <h1 class='mt-2 font-semibold text-3xl text-title leading-4'>
+      <div class='grid h-screen w-screen items-center justify-center bg-background'>
+        <form class='flex w-80 flex-col gap-4 rounded bg-header px-8 py-10 drop-shadow-lg'>
+          <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
             {props.page.title}
           </h1>
           <sub class='mb-2 text-sm text-subtitle'>{props.page.subtitle}</sub>
@@ -207,10 +207,10 @@ const AuthComponent: Component<{ page: Input.AuthProps }> = (props) => {
             </span>
           </Show>
 
-          <section class='flex flex-col gap-2 mx-auto mb-2 w-64'>
+          <section class='mx-auto mb-2 flex w-64 flex-col gap-2'>
             <For each={props.page.Inputs}>
               {(input) => (
-                <InputComponent
+                <InputUI
                   isPassword={input.isPassword}
                   key={input.key}
                   placeholder={input.placeholder}
@@ -222,12 +222,12 @@ const AuthComponent: Component<{ page: Input.AuthProps }> = (props) => {
           <section>
             <button
               onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
-              class='bg-accent hover:bg-accent/25 mx-auto py-2 rounded w-full font-medium text-2xl text-white transition-colors'
+              class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
             >
               {props.page.confirmText}
             </button>
 
-            <A class='flex justify-end items-center mt-4 text-accent' href='/'>
+            <A class='mt-4 flex items-center justify-end text-accent' href='/'>
               <OcArrowleft2 />
               Back
             </A>
@@ -238,4 +238,4 @@ const AuthComponent: Component<{ page: Input.AuthProps }> = (props) => {
   );
 };
 
-export default AuthComponent;
+export default Auth;

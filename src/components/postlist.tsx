@@ -58,9 +58,11 @@ async function getPostUser(amount: number, ID: number): Promise<PostListReq> {
  */
 const ListFallback: Component = () => {
   return (
-    <div class='flex flex-col justify-center items-center gap-2'>
-      <h1 class='mb-4 font-bold text-9xl text-accent select-none'>404</h1>
-      <h1 class='font-semibold text-3xl text-center select-none'>Not Found</h1>
+    <div class='flex flex-col items-center justify-center gap-2'>
+      <h1 class='mb-4 select-none text-9xl font-bold text-accent'>404</h1>
+      <h1 class='select-none text-center text-3xl font-semibold text-white'>
+        Not Found
+      </h1>
     </div>
   );
 };

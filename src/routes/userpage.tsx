@@ -40,9 +40,9 @@ interface UserStatsProps {
  */
 const UserStats: Component<UserStatsProps> = (props) => {
   return (
-    <li class='text-charcoal-950'>
-      <span class='font-bold text-text'>{props.value}</span>
-      <span class='ml-2 text-subtitle'>{props.key}</span>
+    <li>
+      <span class='font-bold text-title'>{props.value}</span>
+      <span class='ml-2 text-text'>{props.key}</span>
     </li>
   );
 };
@@ -59,23 +59,25 @@ const UserInfo: Component = () => {
     SelfUser = useUser();
 
   return (
-    <div class='flex flex-col gap-2 w-full'>
-      <Show when={Object.is(User, SelfUser)}>
-        <button class='flex items-center gap-1 text-persian-700 size-fit'>
-          <OcGear2 class='inline mr-2' />
-          <span class='font-semibold text-persian-700'>Settings</span>
-        </button>
-      </Show>
+    <div class='flex w-full flex-col gap-2'>
+      <div class='mx-auto w-96'>
+        <h2 class='text-xl font-semibold text-title'>About Me</h2>
 
-      <ul class='flex flex-row gap-4 bg-white mx-auto px-2 py-1 rounded w-fit'>
+        <p class='mx-auto w-96 text-text'>{User.bio}</p>
+
+        <Show when={Object.is(User, SelfUser)}>
+          <button class='text-persian-700 my-2 flex size-fit items-center gap-1 text-title'>
+            <OcGear2 class='mr-2 inline' />
+            <span class='text-persian-700 font-semibold'>Settings</span>
+          </button>
+        </Show>
+      </div>
+
+      <ul class='mx-auto flex w-fit flex-row gap-4 rounded px-2 py-1'>
         <UserStats key='Followers' value={0} />
         <UserStats key='Following' value={0} />
         <UserStats key='Posts' value={0} />
       </ul>
-
-      <h2 class='font-semibold text-charcoal-950 text-xl'>About Me</h2>
-
-      <p class='text-charcoal-950'>{User.bio}</p>
     </div>
   );
 };
@@ -103,9 +105,9 @@ const UserPage: Component = () => {
 
       <div
         style={BannerImage}
-        class='justify-center grid grid-rows-2 bg-persian-500 bg-cover bg-no-repeat bg-center py-2 rounded w-full h-80'
+        class='bg-persian-500 grid h-80 w-full grid-rows-2 justify-center rounded bg-cover bg-center bg-no-repeat py-2'
       >
-        <section class='flex flex-row items-center row-start-2 p-2 w-[36rem]'>
+        <section class='row-start-2 flex w-[36rem] flex-row items-center p-2'>
           <img
             src={User.Profile}
             alt={`User Profile for @${User.handle}`}
@@ -114,8 +116,8 @@ const UserPage: Component = () => {
             width={100}
           />
 
-          <div class='gap-4 grid grid-rows-2 ml-4'>
-            <h1 class='font-semibold text-2xl'>{User.username}</h1>
+          <div class='ml-4 grid grid-rows-2 gap-4'>
+            <h1 class='text-2xl font-semibold'>{User.username}</h1>
             <sub class='text-md'>@{User.handle}</sub>
           </div>
         </section>

@@ -27,7 +27,7 @@ const Comment: Component<PostProps> = (props) => {
 
   return (
     <Show when={!user.loading}>
-      <div class='gap-2 grid grid-cols-post grid-rows-post w-post'>
+      <div class='grid w-post grid-cols-post grid-rows-post gap-2'>
         <img
           height={32}
           width={32}
@@ -35,12 +35,12 @@ const Comment: Component<PostProps> = (props) => {
           class='rounded-full'
         />
         <div class='flex flex-col'>
-          <h1 class='font-medium text-charcoal-950 text-ms leading-4'>
+          <h1 class='text-charcoal-950 text-ms font-medium leading-4'>
             @{user()!.handle}
           </h1>
           <sub class='text-charcoal-900 text-xs'>{date}</sub>
         </div>
-        <p class='col-start-2 text-charcoal-950'>{pst.content}</p>
+        <p class='text-charcoal-950 col-start-2'>{pst.content}</p>
       </div>
     </Show>
   );
@@ -107,26 +107,26 @@ const PostFocus: Component = () => {
             <PostUI post={pst()!} />
           </Show>
 
-          <hr class='mt-4 mb-2 border w-post text-charcoal-900/25' />
+          <hr class='text-charcoal-900/25 mb-2 mt-4 w-post border' />
 
-          <div class='flex flex-col gap-2 w-post'>
-            <div class='flex items-center w-fit'>
-              <OcSearch2 class='absolute text-charcoal-100 translate-x-2' />
+          <div class='flex w-post flex-col gap-2'>
+            <div class='flex w-fit items-center'>
+              <OcSearch2 class='text-charcoal-100 absolute translate-x-2' />
               <input
                 aria-label='comment-search'
-                class='bg-persian-800 py-1 pr-2 pl-8 rounded w-fit text-charcoal-100 focus:outline-none placeholder:text-charcoal-100'
+                class='bg-persian-800 text-charcoal-100 placeholder:text-charcoal-100 w-fit rounded py-1 pl-8 pr-2 focus:outline-none'
                 placeholder='Search Comments'
               />
             </div>
 
             <div class='flex items-center gap-2'>
               <OcArrowswitch2 />
-              <label for='sorted-by' class='font-semibold text-charcoal-900'>
+              <label for='sorted-by' class='text-charcoal-900 font-semibold'>
                 Sort by:
               </label>
               <select
                 id='sorted-by'
-                class='bg-persian-700 px-2 py-1 rounded text-charcoal-100'
+                class='bg-persian-700 text-charcoal-100 rounded px-2 py-1'
               >
                 <option>Popular</option>
                 <option>New</option>
@@ -135,7 +135,7 @@ const PostFocus: Component = () => {
             </div>
           </div>
 
-          <div class='flex flex-col gap-2 mx-auto pt-4 w-post'>
+          <div class='mx-auto flex w-post flex-col gap-2 pt-4'>
             <Comment post={DefaultPost} />
             <Comment post={DefaultPost} />
             <Comment post={DefaultPost} />

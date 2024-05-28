@@ -11,9 +11,9 @@ import { ChildrenProps } from '../common';
  */
 const RightSide: Component = () => {
   return (
-    <section class='top-2 sticky flex flex-col px-4 self-start'>
+    <section class='sticky top-2 flex flex-col self-start px-4'>
       <Popular />
-      <hr class='border-1 border-outline my-4' />
+      <hr class='border-1 my-4 border-outline' />
       <FollowRecommend />
     </section>
   );
@@ -25,8 +25,8 @@ const RightSide: Component = () => {
  */
 const Sides: Component<ChildrenProps> = (props) => {
   return (
-    <div class='justify-center grid grid-cols-miniheader lg:grid-cols-header md:mx-auto ml-4 pt-4 max-w-7xl'>
-      <section class='top-2 sticky lg:flex flex-col hidden px-4 self-start'>
+    <div class='ml-4 grid max-w-7xl grid-cols-miniheader justify-center pt-4 md:mx-auto lg:grid-cols-header'>
+      <section class='sticky top-2 hidden flex-col self-start px-4 lg:flex'>
         <Show when={isLoggedIn()}>
           <SideLinks />
         </Show>

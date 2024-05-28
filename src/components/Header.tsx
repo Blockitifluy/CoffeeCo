@@ -20,18 +20,26 @@ const HeaderButton: Component<HeaderLinksProps> = (props) => {
   const Content = (
     <>
       <Show when={props.subtitle}>
-        <p class='lg:block hidden text-sm'>{props.subtitle}</p>
+        <p class='hidden text-sm text-text lg:block'>{props.subtitle}</p>
       </Show>
       {props.children}
     </>
   );
 
   return props.url ? (
-    <A aria-label={props.label} class='head-btn' href={props.url!}>
+    <A
+      aria-label={props.label}
+      class='btn-transition head-btn'
+      href={props.url!}
+    >
       {Content}
     </A>
   ) : (
-    <button onClick={props.onClick} aria-label={props.label} class='head-btn'>
+    <button
+      onClick={props.onClick}
+      aria-label={props.label}
+      class='btn-transition head-btn'
+    >
       {Content}
     </button>
   );
@@ -50,9 +58,9 @@ const Left: Component<{ setHamburger: Setter<boolean> }> = (props) => {
         </HeaderButton>
       </div>
 
-      <A href='/' class='gap-4 full-center'>
+      <A href='/' class='full-center gap-4'>
         <img src={Logo64} width='36' height='36' />
-        <h1 class='sm:block hidden font-semibold text-lg text-title'>
+        <h1 class='hidden rounded px-1 text-lg font-semibold text-title transition-all hover:bg-accent/40 active:bg-accent/25 sm:block'>
           CoffeeCo
         </h1>
       </A>
@@ -63,11 +71,14 @@ const Left: Component<{ setHamburger: Setter<boolean> }> = (props) => {
 const rightNotLoggedIn: Component = () => {
   return (
     <>
-      <a class='bg-accent btn' href='/log-in'>
+      <a class='btn-transition btn bg-button hover:bg-accent/75' href='/log-in'>
         Login
       </a>
-      <span>or</span>
-      <a class='bg-accent btn' href='/sign-up'>
+      <span class='text-text'>or</span>
+      <a
+        class='btn-transition btn bg-button hover:bg-accent/75'
+        href='/sign-up'
+      >
         Signup
       </a>
     </>
@@ -78,7 +89,7 @@ const Right: Component = () => {
   const User = useUser();
 
   return (
-    <section class='flex flex-row-reverse items-center gap-6 md:gap-4 px-4'>
+    <section class='flex flex-row-reverse items-center gap-6 px-4 md:gap-4'>
       <Show when={isLoggedIn()} fallback={rightNotLoggedIn({})}>
         <div
           aria-label='Profile'
@@ -120,8 +131,8 @@ const Header: Component = () => {
 
   return (
     <>
-      <header class='relative z-10 bg-header px-4 py-4 w-full h-16 text-slate-500 outline outline-1 outline-outline'>
-        <div class='grid grid-cols-2 min-w-32'>
+      <header class='text-slate-500 relative z-10 h-16 w-full bg-header px-4 py-4 outline outline-1 outline-outline'>
+        <div class='grid min-w-32 grid-cols-2'>
           <Left setHamburger={setHamburger} />
 
           <Right />

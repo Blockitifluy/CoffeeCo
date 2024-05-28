@@ -12,15 +12,15 @@ const NotFound: Component = () => {
       <Meta name='description' content='404 Not Found' />
       <Title>CoffeeCo - 404</Title>
 
-      <div class='flex justify-center items-center h-screen'>
+      <div class='flex h-screen items-center justify-center'>
         <div class='flex flex-col items-center gap-4'>
           <img src={Logo256} alt='Logo' />
-          <h1 class='font-semibold text-3xl text-center'>
+          <h1 class='text-center text-3xl font-semibold'>
             404 - Not Page Found
           </h1>
           <div class='flex flex-col items-center gap-2'>
             <p class='text-slate-400'>Oops, looks like something went wrong</p>
-            <A href='/' class='font-semibold text-persian-500'>
+            <A href='/' class='text-persian-500 font-semibold'>
               Try Again?
             </A>
           </div>

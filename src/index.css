@@ -9,7 +9,7 @@
 }
 
 .head-btn {
-	@apply p-2 rounded text-lg outline outline-1 outline-outline h-8 gap-2 full-center;
+	@apply p-2 rounded text-lg outline outline-1 text-title outline-outline h-8 gap-2 full-center;
 }
 
 .btn {
@@ -23,6 +23,11 @@
 .post {
 	@apply gap-2 grid grid-cols-post grid-rows-post px-4 py-6 border-b last:border-none border-outline w-post h-fit;
 }
+
+.btn-transition {
+	@apply hover:scale-90 hover:shadow-md transition-all active:scale-110
+}
+
 textarea {
 	background-color: rgb(177 187 200 / 0.25);
 	border-radius: 0.25rem;
@@ -32,8 +37,46 @@ textarea {
 	outline: none;
 }
 
+@layer base {
+	@media (prefers-color-scheme: light) {
+		:root {
+			--color-white: 255 255 255;
+			--color-background: 255 255 255;
+			--color-header: 246 248 250;
+			--color-button: 82 96 119;
+
+			--color-subtitle: 100 116 139;
+			--color-title: 0 0 0;
+			--color-text: 51 65 85;
+
+			--color-accent: 42 157 143;
+			--color-warning: 237 103 34;
+
+			--color-outline: 208 215 222;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--color-white: 0 0 0;
+			--color-background: 13 17 23;
+			--color-header: 1 4 9;
+			--color-button: 51 65 85;
+
+			--color-subtitle: 127 140 160;
+			--color-title: 255 255 255;
+			--color-text: 196 205 218;
+
+			--color-accent: 42 157 143;
+			--color-warning: 237 103 34;
+
+			--color-outline: 48 54 61;
+		}
+	}
+}
 button,
 a,
+select,
 input[type="button"] {
 	cursor: pointer;
 }

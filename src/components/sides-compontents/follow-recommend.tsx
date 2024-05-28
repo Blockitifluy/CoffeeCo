@@ -6,7 +6,7 @@ import { OcPeople2 } from 'solid-icons/oc';
 const FollowItem: Component = () => {
   return (
     <IslandLink href='' selected={false}>
-      <div>
+      <div class='transition-opacity hover:opacity-60'>
         <div class='flex items-center gap-1'>
           <img
             src={DefaultUser.Profile}
@@ -18,7 +18,7 @@ const FollowItem: Component = () => {
           <h2 class='text-base text-title'>@blockitifluy</h2>
         </div>
         <p class='text-sm text-text'>Bio Here Please Read Me</p>
-        <OcPeople2 class='inline mr-1' />
+        <OcPeople2 class='mr-1 inline' />
         <span class='inline text-sm'>9 Followers</span>
       </div>
     </IslandLink>

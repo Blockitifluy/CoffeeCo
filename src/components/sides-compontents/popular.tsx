@@ -26,7 +26,7 @@ export const Popular: Component = () => {
         aria-label='Where?'
         name='Hastags'
         id='hashtags'
-        class='drop-shadow px-2 rounded text-text appearance-none outline outline-1 outline-outline'
+        class='appearance-none rounded bg-header px-2 text-text outline outline-1 outline-outline drop-shadow'
       >
         <option value='Worldwide'>Worldwide</option>
         <option value='Locally'>Locally</option>

@@ -1,9 +1,9 @@
 import { Component } from 'solid-js';
-import AuthComponent, { Input } from '../components/auth';
+import Auth, { FormInput } from '../components/auth';
 import { loginUser } from '../requests/user';
 import { BasicStatuses, BasicStatus } from '../common';
 
-const Submit: Input.AuthSubmit = async (Inputs) => {
+const Submit: FormInput.AuthSubmit = async (Inputs) => {
   const handle: string | undefined = Inputs.get('Handle'),
     password: string | undefined = Inputs.get('Password');
 
@@ -20,12 +20,21 @@ const Submit: Input.AuthSubmit = async (Inputs) => {
   }
 };
 
-const Inputs: Input.AuthInput[] = [
-  new Input.AuthInput('Handle', Input.AuthPlaceholder.username, false, 24),
-  new Input.AuthInput('Password', Input.AuthPlaceholder.currentPassword, true),
+const Inputs: FormInput.AuthInput[] = [
+  new FormInput.AuthInput(
+    'Handle',
+    FormInput.AuthPlaceholder.username,
+    false,
+    24,
+  ),
+  new FormInput.AuthInput(
+    'Password',
+    FormInput.AuthPlaceholder.currentPassword,
+    true,
+  ),
 ];
 
-const AuthPage: Input.AuthProps = {
+const AuthPage: FormInput.AuthProps = {
   title: 'Login',
   subtitle: 'Stay updated on The World',
   confirmText: 'Log in',
@@ -34,7 +43,7 @@ const AuthPage: Input.AuthProps = {
 };
 
 const LoginPage: Component = () => {
-  return <AuthComponent page={AuthPage} />;
+  return <Auth page={AuthPage} />;
 };
 
 export default LoginPage;

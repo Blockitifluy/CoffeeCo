@@ -1,9 +1,9 @@
 import { Component } from 'solid-js';
-import AuthComponent, { Input } from '../components/auth';
+import Auth, { FormInput } from '../components/auth';
 import { newUser, loginUser } from '../requests/user';
 import { BasicStatus, BasicStatuses } from '../common';
 
-const Submit: Input.AuthSubmit = async (Inputs) => {
+const Submit: FormInput.AuthSubmit = async (Inputs) => {
   const handle = Inputs.get('Handle'),
     password = Inputs.get('Password'),
     email = Inputs.get('Email');
@@ -23,13 +23,22 @@ const Submit: Input.AuthSubmit = async (Inputs) => {
   }
 };
 
-const Inputs: Input.AuthInput[] = [
-  new Input.AuthInput('Handle', Input.AuthPlaceholder.username, false, 24),
-  new Input.AuthInput('Email', Input.AuthPlaceholder.email, false),
-  new Input.AuthInput('Password', Input.AuthPlaceholder.newPassword, true),
+const Inputs: FormInput.AuthInput[] = [
+  new FormInput.AuthInput(
+    'Handle',
+    FormInput.AuthPlaceholder.username,
+    false,
+    24,
+  ),
+  new FormInput.AuthInput('Email', FormInput.AuthPlaceholder.email, false),
+  new FormInput.AuthInput(
+    'Password',
+    FormInput.AuthPlaceholder.newPassword,
+    true,
+  ),
 ];
 
-const AuthPage: Input.AuthProps = {
+const AuthPage: FormInput.AuthProps = {
   title: 'Signup',
   subtitle: 'Stay updated on The World',
   confirmText: 'Sign up',
@@ -38,7 +47,7 @@ const AuthPage: Input.AuthProps = {
 };
 
 const SignupPage: Component = () => {
-  return <AuthComponent page={AuthPage} />;
+  return <Auth page={AuthPage} />;
 };
 
 export default SignupPage;

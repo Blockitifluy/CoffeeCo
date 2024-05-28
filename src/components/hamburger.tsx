@@ -10,15 +10,18 @@ interface HamburgerItemProps extends ChildrenProps {
 }
 
 const HamburgerItem: Component<HamburgerItemProps> = (props) => {
+  const Content = (
+    <A
+      href={props.url}
+      class='flex flex-row items-center gap-2 text-lg font-medium text-title'
+    >
+      {props.children}
+      <span>{props.text}</span>
+    </A>
+  );
   return (
-    <li class='border-outline px-4 py-2 border-b-[1px] border-b-outline last:border-none'>
-      <A
-        href={props.url}
-        class='flex flex-row items-center gap-2 font-medium text-lg text-title'
-      >
-        {props.children}
-        <span>{props.text}</span>
-      </A>
+    <li class='border-b-[1px] border-outline border-b-outline px-4 py-2 last:border-none'>
+      {Content}
     </li>
   );
 };
@@ -28,24 +31,21 @@ interface HamburgerProps {
 }
 
 const Hamburger: Component<HamburgerProps> = (props) => {
-  // TODO: Transition
   return (
     <Show when={props.toggle}>
-      <div class='block top-0 z-0 absolute lg:hidden bg-header drop-shadow-lg pt-20 w-60 h-full'>
-        <ul>
-          <For each={getLeftLink()}>
-            {(item) => (
-              <HamburgerItem
-                text={item.text}
-                url={item.url}
-                selected={item.url === location.href}
-              >
-                {item.children}
-              </HamburgerItem>
-            )}
-          </For>
-        </ul>
-      </div>
+      <ul class='absolute top-0 z-0 block h-full w-60 bg-header pt-20 drop-shadow-lg transition-opacity lg:hidden'>
+        <For each={getLeftLink()}>
+          {(item) => (
+            <HamburgerItem
+              text={item.text}
+              url={item.url}
+              selected={item.url === location.href}
+            >
+              {item.children}
+            </HamburgerItem>
+          )}
+        </For>
+      </ul>
     </Show>
   );
 };
