@@ -1,43 +1,42 @@
 /* @refresh reload */
 
 // This project uses Github Octicons (oc)
-import { render } from "solid-js/web";
-import { Router, Route } from "@solidjs/router";
-import { Link, MetaProvider } from "@solidjs/meta";
+import { render } from 'solid-js/web';
+import { Router, Route } from '@solidjs/router';
+import { Link, MetaProvider } from '@solidjs/meta';
 
-import { UserProvider } from "./contexts/usercontext";
+import { UserProvider } from './contexts/usercontext';
 
-import "./index.css";
-import { ErrorBoundary, lazy } from "solid-js";
+import './index.css';
+import { ErrorBoundary, lazy } from 'solid-js';
 
-const MainPage = lazy(() => import("./routes/mainpage")),
-	NotFoundPage = lazy(() => import("./routes/notfound")),
-	AddPostUI = lazy(() => import("./routes/addpost")),
-	UserPage = lazy(() => import("./routes/userpage")),
-	SignupPage = lazy(() => import("./routes/signup")),
-	LoginPage = lazy(() => import("./routes/login")),
-	PostFocusPage = lazy(() => import("./routes/postfocus"));
+const MainPage = lazy(() => import('./routes/MainPage')),
+  NotFoundPage = lazy(() => import('./routes/notfound')),
+  AddPostUI = lazy(() => import('./routes/addpost')),
+  UserPage = lazy(() => import('./routes/userpage')),
+  SignupPage = lazy(() => import('./routes/signup')),
+  LoginPage = lazy(() => import('./routes/login')),
+  PostFocusPage = lazy(() => import('./routes/postfocus'));
 
 /**
  * Trys to get the root element, if doesn't exists then throws error
  * @throws Error (Root doesn't exist)
  * @returns Root Element
  */
-function GetRoot(): HTMLElement {
-	const root = document.getElementById("root");
+function getRoot(): HTMLElement {
+  const root = document.getElementById('root');
 
-	if (!root) throw new Error("Root doesn't exist");
+  // eslint-disable-next-line quotes
+  if (!root) throw new Error("Root doesn't exist");
 
-	if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
-		throw new Error(
-			"Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?"
-		);
-	}
+  if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
+    throw new Error(
+      'Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?',
+    );
+  }
 
-	return root;
+  return root;
 }
-
-const root = GetRoot();
 
 /**
  * A error boundary catchs uncaught errors, and changing the page
@@ -46,12 +45,12 @@ const root = GetRoot();
  * @param reset The function to reset the page
  */
 const Boundary = (err: Error, reset: () => void) => {
-	// TODO
-	return (
-		<div>
-			{err.message} <button onClick={reset}>Reset</button>
-		</div>
-	);
+  // TODO
+  return (
+    <div>
+      {err.message} <button onClick={reset}>Reset</button>
+    </div>
+  );
 };
 
 /**
@@ -62,36 +61,36 @@ const Boundary = (err: Error, reset: () => void) => {
  * - Web routing
  */
 const RouteElement = () => {
-	return (
-		<UserProvider>
-			<MetaProvider>
-				<Link rel='dns-prefetch' href='https://fonts.googleapis.com' />
-				<Link rel='preconnect' href='https://fonts.googleapis.com' />
+  return (
+    <UserProvider>
+      <MetaProvider>
+        <Link rel='dns-prefetch' href='https://fonts.googleapis.com' />
+        <Link rel='preconnect' href='https://fonts.googleapis.com' />
 
-				<Link rel='dns-prefetch' href='https://placehold.co' />
-				<Link rel='preconnect' href='https://placehold.co' />
+        <Link rel='dns-prefetch' href='https://placehold.co' />
+        <Link rel='preconnect' href='https://placehold.co' />
 
-				<Link
-					rel='manifest'
-					href='/manifest.json'
-					crossorigin='use-credentials'
-				/>
+        <Link
+          rel='manifest'
+          href='/manifest.json'
+          crossorigin='use-credentials'
+        />
 
-				<ErrorBoundary fallback={Boundary}>
-					<Router explicitLinks={true}>
-						<Route path='/post/:ID' component={PostFocusPage} />
-						<Route path='/search/:ID' component={MainPage} />
-						<Route path='/log-in' component={LoginPage} />
-						<Route path='/sign-up' component={SignupPage} />
-						<Route path='/user/:ID' component={UserPage} />
-						<Route path='/new-post' component={AddPostUI} />
-						<Route path='/' component={MainPage} />
-						<Route path='*404' component={NotFoundPage} />
-					</Router>
-				</ErrorBoundary>
-			</MetaProvider>
-		</UserProvider>
-	);
+        <ErrorBoundary fallback={Boundary}>
+          <Router explicitLinks={true}>
+            <Route path='/post/:ID' component={PostFocusPage} />
+            <Route path='/search/:ID' component={MainPage} />
+            <Route path='/log-in' component={LoginPage} />
+            <Route path='/sign-up' component={SignupPage} />
+            <Route path='/user/:ID' component={UserPage} />
+            <Route path='/new-post' component={AddPostUI} />
+            <Route path='/' component={MainPage} />
+            <Route path='*404' component={NotFoundPage} />
+          </Router>
+        </ErrorBoundary>
+      </MetaProvider>
+    </UserProvider>
+  );
 };
 
-render(RouteElement, root);
+render(RouteElement, getRoot());

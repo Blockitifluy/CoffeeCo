@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// GenerateETag generates an ETag from content
 func GenerateETag(content []byte) (string, error) {
 	var b bytes.Buffer
 
@@ -22,6 +23,7 @@ func GenerateETag(content []byte) (string, error) {
 	return fmt.Sprintf(`"%x`, hash.Sum(nil)), nil
 }
 
+// GetFileLastModified gets when a file has been last modified
 func GetFileLastModified(fileInfo fs.FileInfo) string {
 	return fileInfo.ModTime().UTC().Format(http.TimeFormat)
 }

@@ -1,5 +1,5 @@
-import Cookies from "js-cookie";
-import { FetchError } from "../common";
+import Cookies from 'js-cookie';
+import { FetchError } from '../common';
 
 /**
  * Properties of a User:
@@ -12,60 +12,60 @@ import { FetchError } from "../common";
  * @todo Add Followers
  */
 export interface User {
-	/**
-	 * A non-unique username
-	 */
-	username: string;
-	/**
-	 * An unqiue username
-	 */
-	handle: string;
-	/**
-	 * The biography of a User
-	 */
-	bio: string;
-	/**
-	 * An image link to the User's Banner
-	 */
-	Banner: string;
-	/**
-	 * A image link to the User's Profile
-	 */
-	Profile: string;
+  /**
+   * A non-unique username
+   */
+  username: string;
+  /**
+   * An unqiue username
+   */
+  handle: string;
+  /**
+   * The biography of a User
+   */
+  bio: string;
+  /**
+   * An image link to the User's Banner
+   */
+  Banner: string;
+  /**
+   * A image link to the User's Profile
+   */
+  Profile: string;
 
-	/**
-	 * The followers count
-	 * @todo Add Followers
-	 */
-	FollowersCount: number;
+  /**
+   * The followers count
+   * @todo Add Followers
+   */
+  FollowersCount: number;
 }
 
 /**
  * A Placeholder Default User
  */
 export const DefaultUser: User = {
-	username: "default",
-	handle: "default",
-	bio: "Lorem Ipsum",
-	Banner: "https://placehold.co/1080x256",
-	Profile: "https://placehold.co/64",
-	FollowersCount: 0
+  username: 'default',
+  handle: 'default',
+  bio: 'Lorem Ipsum',
+  Banner: 'https://placehold.co/1080x256',
+  Profile: 'https://placehold.co/64',
+  FollowersCount: 0,
 };
 
 /**
  * Get the Auth Token cookie
  * @returns The auth token (could be undefined)
  */
-export function GetAuthToken(): string | undefined {
-	return Cookies.get("AuthToken");
+export function getAuth(): string | undefined {
+  return Cookies.get('AuthToken');
 }
 
 /**
- * Checks if the user is logged in using the {@link GetAuthToken} method
+ * Checks if the user is logged in using the {@link getAuth} method
  * @returns Is logged in
  */
-export function IsLoggedIn(): boolean {
-	return GetAuthToken() !== undefined;
+export function isLoggedIn(): boolean {
+  return getAuth() !== undefined;
 }
 
 /**
@@ -74,34 +74,34 @@ export function IsLoggedIn(): boolean {
  * @param password The user's password (unhashed)
  * @returns Login Response
  */
-export async function UserLogin(
-	handle: string,
-	password: string
+export async function loginUser(
+  handle: string,
+  password: string,
 ): Promise<Response> {
-	const LoginBody = {
-		handle: handle,
-		password: password
-	};
+  const LoginBody = {
+    handle: handle,
+    password: password,
+  };
 
-	const Res = await fetch("/api/user/log-in", {
-		method: "POST",
-		body: JSON.stringify(LoginBody),
-		mode: "no-cors",
-		cache: "no-cache",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
+  const Res = await fetch('/api/user/log-in', {
+    method: 'POST',
+    body: JSON.stringify(LoginBody),
+    mode: 'no-cors',
+    cache: 'no-cache',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -111,35 +111,35 @@ export async function UserLogin(
  * @param email The user's email
  * @returns New User Response
  */
-export async function NewUser(handle: string, password: string, email: string) {
-	const ResBody = {
-		username: handle,
-		handle: handle,
-		bio: "Hello there, I am new to CoffeeCo",
+export async function newUser(handle: string, password: string, email: string) {
+  const ResBody = {
+    username: handle,
+    handle: handle,
+    bio: 'Hello there, I am new to CoffeeCo',
 
-		Banner: "",
-		Profile: "",
+    Banner: '',
+    Profile: '',
 
-		password: password,
-		email: email
-	};
+    password: password,
+    email: email,
+  };
 
-	const Res: Response = await fetch("/api/user/add", {
-		method: "POST",
-		body: JSON.stringify(ResBody),
-		mode: "no-cors",
-		cache: "no-store"
-	});
+  const Res: Response = await fetch('/api/user/add', {
+    method: 'POST',
+    body: JSON.stringify(ResBody),
+    mode: 'no-cors',
+    cache: 'no-store',
+  });
 
-	if (!Res.ok) {
-		const ResError: FetchError = await Res.json();
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
-		console.error(ResError);
+    console.error(ResError);
 
-		throw new Error(ResError.public);
-	}
+    throw new Error(ResError.public);
+  }
 
-	return Res;
+  return Res;
 }
 
 /**
@@ -147,24 +147,24 @@ export async function NewUser(handle: string, password: string, email: string) {
  * @param auth (Optional) The `AuthToken` cookie
  * @returns User's ID (-1 then there was an error)
  */
-export async function AuthToID(auth?: string): Promise<number> {
-	const authToken = auth ?? Cookies.get("AuthToken");
+export async function authToID(auth?: string): Promise<number> {
+  const authToken = auth ?? Cookies.get('AuthToken');
 
-	if (!authToken) throw new Error("AuthToken is undefined");
+  if (!authToken) throw new Error('AuthToken is undefined');
 
-	const Res = await fetch(
-		`http://localhost:8000/api/user/auth-to-id/${authToken}`,
-		{
-			method: "GET",
-			mode: "no-cors"
-		}
-	);
+  const Res = await fetch(
+    `http://localhost:8000/api/user/auth-to-id/${authToken}`,
+    {
+      method: 'GET',
+      mode: 'no-cors',
+    },
+  );
 
-	if (!Res.ok) {
-		return -1;
-	}
+  if (!Res.ok) {
+    return -1;
+  }
 
-	return parseInt(await Res.text());
+  return parseInt(await Res.text());
 }
 
 /**
@@ -172,26 +172,26 @@ export async function AuthToID(auth?: string): Promise<number> {
  * @param ID The user's ID
  * @returns An User Object
  */
-export async function GetUserFromID(ID: number): Promise<User> {
-	const Res = await fetch(
-		`http://localhost:8000/api/user/get-user-from-id/${ID}`,
-		{
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json"
-			}
-		}
-	);
+export async function getUserFromID(ID: number): Promise<User> {
+  const Res = await fetch(
+    `http://localhost:8000/api/user/get-user-from-id/${ID}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 
-	const json = await Res.json();
+  const json = await Res.json();
 
-	if (!Res.ok) {
-		console.error(json);
+  if (!Res.ok) {
+    console.error(json);
 
-		throw new Error(json.public);
-	}
+    throw new Error(json.public);
+  }
 
-	return json;
+  return json;
 }
 
 /**
@@ -199,12 +199,12 @@ export async function GetUserFromID(ID: number): Promise<User> {
  * @param auth (Optional) The `AuthToken` cookie
  * @returns An User Object
  */
-export async function GetUserFromAuth(
-	auth?: string
+export async function getUserFromAuth(
+  auth?: string,
 ): Promise<User | undefined> {
-	const ID = await AuthToID(auth);
+  const ID = await authToID(auth);
 
-	if (ID === -1) return undefined;
+  if (ID === -1) return undefined;
 
-	return GetUserFromID(ID);
+  return getUserFromID(ID);
 }

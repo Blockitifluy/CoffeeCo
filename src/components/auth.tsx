@@ -1,240 +1,241 @@
-import * as Solid from "solid-js";
-import { OcArrowleft2 } from "solid-icons/oc";
-import { Status, DefaultStatus, BasicStatus } from "../common";
-import { A } from "@solidjs/router";
-import { Meta, Title } from "@solidjs/meta";
+import {
+  Component,
+  createSignal,
+  For,
+  JSX,
+  Setter,
+  Show,
+  Signal,
+} from 'solid-js';
+import { OcArrowleft2 } from 'solid-icons/oc';
+import { Status, Statuses, BasicStatus } from '../common';
+import { A } from '@solidjs/router';
+import { Meta, Title } from '@solidjs/meta';
 
-export namespace Input {
-	export type InputMap = Map<string, string>;
-	export type AuthSubmit = (Inputs: InputMap) => Promise<BasicStatus>;
+export namespace FormInput {
+  export type InputMap = Map<string, string>;
+  export type AuthSubmit = (Inputs: InputMap) => Promise<BasicStatus>;
 
-	/**
-	 * Used by {@link AuthOnClick}
-	 */
-	export interface AuthOnClickInputs {
-		page: Input.AuthProps;
-		/**
-		 * Sets the status
-		 */
-		setStatus: Solid.Setter<Status>;
-	}
+  /**
+   * Used by {@link AuthOnClick}
+   */
+  export interface AuthOnClickInputs {
+    page: FormInput.AuthProps;
+    /**
+     * Sets the status
+     */
+    setStatus: Setter<Status>;
+  }
 
-	/**
-	 * The automatic fill of a input
-	 */
-	export enum AuthPlaceholder {
-		currentPassword = "current-password",
-		newPassword = "new-password",
-		username = "username",
-		email = "email",
-		name = "name",
-		off = "off",
-		on = "on"
-	}
+  /**
+   * The automatic fill of a input
+   */
+  export enum AuthPlaceholder {
+    currentPassword = 'current-password',
+    newPassword = 'new-password',
+    username = 'username',
+    email = 'email',
+    name = 'name',
+    off = 'off',
+    on = 'on',
+  }
 
-	/**
-	 * The Propetries of {@link AuthComponent}
-	 */
-	export interface AuthProps {
-		/**
-		 * The main title of Prompt
-		 */
-		title: string;
-		/**
-		 * Text under the title
-		 */
-		subtitle: string;
-		/**
-		 * The button's {@link Input.AuthProps.confirmText} text
-		 */
-		confirmText: string;
-		/**
-		 * The Input templetes
-		 */
-		Inputs: Input.AuthInput[];
-		/**
-		 * Happens on button click (On Submit)
-		 */
-		Submit: Input.AuthSubmit;
-	}
+  /**
+   * The Propetries of {@link Auth}
+   */
+  export interface AuthProps {
+    /**
+     * The main title of Prompt
+     */
+    title: string;
+    /**
+     * Text under the title
+     */
+    subtitle: string;
+    /**
+     * The button's {@link FormInput.AuthProps.confirmText} text
+     */
+    confirmText: string;
+    /**
+     * The Input templetes
+     */
+    Inputs: FormInput.AuthInput[];
+    /**
+     * Happens on button click (On Submit)
+     */
+    submit: FormInput.AuthSubmit;
+  }
 
-	/**
-	 * An template of a {@link InputComponent}
-	 */
-	export class AuthInput {
-		/**
-		 * If false, the input is hidden (shown in •••)
-		 */
-		public isPassword: boolean;
-		/**
-		 * The name of Input
-		 */
-		public key: string;
-		/**
-		 * The placeholder Input
-		 */
-		public placeholder: AuthPlaceholder;
-		/**
-		 * Maximum character limit for the input
-		 */
-		public limit?: number;
+  /**
+   * An template of a {@link FormInput.AuthInput}
+   */
+  export class AuthInput {
+    /**
+     * If false, the input is hidden (shown in •••)
+     */
+    public isPassword: boolean;
+    /**
+     * The name of Input
+     */
+    public key: string;
+    /**
+     * The placeholder Input
+     */
+    public placeholder: AuthPlaceholder;
+    /**
+     * Maximum character limit for the input
+     */
+    public limit?: number;
 
-		/**
-		 * Constructs a {@link Input.AuthInput AuthInput}
-		 * @param text The {@link Input.AuthInput.key key} value
-		 * @param placeholder Automatic input fill in
-		 * @param isPassword If false, the input is hidden (shown in •••)
-		 * @param limit Maximum character limit for the input
-		 */
-		constructor(
-			text: string,
-			placeholder: AuthPlaceholder = AuthPlaceholder.off,
-			isPassword: boolean = false,
-			limit?: number
-		) {
-			this.placeholder = placeholder;
-			this.isPassword = isPassword;
-			this.limit = limit;
-			this.key = text;
-		}
-	}
+    /**
+     * Constructs a {@link FormInput.AuthInput AuthInput}
+     * @param text The {@link FormInput.AuthInput.key key} value
+     * @param placeholder Automatic input fill in
+     * @param isPassword If false, the input is hidden (shown in •••)
+     * @param limit Maximum character limit for the input
+     */
+    constructor(
+      text: string,
+      placeholder: AuthPlaceholder = AuthPlaceholder.off,
+      isPassword: boolean = false,
+      limit?: number,
+    ) {
+      this.placeholder = placeholder;
+      this.isPassword = isPassword;
+      this.limit = limit;
+      this.key = text;
+    }
+  }
 }
 
 /**
  * A map of input's name and value/data
  */
-const InputMap: Input.InputMap = new Map<string, string>();
+const InputMap: FormInput.InputMap = new Map<string, string>();
 
 /**
  * Happens the input has a keyup event, then updates the signal and adds from {@link InputMap}
- * @param key The name of {@link InputComponent Input}
- * @param input Gets the input as string
- * @param setInput Set the input
+ * @param key The name of {@link InputUI Input}
+ * @param Signal Contains getter (0) and setter (1)
  * @returns An event connecter
  */
-function OnInput(
-	key: string,
-	[input, setInput]: Solid.Signal<string>
-): Solid.JSX.EventHandlerUnion<HTMLInputElement, KeyboardEvent> {
-	return e => {
-		const Target: HTMLInputElement = e.target as HTMLInputElement;
+function onInput(
+  key: string,
+  Signal: Signal<string>,
+): JSX.EventHandlerUnion<HTMLInputElement, KeyboardEvent> {
+  return (event) => {
+    const Target: HTMLInputElement = event.target as HTMLInputElement;
 
-		setInput(Target.value);
-		InputMap.set(key, input());
-	};
+    Signal[1](Target.value);
+    InputMap.set(key, Signal[0]());
+  };
 }
 
 /**
- * The InputComponent included in {@link AuthComponent}
+ * The InputComponent included in {@link Auth}
  * @param props The InputComponent's propetries
  */
-const InputComponent: Solid.Component<Input.AuthInput> = props => {
-	const [input, setInput] = Solid.createSignal<string>("");
+const InputUI: Component<FormInput.AuthInput> = (props) => {
+  const [input, setInput] = createSignal<string>('');
 
-	return (
-		<div class='flex flex-col gap-1'>
-			<label for={props.key}>{props.key}</label>
-			<input
-				id={props.key}
-				onKeyUp={OnInput(props.key, [input, setInput])}
-				class='border-2 border-slate-700/65 p-2 rounded placeholder:text-slate-700/65'
-				placeholder={props.key}
-				autocomplete={props.placeholder}
-				maxLength={props.limit}
-				type={props.isPassword ? "password" : "text"}
-			/>
+  return (
+    <div class='flex flex-col gap-1'>
+      <input
+        id={props.key}
+        onKeyUp={onInput(props.key, [input, setInput])}
+        class='rounded border-2 border-outline bg-background p-2 text-text placeholder:text-subtitle focus:outline-accent'
+        placeholder={props.key}
+        autocomplete={props.placeholder}
+        maxlength={props.limit}
+        type={props.isPassword ? 'password' : 'text'}
+      />
 
-			<Solid.Show when={props.limit}>
-				<span>{props.limit} limit</span>
-			</Solid.Show>
-		</div>
-	);
+      <Show when={props.limit}>
+        <span>{props.limit} limit</span>
+      </Show>
+    </div>
+  );
 };
 
 /**
  * When the submit button is clicked
- * @param inputs Includes the {@link Input.AuthOnClickInputs.page page} and sets the status
+ * @param inputs Includes the {@link InputUI.AuthOnClickInputs.page page} and sets the status
  * @param event The event occured on Mouse Click
  */
 const AuthOnClick = async (
-	inputs: Input.AuthOnClickInputs,
-	event: MouseEvent
+  inputs: FormInput.AuthOnClickInputs,
+  event: MouseEvent,
 ) => {
-	event.preventDefault();
+  event.preventDefault();
 
-	const result = await inputs.page.Submit(InputMap),
-		resultStatus = new Status(result.msg, result.ok);
+  const result = await inputs.page.submit(InputMap),
+    resultStatus = new Status(result.msg, result.ok);
 
-	inputs.setStatus(resultStatus);
+  inputs.setStatus(resultStatus);
 
-	console.log(result);
+  console.log(result);
 
-	if (result.ok) {
-		location.href = "/";
-	}
+  if (result.ok) {
+    location.href = '/';
+  }
 };
 
 /**
  * The Auth Page (could be Login / Signin)
  * @param props The page's propetries
  */
-const AuthComponent: Solid.Component<{ page: Input.AuthProps }> = props => {
-	const [status, setStatus] = Solid.createSignal<Status>(DefaultStatus);
+const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
+  const [status, setStatus] = createSignal<Status>(Statuses.DefaultStatus);
 
-	return (
-		<>
-			<Meta name='description' content={props.page.subtitle} />
-			<Title>CoffeeCo - {props.page.title}</Title>
+  return (
+    <>
+      <Meta name='description' content={props.page.subtitle} />
+      <Title>CoffeeCo - {props.page.title}</Title>
 
-			<div class='justify-center items-center grid bg-background w-screen h-screen'>
-				<form class='flex flex-col gap-4 bg-white drop-shadow-lg px-8 py-10 rounded w-80'>
-					<h1 class='mt-2 font-bold text-3xl leading-4'>{props.page.title}</h1>
-					<sub class='mb-2 text-sm'>{props.page.subtitle}</sub>
+      <div class='grid h-screen w-screen items-center justify-center bg-background'>
+        <form class='flex w-80 flex-col gap-4 rounded bg-header px-8 py-10 drop-shadow-lg'>
+          <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
+            {props.page.title}
+          </h1>
+          <sub class='mb-2 text-sm text-subtitle'>{props.page.subtitle}</sub>
 
-					<Solid.Show when={status().show}>
-						<span
-							class={
-								status().ok
-									? "text-persian-500"
-									: "text-sandy-500" + " my-0 font-semibold"
-							}
-						>
-							{status().msg}
-						</span>
-					</Solid.Show>
+          <Show when={status().show}>
+            <span
+              class={`${status().ok ? 'text-accent' : 'text-warning'} my-0 font-semibold`}
+            >
+              {status().msg}
+            </span>
+          </Show>
 
-					<section class='flex flex-col gap-2 mx-auto mb-2 w-64'>
-						<Solid.For each={props.page.Inputs}>
-							{input => (
-								<InputComponent
-									isPassword={input.isPassword}
-									key={input.key}
-									placeholder={input.placeholder}
-								/>
-							)}
-						</Solid.For>
-					</section>
+          <section class='mx-auto mb-2 flex w-64 flex-col gap-2'>
+            <For each={props.page.Inputs}>
+              {(input) => (
+                <InputUI
+                  isPassword={input.isPassword}
+                  key={input.key}
+                  placeholder={input.placeholder}
+                />
+              )}
+            </For>
+          </section>
 
-					<section>
-						<button
-							onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
-							class='bg-charcoal-700 hover:bg-charcoal-600 mx-auto py-2 rounded-full w-full font-medium text-2xl text-white transition-colors'
-						>
-							{props.page.confirmText}
-						</button>
+          <section>
+            <button
+              onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
+              class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
+            >
+              {props.page.confirmText}
+            </button>
 
-						<A
-							class='flex justify-end items-center mt-4 text-charcoal-600 hover:text-charcoal-500 transition-colors'
-							href='/'
-						>
-							<OcArrowleft2 />
-							Back
-						</A>
-					</section>
-				</form>
-			</div>
-		</>
-	);
+            <A class='mt-4 flex items-center justify-end text-accent' href='/'>
+              <OcArrowleft2 />
+              Back
+            </A>
+          </section>
+        </form>
+      </div>
+    </>
+  );
 };
 
-export default AuthComponent;
+export default Auth;

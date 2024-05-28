@@ -1,23 +1,24 @@
-import * as Common from "../common";
-import * as Solid from "solid-js";
+import { NoEnter, Status, Statuses } from '../common';
+import { Accessor, Component, createEffect, For, Setter, Show } from 'solid-js';
 
-import { AddPost, AddPostRequest } from "../requests/post";
-import { PostSkeleton } from "../components/post";
-import { useUser } from "../contexts/usercontext";
-import { OcImage2, OcPaperairplane2, OcX2 } from "solid-icons/oc";
-import { UploadImage, ReformatImages, ImageObj } from "../requests/images";
-import { AuthToID } from "../requests/user";
-import Header from "../components/header";
-import Sides from "../components/sides";
-import { useInput } from "../hooks";
-import { Meta, Title } from "@solidjs/meta";
+import { AddPost as addPost, AddPostRequest } from '../requests/post';
+import { PostSkeleton } from '../components/Post';
+import { useUser } from '../contexts/usercontext';
+import { OcImage2, OcPaperairplane2, OcX2 } from 'solid-icons/oc';
+import { uploadImage, reformatImages, ImageObj } from '../requests/images';
+import { authToID } from '../requests/user';
+import Header from '../components/Header';
+import Sides from '../components/sides';
+import { useInput } from '../hooks';
+import { Meta, Title } from '@solidjs/meta';
+import { createStore, SetStoreFunction } from 'solid-js/store';
 
 /**
  * Propetries for {@link AddImageButton}
  */
 interface AddImageProps {
-	OnFileAdd: (Params: FileAddParams, event: Event) => Promise<void> | void;
-	Params: FileAddParams;
+  OnFileAdd: (Params: FileAddParams, event: Event) => Promise<void> | void;
+  Params: FileAddParams;
 }
 
 /**
@@ -25,53 +26,52 @@ interface AddImageProps {
  * Gets, sets images and set status.
  */
 interface FileAddParams {
-	getImages: Solid.Accessor<ImageObj[]>;
-	setImages: Solid.Setter<ImageObj[]>;
-
-	setStatus: Solid.Setter<Common.Status>;
+  state: PromptState;
+  setState: SetStoreFunction<PromptState>;
 }
 
 /**
  * A button to select an image
+ * @param props OnFileAdd and get/set images and set status
  */
-const AddImageButton: Solid.Component<AddImageProps> = props => {
-	return (
-		<>
-			<label
-				for='image-picker'
-				class='bg-slate-400/25 px-2 py-1 rounded w-fit font-semibold text-slate-500 cursor-pointer button'
-			>
-				<OcImage2 />
-				Add Images
-			</label>
-			<input
-				type='file'
-				id='image-picker'
-				class='z-[-1] absolute opacity-0'
-				onInput={[props.OnFileAdd, props.Params as any]}
-				accept='image/png, image/jpeg, image/gif'
-				multiple
-			/>
-		</>
-	);
+const AddImageButton: Component<AddImageProps> = (props) => {
+  return (
+    <>
+      <label
+        for='image-picker'
+        class='btn flex w-fit cursor-pointer flex-row items-center gap-2 bg-button text-text'
+      >
+        <OcImage2 />
+        Add Images
+      </label>
+      <input
+        type='file'
+        id='image-picker'
+        class='absolute z-[-1] opacity-0'
+        onInput={[props.OnFileAdd, props.Params as any]}
+        accept='image/png, image/jpeg, image/gif'
+        multiple
+      />
+    </>
+  );
 };
 
 /**
  * Inputs need to {@link OnSubmit submit} a post.
  */
 interface SubmitInputs {
-	/**
-	 * The content of the post
-	 */
-	input: Solid.Accessor<string>;
-	/**
-	 * The images contained the post
-	 */
-	images: Solid.Accessor<ImageObj[]>;
-	/**
-	 * Set the status of page
-	 */
-	setStatus: Solid.Setter<Common.Status>;
+  /**
+   * The content of the post
+   */
+  input: Accessor<string>;
+  /**
+   * The images contained the post
+   */
+  images: Accessor<ImageObj[]>;
+  /**
+   * Set the status of page
+   */
+  setStatus: Setter<Status>;
 }
 
 /**
@@ -80,36 +80,36 @@ interface SubmitInputs {
  * @param event The mouse event
  */
 const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
-	event.preventDefault();
+  event.preventDefault();
 
-	try {
-		const usr: number = await AuthToID();
+  try {
+    const usr: number = await authToID();
 
-		const Req: AddPostRequest = {
-			content: inputs.input(),
-			images: ReformatImages(inputs.images()),
-			postedBy: usr,
-			parentID: -1 // Sole Post
-		};
+    const Req: AddPostRequest = {
+      content: inputs.input(),
+      images: reformatImages(inputs.images()),
+      postedBy: usr,
+      parentID: -1, // Sole Post
+    };
 
-		const Res = await AddPost(Req);
+    const Res = await addPost(Req);
 
-		inputs.setStatus({
-			show: true,
-			ok: Res.ok,
-			msg: Res.ok ? "Success" : "Something Went Wrong"
-		});
+    inputs.setStatus({
+      show: true,
+      ok: Res.ok,
+      msg: Res.ok ? 'Success' : 'Something Went Wrong',
+    });
 
-		if (Res.ok) location.href = "/";
-	} catch (err) {
-		console.error(err);
+    if (Res.ok) location.href = '/';
+  } catch (err) {
+    console.error(err);
 
-		inputs.setStatus({
-			show: true,
-			ok: false,
-			msg: (err as Error).message
-		});
-	}
+    inputs.setStatus({
+      show: true,
+      ok: false,
+      msg: (err as Error).message,
+    });
+  }
 };
 
 /**
@@ -122,212 +122,210 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
  * @param event The event occured
  */
 async function OnFileAdd(Params: FileAddParams, event: Event) {
-	const Target: HTMLInputElement = event.target as HTMLInputElement;
+  const Target: HTMLInputElement = event.target as HTMLInputElement;
 
-	const Files = Target.files;
-	if (!Files) {
-		Params.setStatus(Common.NOTHING_ADDED);
-		return;
-	}
+  const Files = Target.files;
+  if (!Files) {
+    Params.setState('status', Statuses.NOTHING_ADDED);
+    return;
+  }
 
-	if (Files.length + Params.getImages().length > 4) {
-		Params.setStatus(Common.TOO_MANY_IMAGES);
-		return;
-	}
+  if (Files.length + Params.state.Images.length > 4) {
+    Params.setState('status', Statuses.TOO_MANY_IMAGES);
+    return;
+  }
 
-	for (let i = 0; i < Files.length; i++) {
-		const img = Files.item(i);
-		if (!img) continue;
+  let index = 0;
+  do {
+    const img = Files.item(index);
+    if (!img) continue;
 
-		const imgBlob = img.slice(0, img.size, img.type);
+    const imgBlob = img.slice(0, img.size, img.type);
 
-		try {
-			const fileName = await UploadImage(imgBlob);
+    try {
+      const fileName = await uploadImage(imgBlob);
 
-			const imageData: ImageObj = {
-				src: `http://localhost:8000/api/images/download/${encodeURIComponent(fileName)}`,
-				alt: "TODO" // TODO
-			};
+      const imageData: ImageObj = {
+        src: `http://localhost:8000/api/images/download/${encodeURIComponent(fileName)}`,
+        alt: 'TODO', // TODO
+      };
 
-			Params.setImages(prev => [...prev, imageData]);
-		} catch {
-			Params.setStatus(Common.FAILED_TO_LOAD_IMAGE);
-			return;
-		}
-	}
+      Params.setState('Images', (prev) => [...prev, imageData]);
+    } catch {
+      Params.setState('status', Statuses.FAILED_TO_LOAD_IMAGE);
+      return;
+    }
+    index++;
+  } while (index < Files.length);
 
-	Params.setStatus(Common.STATUS_SUCCESS);
+  Params.setState('status', Statuses.STATUS_SUCCESS);
 }
 
-/**
- * The props for {@link ImagePreview}:
- * - image,
- * - index,
- * - setImages
- */
-interface ImagePreviewProps {
-	/**
-	 * The image for the preview
-	 */
-	image: ImageObj;
-	/**
-	 * The index for the preview element
-	 */
-	index: number;
-	/**
-	 * Sets the image from {@link AddPostUI}
-	 */
-	setImages: Solid.Setter<ImageObj[]>;
+// UI
+
+module ImagePreview {
+  /**
+   * The props for {@link ImagePreview}:
+   * - image,
+   * - index,
+   * - setImages
+   */
+  export interface Props {
+    /**
+     * The image for the preview
+     */
+    state: PromptState;
+    /**
+     * The index for the preview element
+     */
+    index: number;
+    /**
+     * Sets the image from {@link AddPostUI}
+     */
+    setState: SetStoreFunction<PromptState>;
+  }
+
+  /**
+   * Closes a {@link ImagePreview}
+   * @param Params the {@link ImagePreview.Props Propetries} of {@link ImagePreview}
+   */
+  export const Close = (Params: Props) => {
+    Params.setState('Images', (prev) => {
+      const clone = [...prev];
+      clone.splice(Params.index, 1);
+      return clone;
+    });
+  };
+
+  /**
+   * A preview of the uploaded image from {@link AddPostUI}, and is able to be deleted
+   * @param props {@link ImagePreview.Props Propetries}
+   */
+  export const Preview: Component<Props> = (props) => {
+    const image = props.state.Images[props.index];
+
+    return (
+      <li class='grid grid-rows-[0px_1fr]'>
+        <button
+          class='bg-sandy-500 relative size-6 rounded leading-none text-warning'
+          onClick={[ImagePreview.Close, props]}
+        >
+          <OcX2 class='m-auto text-lg' />
+        </button>
+        <img
+          src={image.src}
+          alt={image.alt}
+          class='rounded'
+          width={100}
+          height={100}
+        />
+      </li>
+    );
+  };
 }
 
-/**
- * Closes a {@link ImagePreview}
- * @param Params the {@link ImagePreviewProps Propetries} of {@link ImagePreview}
- */
-const PreviewClose = (Params: ImagePreviewProps) => {
-	Params.setImages(prev => {
-		const clone = [...prev];
-		clone.splice(Params.index, 1);
-		return clone;
-	});
-};
-
-/**
- * A preview of the uploaded image from {@link AddPostUI}, and is able to be deleted
- * @param props {@link ImagePreviewProps}
- */
-const ImagePreview: Solid.Component<ImagePreviewProps> = props => {
-	return (
-		<li class='grid grid-rows-[0px_1fr]'>
-			<button
-				class='relative right-2 bottom-1 bg-sandy-500 rounded text-white leading-none size-6'
-				onClick={[PreviewClose, props]}
-			>
-				<OcX2 class='m-auto text-lg' />
-			</button>
-			<img
-				src={props.image.src}
-				alt={props.image.alt}
-				class='rounded'
-				width={100}
-				height={100}
-			/>
-		</li>
-	);
-};
+interface PromptState {
+  Images: ImageObj[];
+  status: Status;
+}
 
 /**
  * The component upload:
  * - content,
  * - images
  */
-const Prompt: Solid.Component = () => {
-	const User = useUser();
+const Prompt: Component = () => {
+  const [Connecter, getInput] = useInput<HTMLTextAreaElement>();
+  const User = useUser();
 
-	const [Connecter, getInput] = useInput<HTMLTextAreaElement>();
-	const [getStatus, setStatus] = Solid.createSignal<Common.Status>(
-		Common.DefaultStatus
-	);
-	const [getImages, setImages] = Solid.createSignal<ImageObj[]>([]);
+  const [state, setState] = createStore<PromptState>({
+    Images: [],
+    status: Statuses.DefaultStatus,
+  });
 
-	return (
-		<PostSkeleton title='Create New Post' subtitle={`As @${User!.handle}`}>
-			<div class='flex flex-col gap-1 col-start-2'>
-				<Solid.Show when={getStatus().show}>
-					<span
-						class={
-							getStatus().ok
-								? "text-persian-500"
-								: "text-sandy-500" + " font-semibold my-0"
-						}
-					>
-						{getStatus().msg}
-					</span>
-				</Solid.Show>
+  let color = '';
+  createEffect(() => {
+    color = state.status.ok ? 'text-persian-500' : 'text-sandy-500';
+  });
 
-				<div class='grid grid-cols-[1fr_0px]'>
-					<textarea
-						id='post-content'
-						class='drop-shadow-lg'
-						placeholder='Express Yourself'
-						cols={50}
-						rows={4}
-						maxLength={100}
-						onKeyUp={Connecter}
-						onkeyup={Common.NoEnter}
-					/>
-					<p class='relative top-full right-16 text-slate-400/50 -translate-y-6'>
-						{getInput().length}/100
-					</p>
-				</div>
+  return (
+    <PostSkeleton title='Create New Post' subtitle={`As @${User!.handle}`}>
+      <div class='col-start-2 flex flex-col gap-1'>
+        <Show when={state.status.show}>
+          <span class={`${color} my-0 font-semibold`}>{state.status.msg}</span>
+        </Show>
 
-				<section class='flex flex-col gap-2 my-2'>
-					<Solid.Show when={getImages().length > 0}>
-						<ul class='flex flex-row justify-left gap-3'>
-							<Solid.For each={getImages()}>
-								{(img, i) => {
-									return (
-										<ImagePreview
-											setImages={setImages}
-											index={i()}
-											image={img}
-										/>
-									);
-								}}
-							</Solid.For>
-						</ul>
-					</Solid.Show>
+        <div class='grid grid-cols-[1fr_0px]'>
+          <textarea
+            id='post-content'
+            class='bg-header text-text outline outline-1 outline-outline placeholder:text-subtitle'
+            placeholder='Express Yourself'
+            cols={50}
+            rows={4}
+            maxLength={100}
+            onKeyUp={Connecter}
+            onkeyup={NoEnter}
+          />
+          <p class='relative right-16 top-full -translate-y-8 text-title/50'>
+            {getInput().length}/100
+          </p>
+        </div>
 
-					<AddImageButton
-						OnFileAdd={OnFileAdd}
-						Params={{
-							getImages: getImages,
-							setImages: setImages,
-							setStatus: setStatus
-						}}
-					/>
-				</section>
+        <section class='my-2 flex flex-col gap-2'>
+          <AddImageButton OnFileAdd={OnFileAdd} Params={{ state, setState }} />
 
-				<div class='flex flex-row items-center gap-4'>
-					<button
-						class='bg-persian-500 text-white button'
-						type='submit'
-						onClick={[
-							OnSubmit as any,
-							{ input: getInput, setStatus: setStatus, images: getImages }
-						]}
-					>
-						<OcPaperairplane2 />
-						Submit
-					</button>
-				</div>
-			</div>
-		</PostSkeleton>
-	);
+          <Show when={state.Images.length > 0}>
+            <ul class='justify-left flex flex-row gap-3'>
+              <For each={state.Images}>
+                {(img, index) => {
+                  return (
+                    <ImagePreview.Preview
+                      setState={setState}
+                      index={index()}
+                      state={state}
+                    />
+                  );
+                }}
+              </For>
+            </ul>
+          </Show>
+        </section>
+
+        <button
+          class='btn button flex w-fit items-center gap-2 bg-accent'
+          type='submit'
+          onClick={[OnSubmit as any, { input: getInput, state: state }]}
+        >
+          <OcPaperairplane2 />
+          Submit
+        </button>
+      </div>
+    </PostSkeleton>
+  );
 };
 
 /**
  * Basic Sides Page
  */
-const AddPostUI: Solid.Component = () => {
-	return (
-		<>
-			<Title>CoffeeCo - New Post</Title>
+const AddPostUI: Component = () => {
+  return (
+    <>
+      <Title>CoffeeCo - New Post</Title>
 
-			<Meta
-				name='description'
-				content='CoffeeCo is a place for Social Discussions, Art and Politics'
-			/>
+      <Meta
+        name='description'
+        content='CoffeeCo is a place for Social Discussions, Art and Politics'
+      />
 
-			<Header />
+      <Header />
 
-			<Sides>
-				<main class='mx-auto'>
-					<Prompt />
-				</main>
-			</Sides>
-		</>
-	);
+      <Sides>
+        <main class='mx-auto'>
+          <Prompt />
+        </main>
+      </Sides>
+    </>
+  );
 };
 
 export default AddPostUI;
