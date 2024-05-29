@@ -93,7 +93,7 @@ func (srv *Server) getFeed(query string) (postFeed, error) {
 }
 
 func (srv *Server) isPostAllowed(Post AddPostRequest, r *http.Request) (bool, string) {
-	const maxLength = 100
+	const maxLength = 240
 	if len(Post.Content) > maxLength {
 		return false, "Post is too long"
 	}

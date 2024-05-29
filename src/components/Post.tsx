@@ -180,8 +180,10 @@ const PostUI: Component<PostProps> = (props) => {
         subtitle={date}
         url={`http://localhost:8000/user/${props.post.postedBy}`}
       >
-        <div class='col-start-2 flex flex-col gap-2'>
-          <RichText class='text-text'>{pst.content}</RichText>
+        <div class='col-start-2 flex w-full flex-col gap-2 overflow-hidden'>
+          <RichText class='whitespace-pre-wrap text-wrap break-words text-text'>
+            {pst.content}
+          </RichText>
 
           <Show when={ValidImages.test(pst.images)}>
             <PostImages images={pst.images} />

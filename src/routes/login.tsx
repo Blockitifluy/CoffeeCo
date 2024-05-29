@@ -21,17 +21,18 @@ const Submit: FormInput.AuthSubmit = async (Inputs) => {
 };
 
 const Inputs: FormInput.AuthInput[] = [
-  new FormInput.AuthInput(
-    'Handle',
-    FormInput.AuthPlaceholder.username,
-    false,
-    24,
-  ),
-  new FormInput.AuthInput(
-    'Password',
-    FormInput.AuthPlaceholder.currentPassword,
-    true,
-  ),
+  {
+    key: 'Handle',
+    placeholder: FormInput.AuthPlaceholder.username,
+    isPassword: false,
+    limit: 24,
+  },
+
+  {
+    key: 'Password',
+    placeholder: FormInput.AuthPlaceholder.currentPassword,
+    isPassword: true,
+  },
 ];
 
 const AuthPage: FormInput.AuthProps = {

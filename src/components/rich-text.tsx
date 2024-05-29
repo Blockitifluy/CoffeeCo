@@ -73,8 +73,6 @@ function loadEncodings(text: string, encodings: Encoding.TextStyler[]): string {
   while (index < encodings.length) {
     const enc = encodings[index];
     final = enc.exec(final);
-    console.log(final);
-
     index++;
   }
 
