@@ -259,13 +259,13 @@ const Prompt: Component = () => {
             class='bg-header text-text outline outline-1 outline-outline placeholder:text-subtitle'
             placeholder='Express Yourself'
             cols={50}
-            rows={4}
-            maxLength={100}
+            rows={5}
+            maxLength={240}
             onKeyUp={Connecter}
             onkeyup={NoEnter}
           />
           <p class='relative right-16 top-full -translate-y-8 text-title/50'>
-            {getInput().length}/100
+            {getInput().length}/240
           </p>
         </div>
 

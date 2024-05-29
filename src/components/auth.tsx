@@ -69,42 +69,23 @@ export namespace FormInput {
   /**
    * An template of a {@link FormInput.AuthInput}
    */
-  export class AuthInput {
+  export interface AuthInput {
     /**
      * If false, the input is hidden (shown in •••)
      */
-    public isPassword: boolean;
+    isPassword: boolean;
     /**
      * The name of Input
      */
-    public key: string;
+    key: string;
     /**
      * The placeholder Input
      */
-    public placeholder: AuthPlaceholder;
+    placeholder: AuthPlaceholder;
     /**
      * Maximum character limit for the input
      */
-    public limit?: number;
-
-    /**
-     * Constructs a {@link FormInput.AuthInput AuthInput}
-     * @param text The {@link FormInput.AuthInput.key key} value
-     * @param placeholder Automatic input fill in
-     * @param isPassword If false, the input is hidden (shown in •••)
-     * @param limit Maximum character limit for the input
-     */
-    constructor(
-      text: string,
-      placeholder: AuthPlaceholder = AuthPlaceholder.off,
-      isPassword: boolean = false,
-      limit?: number,
-    ) {
-      this.placeholder = placeholder;
-      this.isPassword = isPassword;
-      this.limit = limit;
-      this.key = text;
-    }
+    limit?: number;
   }
 }
 
@@ -139,21 +120,17 @@ const InputUI: Component<FormInput.AuthInput> = (props) => {
   const [input, setInput] = createSignal<string>('');
 
   return (
-    <div class='flex flex-col gap-1'>
-      <input
-        id={props.key}
-        onKeyUp={onInput(props.key, [input, setInput])}
-        class='rounded border-2 border-outline bg-background p-2 text-text placeholder:text-subtitle focus:outline-accent'
-        placeholder={props.key}
-        autocomplete={props.placeholder}
-        maxlength={props.limit}
-        type={props.isPassword ? 'password' : 'text'}
-      />
-
-      <Show when={props.limit}>
-        <span>{props.limit} limit</span>
-      </Show>
-    </div>
+    <input
+      id={props.key}
+      onKeyUp={onInput(props.key, [input, setInput])}
+      class='rounded border-2 border-outline bg-background p-2 text-text placeholder:text-subtitle focus:outline-accent'
+      placeholder={
+        props.limit ? `${props.key} (${props.limit} limit)` : props.key
+      }
+      autocomplete={props.placeholder}
+      maxlength={props.limit}
+      type={props.isPassword ? 'password' : 'text'}
+    />
   );
 };
 

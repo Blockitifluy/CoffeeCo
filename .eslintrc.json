@@ -19,7 +19,7 @@
 
 		"camelcase": "warn",
 		"new-cap": "warn",
-		"id-length": "error",
+		"id-length": ["error", {"min": 2, "exceptions": ["_"], "properties": "never"}],
 		"no-underscore-dangle":"error",
 
 		"eslint-plugin-import/no-unresolved": "off",

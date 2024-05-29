@@ -6,6 +6,7 @@ import ProfileIcon from '../assets/DefaultLogo.png';
 import { Post as PostType } from '../requests/post';
 import { ChildrenProps } from '../common';
 import { A } from '@solidjs/router';
+import RichText from './rich-text';
 
 /**
  * The propetries of {@link PostSkeleton}
@@ -179,8 +180,10 @@ const PostUI: Component<PostProps> = (props) => {
         subtitle={date}
         url={`http://localhost:8000/user/${props.post.postedBy}`}
       >
-        <div class='col-start-2 flex flex-col gap-2'>
-          <p class='text-text'>{pst.content}</p>
+        <div class='col-start-2 flex w-full flex-col gap-2 overflow-hidden'>
+          <RichText class='whitespace-pre-wrap text-wrap break-words text-text'>
+            {pst.content}
+          </RichText>
 
           <Show when={ValidImages.test(pst.images)}>
             <PostImages images={pst.images} />

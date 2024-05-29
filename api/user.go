@@ -172,6 +172,15 @@ func (srv *Server) APIAddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(user.Handle) > 24 {
+		utility.Error(w, utility.HTTPError{
+			Public:  "Username Too Long (24 limit)",
+			Message: "Username to long",
+			Code:    400,
+		})
+		return
+	}
+
 	hashedPass := utility.I32toB(hashString([]byte(user.Password)))
 
 	var hashedUser User = User{
