@@ -10,6 +10,7 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@types/he": "^1.2.3",
 		"@types/js-cookie": "^3.0.6",
 		"@typescript-eslint/eslint-plugin": "^6.20.0",
 		"@typescript-eslint/parser": "^6.20.0",
@@ -29,6 +30,7 @@
 		"@solidjs/meta": "^0.29.3",
 		"@solidjs/router": "^0.10.9",
 		"babel-preset-solid": "^1.8.9",
+		"he": "^1.2.0",
 		"js-cookie": "^3.0.5",
 		"sass": "^1.70.0",
 		"solid-icons": "^1.1.0",
