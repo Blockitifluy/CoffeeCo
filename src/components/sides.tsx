@@ -11,11 +11,11 @@ import { ChildrenProps } from '../common';
  */
 const RightSide: Component = () => {
   return (
-    <section class='sticky top-2 flex flex-col self-start px-4'>
+    <aside class='sticky top-2 flex flex-col self-start px-4'>
       <Popular />
       <hr class='border-1 my-4 border-outline' />
       <FollowRecommend />
-    </section>
+    </aside>
   );
 };
 
@@ -26,11 +26,11 @@ const RightSide: Component = () => {
 const Sides: Component<ChildrenProps> = (props) => {
   return (
     <div class='ml-4 grid max-w-7xl grid-cols-miniheader justify-center pt-4 md:mx-auto lg:grid-cols-header'>
-      <section class='sticky top-2 hidden flex-col self-start px-4 lg:flex'>
+      <aside class='sticky top-2 hidden flex-col self-start px-4 lg:flex'>
         <Show when={isLoggedIn()}>
           <SideLinks />
         </Show>
-      </section>
+      </aside>
 
       {props.children}
 

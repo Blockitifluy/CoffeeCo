@@ -13,6 +13,8 @@ require github.com/google/uuid v1.6.0
 
 require github.com/blockloop/scan v1.3.0
 
+require github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+
 require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

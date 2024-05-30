@@ -8,7 +8,7 @@ import {
   createResource,
   JSX,
 } from 'solid-js';
-import { DefaultUser, getUserFromID as getUserFromID } from '../requests/user';
+import { DefaultUser, getUserFromID } from '../requests/user';
 import { useParams } from '@solidjs/router';
 import PostList from '../components/postlist';
 import { useUser } from '../contexts/usercontext';

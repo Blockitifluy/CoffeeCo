@@ -5,6 +5,8 @@ import {
   PostFeedList as postFeedList,
 } from '../requests/post';
 import PostUI from './Post';
+import { createStore } from 'solid-js/store';
+import { createBottomListener } from '../hooks';
 
 /**
  * Used by {@link getPostsGlobal}
@@ -78,22 +80,68 @@ interface PostListProps {
 }
 
 /**
+ * Loads post from a user (If ID is present, else from every user)
+ * @param amount The amount of posts wanted
+ * @param ID The user's ID
+ * @returns A promise of PostListReq
+ */
+function loadPosts(amount: number, ID?: number): Promise<PostListReq> {
+  if (ID) {
+    return getPostUser(amount, ID);
+  }
+
+  return getPostsGlobal(amount);
+}
+
+interface PostListState {
+  isLoadingPost: boolean;
+  newPosts: Post[];
+}
+
+/**
  * Displayes the amount of Posts as requested
  * @param props The amount of the PostList
  */
 const PostList: Component<PostListProps> = (props) => {
-  const [posts] = createResource<PostListReq>(() => {
-    if (props.ID) {
-      return getPostUser(props.amount, props.ID);
+  const [state, setState] = createStore<PostListState>({
+    isLoadingPost: false,
+    newPosts: [],
+  });
+
+  const [initPosts] = createResource<PostListReq>(() =>
+    loadPosts(props.amount, props.ID),
+  );
+
+  const handleScroll = async () => {
+    console.log('Scrolled To Bottom');
+    if (state.isLoadingPost) {
+      return;
     }
 
-    return getPostsGlobal(props.amount);
-  });
+    setState('isLoadingPost', true);
+
+    console.log('Loading new posts');
+
+    const NewPosts = await loadPosts(props.amount, props.ID);
+    if (!NewPosts.ok) {
+      console.error('Loading new posts was not ok');
+      setState('isLoadingPost', false);
+      return;
+    }
+
+    setState('newPosts', state.newPosts.concat(...NewPosts.Posts));
+    setState('isLoadingPost', false);
+  };
+
+  createBottomListener(handleScroll, 512);
 
   return (
     <div class='flex flex-col items-center gap-4'>
-      <Show when={!posts.loading || posts()?.ok}>
-        <For each={posts()?.Posts} fallback={<ListFallback />}>
+      <Show when={!initPosts.loading || initPosts()?.ok}>
+        <For
+          each={initPosts()?.Posts.concat(...state.newPosts)}
+          fallback={<ListFallback />}
+        >
           {(post) => <PostUI post={post} />}
         </For>
       </Show>

@@ -261,8 +261,8 @@ const Prompt: Component = () => {
             cols={50}
             rows={5}
             maxLength={240}
-            onKeyUp={Connecter}
-            onkeyup={NoEnter}
+            oninput={Connecter}
+            onkeydown={NoEnter}
           />
           <p class='relative right-16 top-full -translate-y-8 text-title/50'>
             {getInput().length}/240
