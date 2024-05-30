@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import DefaultProfile from '../assets/DefaultProfile.png';
 import { FetchError } from '../common';
 
 /**
@@ -48,7 +49,7 @@ export const DefaultUser: User = {
   handle: 'default',
   bio: 'Lorem Ipsum',
   Banner: 'https://placehold.co/1080x256',
-  Profile: 'https://placehold.co/64',
+  Profile: DefaultProfile,
   FollowersCount: 0,
 };
 
@@ -117,8 +118,8 @@ export async function newUser(handle: string, password: string, email: string) {
     handle: handle,
     bio: 'Hello there, I am new to CoffeeCo',
 
-    Banner: '',
-    Profile: '',
+    Banner: 'https://placehold.co/1080x256',
+    Profile: DefaultProfile,
 
     password: password,
     email: email,

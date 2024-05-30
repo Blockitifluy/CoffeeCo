@@ -54,7 +54,7 @@ function getEncodings(): Encoding.TextStyler[] {
     new Encoding.TextStyler(
       /[(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g,
       (substring) => {
-        return `<a href='${substring}' class='text-accent'>${substring}</a>`;
+        return `<a href='${substring}' class='text-accent font-bold underline decoration-2 decoration-accent'>${substring}</a>`;
       },
     ),
   ];

@@ -66,11 +66,9 @@ export const NoEnter: JSX.EventHandlerUnion<
   HTMLTextAreaElement,
   KeyboardEvent
 > = (event) => {
-  if (event.key !== 'Enter') {
-    return;
+  if (event.key === 'Enter') {
+    event.preventDefault();
   }
-
-  event.preventDefault();
 };
 
 export module Statuses {

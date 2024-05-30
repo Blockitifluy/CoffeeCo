@@ -2,7 +2,7 @@ import { OcComment2, OcThumbsdown2, OcThumbsup2 } from 'solid-icons/oc';
 import { deformatImages, ImageObj, ValidImages } from '../requests/images';
 import { DefaultUser, getUserFromID, User } from '../requests/user';
 import { Show, Component, createResource, For } from 'solid-js';
-import ProfileIcon from '../assets/DefaultLogo.png';
+import ProfileIcon from '../assets/DefaultProfile.png';
 import { Post as PostType } from '../requests/post';
 import { ChildrenProps } from '../common';
 import { A } from '@solidjs/router';
@@ -34,10 +34,16 @@ export const PostSkeleton: Component<PostSkeletonProps> = (props) => {
   const linkLabel = `${props.title}'s page`;
 
   return (
-    <div class='post'>
+    <article class='post'>
       {props.url ? (
         <A href={props.url} aria-label={linkLabel}>
-          <img src={ProfileIcon} width={32} height={32} class='rounded-full' />
+          <img
+            src={ProfileIcon}
+            alt={`${props.title} Profile Image`}
+            width={32}
+            height={32}
+            class='rounded-full'
+          />
         </A>
       ) : (
         <img
@@ -45,7 +51,7 @@ export const PostSkeleton: Component<PostSkeletonProps> = (props) => {
           width={32}
           height={32}
           class='rounded-full'
-          alt=''
+          alt={`${props.title} Profile Image`}
         />
       )}
 
@@ -55,7 +61,7 @@ export const PostSkeleton: Component<PostSkeletonProps> = (props) => {
       </div>
 
       {props.children}
-    </div>
+    </article>
   );
 };
 

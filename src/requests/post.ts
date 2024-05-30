@@ -14,6 +14,17 @@ export interface Post {
 }
 
 /**
+ * Only used for debugging / development, do not use in production
+ */
+export const DefaultPost: Post = {
+  ID: 0,
+  postedBy: 0,
+  content: 'THIS TEST CODE DO NOT USE FOR PRODUCTION',
+  timeCreated: 'Invalid Date',
+  parentID: -1,
+  images: '',
+};
+/**
  * Get a post the ID
  * @param ID The identifaction of post
  */

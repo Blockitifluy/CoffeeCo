@@ -59,7 +59,13 @@ const Left: Component<{ setHamburger: Setter<boolean> }> = (props) => {
       </div>
 
       <A href='/' class='full-center gap-4'>
-        <img src={Logo64} width='36' height='36' />
+        <img
+          src={Logo64}
+          loading='lazy'
+          alt='CoffeeCo Logo'
+          width='36'
+          height='36'
+        />
         <h1 class='hidden rounded px-1 text-lg font-semibold text-title transition-all hover:bg-accent/40 active:bg-accent/25 sm:block'>
           CoffeeCo
         </h1>

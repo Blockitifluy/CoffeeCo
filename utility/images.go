@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/nfnt/resize"
 )
 
 // ImageSizeLimit is the size limit of all uploaded images
@@ -20,6 +22,27 @@ const ImageSizeLimit = 5000 * 1000
 
 // ImageMaxAge is the cache length
 const ImageMaxAge = 14 * 7 * 24 * int(time.Hour)
+
+const maxSize = 800
+
+// ResizeImage scales up the image if its dimensions are smaller than the desired size while maintaining the aspect ratio.
+func ResizeImage(img image.Image, maxWidth, maxHeight uint) image.Image {
+	width := uint(img.Bounds().Dx())
+	height := uint(img.Bounds().Dy())
+
+	if width < maxWidth || height < maxHeight {
+		widthRatio := float64(maxWidth) / float64(width)
+		heightRatio := float64(maxHeight) / float64(height)
+
+		if widthRatio < heightRatio {
+			img = resize.Resize(maxWidth, 0, img, resize.Lanczos3)
+		} else {
+			img = resize.Resize(0, maxHeight, img, resize.Lanczos3)
+		}
+	}
+
+	return img
+}
 
 // IsImageSurported checks if a content-type is surported
 func IsImageSurported(contentType string) bool {
@@ -90,6 +113,8 @@ func CompressJPEG(b []byte, quality int) ([]byte, error) {
 		return out, err
 	}
 
+	img = ResizeImage(img, maxSize, maxSize)
+
 	options := &jpeg.Options{Quality: quality}
 
 	var buf bytes.Buffer
@@ -107,6 +132,8 @@ func CompressPNG(b []byte, compressionLevel png.CompressionLevel) ([]byte, error
 	if err != nil {
 		return make([]byte, 0), err
 	}
+
+	img = ResizeImage(img, maxSize, maxSize)
 
 	var buf bytes.Buffer
 	encoder := png.Encoder{CompressionLevel: compressionLevel}
