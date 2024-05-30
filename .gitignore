@@ -1,8 +1,6 @@
-api/database/db.sql
-coffeecoserver.exe
-api/__pycache__
 CoffeeCo.exe
 node_modules
+api/database/db.sql
 desktop.ini
 release
 dist
