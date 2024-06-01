@@ -20,7 +20,7 @@ const HamburgerItem: Component<HamburgerItemProps> = (props) => {
     </A>
   );
   return (
-    <li class='border-b-[1px] border-outline border-b-outline px-4 py-2 last:border-none'>
+    <li class='border-b border-outline border-b-outline px-4 py-2 last:border-none'>
       {Content}
     </li>
   );

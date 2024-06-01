@@ -1,8 +1,8 @@
+import PostList from '../components/postlist';
 import { Meta, Title } from '@solidjs/meta';
 import Header from '../components/Header';
 import Sides from '../components/sides';
 import { Component } from 'solid-js';
-import PostList from '../components/postlist';
 
 /**
  * The main front page of website

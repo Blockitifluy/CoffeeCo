@@ -126,52 +126,67 @@ func (srv *Server) isPostAllowed(Post AddPostRequest, r *http.Request) (bool, st
 // Get a the comment from a Post
 func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request) {
 	URLQuery := r.URL.Query()
-	ID, err := strconv.Atoi(URLQuery.Get("ID"))
-	amount, amountErr := strconv.Atoi(URLQuery.Get("amount"))
-
+	parentID, err := strconv.Atoi(URLQuery.Get("ID"))
 	if err != nil {
 		utility.Error(w, utility.HTTPError{
 			Public:  utility.PublicBadRequest,
-			Message: err.Error(),
-			Code:    400,
-		})
-		return
-	} else if amountErr != nil {
-		utility.Error(w, utility.HTTPError{
-			Public:  utility.PublicBadRequest,
-			Message: amountErr.Error(),
+			Message: "Couldn't parse ID",
 			Code:    400,
 		})
 		return
 	}
 
-	querys, err := srv.Query("SELECT * FROM Posts WHERE ParentId = ? LIMIT ?", ID, amount)
-	defer querys.Close()
+	from, err := strconv.Atoi(URLQuery.Get("from"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't parse from",
+			Code:    400,
+		})
+		return
+	}
+
+	postRange, err := strconv.Atoi(URLQuery.Get("range"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't range from",
+			Code:    400,
+		})
+		return
+	}
+
+	const Query = `
+	SELECT *
+	FROM Posts
+	WHERE ParentId = ?
+	ORDER BY id
+	LIMIT ? OFFSET ?
+	`
+
+	rows, err := srv.Query(Query, parentID, postRange, from)
 	if err != nil {
 		utility.Error(w, utility.HTTPError{
 			Public:  utility.PublicServerError,
 			Message: err.Error(),
-			Code:    500,
+			Code:    400,
 		})
 		return
 	}
 
 	var Posts []PostDB
-	if err := scan.Rows(&Posts, querys); err != nil {
+	if err := scan.Rows(&Posts, rows); err != nil {
 		utility.SendScanErr(w, err, nil)
 		return
 	}
 
 	if len(Posts) == 0 {
-		utility.Error(w, utility.HTTPError{
-			Public:  utility.PublicNotFoundError,
-			Message: "Empty Array",
-			Code:    404,
-		})
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("[]"))
 		return
 	}
 
-	JSON, err := json.Marshal(Posts)
+	json, err := json.Marshal(Posts)
 	if err != nil {
 		utility.Error(w, utility.HTTPError{
 			Public:  utility.PublicServerError,
@@ -181,9 +196,11 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", utility.MinuteCache))
+	zipped, err := utility.GZipBytes(json)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(JSON)
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Write(zipped)
 }
 
 // APIGetPostFromID is an API call, only use in HTTP contexts

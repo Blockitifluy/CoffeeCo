@@ -14,6 +14,16 @@ export interface Post {
 }
 
 /**
+ * Contains a list of Post and ok if fetch them was successful
+ */
+export interface PostListReq {
+  /** The posts response */
+  Posts: Post[];
+  /**Is request successful? */
+  ok: boolean;
+}
+
+/**
  * Only used for debugging / development, do not use in production
  */
 export const DefaultPost: Post = {
@@ -28,7 +38,7 @@ export const DefaultPost: Post = {
  * Get a post the ID
  * @param ID The identifaction of post
  */
-export async function PostGetFromID(ID: number): Promise<Response> {
+export async function getPostFromID(ID: number): Promise<Post> {
   const Res = await fetch(`/api/post/get-post-from-id/${ID}`);
 
   if (!Res.ok) {
@@ -39,7 +49,7 @@ export async function PostGetFromID(ID: number): Promise<Response> {
     throw new Error(ResError.public);
   }
 
-  return Res;
+  return Res.json();
 }
 
 /**
@@ -88,7 +98,7 @@ export async function PostFeed(): Promise<Response> {
 }
 
 /**
- * Used for {@link AddPost}
+ * Used for {@link addPost}
  * - `postedBy` - The ID of the user
  * - `parentID` - If a comment the parent ID is the post's id, if not is equal to -1
  * - `content` - The text of the post
@@ -109,7 +119,7 @@ export interface AddPostRequest {
  * @param Req The post data the user wants to send
  * @returns Response
  */
-export async function AddPost(Req: AddPostRequest): Promise<Response> {
+export async function addPost(Req: AddPostRequest): Promise<Response> {
   const imageCheck = ValidImages.test(Req.images);
 
   console.log(Req.images);
@@ -157,6 +167,44 @@ export async function GetPostsFromUser(
       cache: 'no-cache',
     },
   );
+
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
+
+    console.error(ResError);
+
+    throw new Error(ResError.public);
+  }
+
+  return Res;
+}
+
+/**
+ * Get comments from a post
+ * @param ID The ID of post
+ * @param from The bottom of search
+ * @param range The amount of comments
+ * @returns A promise of a list of Posts
+ */
+export async function getCommentsFromPost(
+  ID: number,
+  from: number,
+  range: number,
+): Promise<Response> {
+  const resURL = new URL(
+    'http://localhost:8000/api/post/get-comments-from-post',
+  );
+  resURL.searchParams.set('ID', ID.toString());
+  resURL.searchParams.set('from', from.toString());
+  resURL.searchParams.set('range', range.toString());
+
+  const Res = await fetch(resURL.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-cache',
+    mode: 'no-cors',
+  });
 
   if (!Res.ok) {
     const ResError: FetchError = await Res.json();
