@@ -438,3 +438,86 @@ func (srv *Server) APIGetPostsFromUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "gzip")
 	w.Write(compress)
 }
+
+// APIGetUserPostHistory is an API call do not use outside of http requests
+//
+// Gets posts from a range by an user
+func (srv *Server) APIGetUserPostHistory(w http.ResponseWriter, r *http.Request) {
+	URLQuery := r.URL.Query()
+	userID, err := strconv.Atoi(URLQuery.Get("ID"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't parse ID",
+			Code:    400,
+		})
+		return
+	}
+
+	from, err := strconv.Atoi(URLQuery.Get("from"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't parse from",
+			Code:    400,
+		})
+		return
+	}
+
+	postRange, err := strconv.Atoi(URLQuery.Get("range"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't range from",
+			Code:    400,
+		})
+		return
+	}
+
+	const Query = `
+	SELECT *
+	FROM Posts
+	WHERE ParentId = -1
+	AND PostedBy = ?
+	ORDER BY id DESC
+	LIMIT ? OFFSET ?
+	`
+
+	rows, err := srv.Query(Query, userID, postRange, from)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    400,
+		})
+		return
+	}
+
+	var Posts []PostDB
+	if err := scan.Rows(&Posts, rows); err != nil {
+		utility.SendScanErr(w, err, nil)
+		return
+	}
+
+	if len(Posts) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("[]"))
+		return
+	}
+
+	json, err := json.Marshal(Posts)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	zipped, err := utility.GZipBytes(json)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Write(zipped)
+}

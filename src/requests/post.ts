@@ -89,8 +89,6 @@ export async function PostFeed(): Promise<Response> {
   if (!Res.ok) {
     const ResError: FetchError = await Res.json();
 
-    console.error(ResError);
-
     throw new Error(ResError.public);
   }
 
@@ -134,6 +132,7 @@ export async function addPost(Req: AddPostRequest): Promise<Response> {
     method: 'POST',
     headers: {
       'Content-Type': 'appliction/json',
+      Accept: 'application/json',
     },
     body: JSON.stringify(Req),
   });
@@ -209,7 +208,41 @@ export async function getCommentsFromPost(
   if (!Res.ok) {
     const ResError: FetchError = await Res.json();
 
-    console.error(ResError);
+    throw new Error(ResError.public);
+  }
+
+  return Res;
+}
+
+/**
+ * Get the posts from a user, in a similar way as {@link getCommentsFromPost}.
+ * @param ID The user's ID
+ * @param from Start from
+ * @param range The amount requested
+ * @returns A promise of a list of posts uploaded by the user's `ID`.
+ */
+export async function getUserPostHistory(
+  ID: number,
+  from: number,
+  range: number,
+): Promise<Response> {
+  const resURL = new URL(
+    'http://localhost:8000/api/post/get-user-post-history',
+  );
+  resURL.searchParams.set('ID', ID.toString());
+  resURL.searchParams.set('from', from.toString());
+  resURL.searchParams.set('range', range.toString());
+
+  const Res = await fetch(resURL.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-cache',
+    mode: 'no-cors',
+  });
+
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
 
     throw new Error(ResError.public);
   }
