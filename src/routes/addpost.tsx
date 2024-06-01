@@ -1,7 +1,7 @@
 import { NoEnter, Status, Statuses } from '../common';
 import { Accessor, Component, createEffect, For, Show } from 'solid-js';
 
-import { AddPost as addPost, AddPostRequest } from '../requests/post';
+import { addPost as addPost, AddPostRequest } from '../requests/post';
 import { PostSkeleton } from '../components/Post';
 import { useUser } from '../contexts/usercontext';
 import { OcImage2, OcPaperairplane2, OcX2 } from 'solid-icons/oc';
@@ -47,7 +47,7 @@ const AddImageButton: Component<AddImageProps> = (props) => {
       <input
         type='file'
         id='image-picker'
-        class='absolute z-[-1] opacity-0'
+        class='absolute -z-10 opacity-0'
         onInput={[props.OnFileAdd, props.Params as any]}
         accept='image/png, image/jpeg, image/gif'
         multiple
@@ -259,7 +259,7 @@ const Prompt: Component = () => {
             class='bg-header text-text outline outline-1 outline-outline placeholder:text-subtitle'
             placeholder='Express Yourself'
             cols={50}
-            rows={5}
+            rows={6}
             maxLength={240}
             oninput={Connecter}
             onkeydown={NoEnter}

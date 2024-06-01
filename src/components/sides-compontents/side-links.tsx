@@ -15,7 +15,7 @@ const LeftLink: Component<LeftLinkProps> = (props) => {
   return (
     <li class='w-full border-b border-outline py-1 last:border-none'>
       <A
-        class={`text-charcoal-600 hover:bg-slate-950/25 active:bg-slate-950/35 flex flex-row items-center gap-1 py-1 pl-4 text-lg font-medium ${background} transition-colors`}
+        class={`hover:bg-slate-950/25 active:bg-slate-950/35 flex flex-row items-center gap-1 py-1 pl-4 text-lg font-medium ${background} transition-colors`}
         href={props.url}
       >
         {props.children}

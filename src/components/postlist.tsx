@@ -3,20 +3,11 @@ import {
   GetPostsFromUser as getPostsFromUser,
   Post,
   PostFeedList as postFeedList,
+  PostListReq,
 } from '../requests/post';
 import PostUI from './Post';
 import { createStore } from 'solid-js/store';
 import { createBottomListener } from '../hooks';
-
-/**
- * Used by {@link getPostsGlobal}
- */
-interface PostListReq {
-  /** The posts response */
-  Posts: Post[];
-  /**Is request successful? */
-  ok: boolean;
-}
 
 /**
  * Gets the amount of posts wanted from every user
@@ -133,7 +124,7 @@ const PostList: Component<PostListProps> = (props) => {
     setState('isLoadingPost', false);
   };
 
-  createBottomListener(handleScroll, 512);
+  createBottomListener(handleScroll, 100);
 
   return (
     <div class='flex flex-col items-center gap-4'>

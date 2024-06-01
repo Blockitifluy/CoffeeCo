@@ -16,7 +16,7 @@ const MainPage = lazy(() => import('./routes/MainPage')),
   UserPage = lazy(() => import('./routes/userpage')),
   SignupPage = lazy(() => import('./routes/signup')),
   LoginPage = lazy(() => import('./routes/login')),
-  PostFocusPage = lazy(() => import('./routes/postfocus'));
+  PostFocusPage = lazy(() => import('./routes/post-focus'));
 
 /**
  * Trys to get the root element, if doesn't exists then throws error
@@ -47,7 +47,7 @@ function getRoot(): HTMLElement {
 const Boundary = (err: Error, reset: () => void) => {
   // TODO
   return (
-    <div>
+    <div class='text-text'>
       {err.message} <button onClick={reset}>Reset</button>
     </div>
   );
