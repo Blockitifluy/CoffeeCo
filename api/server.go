@@ -97,6 +97,11 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 			Methods: []string{"GET"},
 			Funct:   srv.APIGetPostsFromUser,
 		},
+		{
+			path:    "/api/post/get-user-post-history",
+			Methods: []string{"GET"},
+			Funct:   srv.APIGetUserPostHistory,
+		},
 
 		// Image API
 		{

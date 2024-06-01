@@ -13,7 +13,7 @@ import { ErrorBoundary, lazy } from 'solid-js';
 const MainPage = lazy(() => import('./routes/MainPage')),
   NotFoundPage = lazy(() => import('./routes/notfound')),
   AddPostUI = lazy(() => import('./routes/addpost')),
-  UserPage = lazy(() => import('./routes/userpage')),
+  UserPage = lazy(() => import('./routes/user-page')),
   SignupPage = lazy(() => import('./routes/signup')),
   LoginPage = lazy(() => import('./routes/login')),
   PostFocusPage = lazy(() => import('./routes/post-focus'));
