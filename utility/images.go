@@ -20,8 +20,8 @@ import (
 // ImageSizeLimit is the size limit of all uploaded images
 const ImageSizeLimit = 5000 * 1000
 
-// ImageMaxAge is the cache length
-const ImageMaxAge = 14 * 7 * 24 * int(time.Hour)
+// ImageMaxAge is the cache length (a week)
+const ImageMaxAge = 2 * 7 * 24 * int(time.Hour)
 
 const maxSize = 800
 

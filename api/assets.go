@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const assetCacheControl string = "must-revalidate, max-age=604800" // Caches for one week
+const assetCacheControl string = "must-revalidate, max-age=86400" // Caches for one day
 
 var openedCache = map[string]*AssetCache{}
 

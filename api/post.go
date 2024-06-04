@@ -197,6 +197,13 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 	}
 
 	zipped, err := utility.GZipBytes(json)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")
