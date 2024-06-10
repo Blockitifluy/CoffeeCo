@@ -8,6 +8,7 @@ import (
 
 	"github.com/Blockitifluy/CoffeeCo/utility"
 	"github.com/fatih/color"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3" // Used for a driver by database/sql
 )
@@ -65,6 +66,11 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 			Methods: []string{"POST"},
 			Funct:   srv.APIAddUser,
 		},
+		{
+			path:    "/api/user/search",
+			Methods: []string{"GET"},
+			Funct:   srv.APISearchForUsers,
+		},
 
 		// POST API
 		{
@@ -101,6 +107,11 @@ func (srv *Server) getRouteTemplates() []RouteTemplate {
 			path:    "/api/post/get-user-post-history",
 			Methods: []string{"GET"},
 			Funct:   srv.APIGetUserPostHistory,
+		},
+		{
+			path:    "/api/post/search",
+			Methods: []string{"GET"},
+			Funct:   srv.APISearchPost,
 		},
 
 		// Image API
@@ -219,7 +230,9 @@ func (srv *Server) Routes() {
 func (srv *Server) Run() {
 	fmt.Printf("Hosting on port %s\nPress Ctrl + C to stop server\n\n", srv.Address)
 
-	err := http.ListenAndServe(srv.Address, srv)
+	CorsMiddleware := handlers.CORS()(srv)
+
+	err := http.ListenAndServe(srv.Address, CorsMiddleware)
 
 	if err != nil {
 		color.Red(err.Error())

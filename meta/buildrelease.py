@@ -2,6 +2,11 @@
 import subprocess
 import shutil
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+DB_PATH = "temp/api/database/db.sql"
+TABLE_INIT_PATH = "temp/api/database/TableInit.txt"
 
 def clear_folder(folder: str):
     """Clears the contents of a folder
@@ -36,7 +41,7 @@ def build_with_vite() -> bool:
     Returns:
         bool: successful
     """
-    vite_path = "%appdata%\\npm\\vite.cmd" # Move to .env
+    vite_path = os.getenv("PATH_TO_VITE")
     if vite_path is None:
         return False
     command = f"{vite_path} build --outDir temp/dist --manifest files.json"
@@ -57,11 +62,10 @@ def create_database():
     os.mkdir("temp/api")
     os.mkdir("temp/api/database")
 
-    with open("temp/api/database/db.sql", "wb") as f:
-        f.write(bytes())
-    with open("temp/api/database/TableInit.txt", "wb") as f:
-        f.write(bytes())
-    shutil.copyfile("api/database/TableInit.txt", "temp/api/database/TableInit.txt")
+    Path(DB_PATH).touch()
+    Path(TABLE_INIT_PATH).touch()
+
+    shutil.copyfile("api/database/TableInit.txt", TABLE_INIT_PATH)
 
 def copy_from(src: str, dst: str):
     """Copies a file
@@ -70,8 +74,7 @@ def copy_from(src: str, dst: str):
         src (str): Copies from
         dst (str): Pastes to
     """
-    with open(dst, "wb") as f:
-        f.write(bytes())
+    Path(dst).touch()
     shutil.copyfile(src, dst)
 
 def start(name: str) -> tuple[bool, str]:
@@ -85,14 +88,15 @@ def start(name: str) -> tuple[bool, str]:
     """
     if does_file_exists(f"release/{name}.zip"):
         return False, f"File {name} already exists"
+
     try:
         os.mkdir("temp")
     except FileExistsError:
+        clear_folder("temp")
         print("Temp file already exists")
-    clear_folder("temp")
 
     vite_success = build_with_vite()
-    if not vite_success:
+    if vite_success: # Building wasn't successful
         return False, "Error with Vite"
 
     print("Building server")
@@ -107,6 +111,7 @@ def start(name: str) -> tuple[bool, str]:
     return True, "Success"
 
 if __name__ == "__main__":
+    load_dotenv()
     release_name = input("Release Name: ")
 
     success, result = start(release_name)

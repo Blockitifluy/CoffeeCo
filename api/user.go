@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -24,6 +25,7 @@ type LoginUser struct {
 
 // PublicUser is the root of most User structs contains non-personal information about the user
 type PublicUser struct {
+	ID             int    `json:"ID" db:"id"`
 	Username       string `json:"username" db:"username"`             // A non-unique name
 	Handle         string `json:"handle" db:"handle"`                 // An unique handle
 	Bio            string `json:"bio" db:"bio"`                       // The description (biography)
@@ -288,4 +290,99 @@ func (srv *Server) APILoginUser(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 	w.Write([]byte("Auth Cookie added successfully"))
+}
+
+// APISearchForUsers is an api call. Doesn't work as expected when called outside an API context
+//
+// Searches user by username and handle (Feed Type)
+func (srv *Server) APISearchForUsers(w http.ResponseWriter, r *http.Request) {
+	URLQuery := r.URL.Query()
+	name, err := url.QueryUnescape(URLQuery.Get("name"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
+		return
+	}
+
+	from, err := strconv.Atoi(URLQuery.Get("from"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't parse from",
+			Code:    400,
+		})
+		return
+	}
+
+	userRange, err := strconv.Atoi(URLQuery.Get("range"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't range from",
+			Code:    400,
+		})
+		return
+	}
+
+	const Query = `
+	SELECT * FROM Users
+	WHERE lower(handle) LIKE lower(?) OR
+	lower(username) LIKE lower(?)
+	ORDER BY id ASC
+	LIMIT ? OFFSET ?
+	`
+
+	formatedName := fmt.Sprintf("%%%s%%", name)
+
+	rows, err := srv.Query(Query, formatedName, formatedName, userRange, from)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	var Users []PublicUser
+	if err := scan.Rows(&Users, rows); err != nil {
+		utility.SendScanErr(w, err, nil)
+		return
+	}
+
+	if len(Users) == 0 {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicNotFoundError,
+			Message: "no rows found",
+			Code:    404,
+		})
+		return
+	}
+
+	JSON, err := json.Marshal(Users)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	zipped, err := utility.GZipBytes(JSON)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Write(zipped)
 }

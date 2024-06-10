@@ -1,8 +1,8 @@
 """Server Image tests"""
 import requests
 
-UPLOAD_URL = "http://localhost:8000/api/images/upload?name=brian2"
-DOWNLOAD_URL = "http://localhost:8000/api/images/download"
+UPLOAD_URL = "http://localhost:8000/api/images/upload"
+DOWNLOAD_URL = "http://localhost:8000/api/images/download/%s"
 
 def upload_post() -> str:
     """Uploads the image
@@ -13,19 +13,16 @@ def upload_post() -> str:
     with open("meta/tests/testimage.jpeg", "rb") as f:
         content = f.read()
 
-    count_content = len(content)
-    header = {
+    header: dict[str, str] = {
         "Content-Type": "image/jpeg",
-        "Content-Length": str(count_content),
+        "Content-Length": str(len(content)),
         "Accept": "application/json"
     }
 
     upload_req = requests.post(UPLOAD_URL, data=content, headers=header, timeout=10)
     upload_req.raise_for_status()
 
-    file_name = upload_req.json()["fileName"]
-    print("Success\n")
-    return file_name
+    return upload_req.text
 
 def download_file(file_name: str):
     """Downloads and writes a jpeg
@@ -33,28 +30,27 @@ def download_file(file_name: str):
     Args:
         file_name (str): the file name being uploaded
     """
-    download_params = [("url", file_name)]
-    try:
-        download_req = requests.get(DOWNLOAD_URL, timeout=10, params=download_params)
-        download_req.raise_for_status()
-    except requests.HTTPError as e:
-        print(e)
-        return
+    download_req = requests.get(DOWNLOAD_URL % file_name, timeout=10)
+    download_req.raise_for_status()
 
     content = download_req.content
 
     with open("meta/tests/imagereturn.jpeg", "bw") as f:
         f.write(content)
-        print("Success!\n")
 
 if __name__ == "__main__":
     file_url: str | None = None
     try:
         print("Uploadng...")
         file_url = upload_post()
+        print("Success!")
     except requests.HTTPError as err:
         print(err)
 
     if file_url is not None:
-        print("Download...")
-        download_file(file_url)
+        print("Downloading...")
+        try:
+            download_file(file_url)
+            print("Success!")
+        except requests.HTTPError as e:
+            print(e)

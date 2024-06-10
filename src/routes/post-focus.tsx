@@ -2,24 +2,20 @@ import {
   Component,
   createContext,
   createEffect,
-  createResource,
-  createSignal,
-  For,
   JSX,
   onMount,
   Show,
   useContext,
 } from 'solid-js';
-import Header from '../components/Header';
+import Header from '../components/header';
 import Sides from '../components/sides';
-import PostUI, { PostProps } from '../components/Post';
+import PostUI from '../components/Post';
 import {
   addPost,
   AddPostRequest,
   DefaultPost,
   Post,
   getPostFromID,
-  PostListReq,
   getCommentsFromPost,
 } from '../requests/post';
 import { useParams } from '@solidjs/router';
@@ -32,124 +28,25 @@ import {
 } from '../requests/user';
 import { Meta, Title } from '@solidjs/meta';
 import { createStore } from 'solid-js/store';
-import { createBottomListener, useInput } from '../hooks';
 import { NoEnter, Status, Statuses } from '../common';
 import { OcPaperairplane2 } from 'solid-icons/oc';
 import TextareaAutosize from 'solid-textarea-autosize';
+import PostList, { PostListHandler } from '../components/postlist';
+import Comment from '../components/comment';
 
-const Comment: Component<PostProps> = (props) => {
-  const pst = props.post;
-
-  const [user] = createResource(async () => {
-    try {
-      const user = await getUserFromID(pst.postedBy);
-
-      return user;
-    } catch {
-      return DefaultUser;
-    }
-  });
-
-  const date = new Date(pst.timeCreated).toDateString();
-
-  return (
-    <Show when={!user.loading}>
-      <article class='grid w-post grid-cols-post grid-rows-post gap-2'>
-        <img
-          height={32}
-          width={32}
-          src={user()!.Profile}
-          alt={`@${user()!.username}'s Profile Image`}
-          class='rounded-full'
-        />
-        <div class='flex flex-col'>
-          <h1 class='text-ms font-medium leading-4 text-title'>
-            @{user()!.handle}
-          </h1>
-          <sub class='text-xs text-subtitle'>{date}</sub>
-        </div>
-        <p class='col-start-2 text-text'>{pst.content}</p>
-      </article>
-    </Show>
-  );
-};
-
-const commentListLoad: number = 10;
-
-const CommentList: Component = () => {
-  const { post } = useFocus();
-  const [initComments] = createResource<PostListReq>(async () => {
-    try {
-      const Posts = await getCommentsFromPost(post.ID, 0, commentListLoad);
-
-      return { Posts: await Posts.json(), ok: Posts.ok };
-    } catch (error) {
-      return { Posts: [], ok: false };
-    }
-  });
-
-  const [state, setState] = createStore({
-    loading: false,
-    repeated: 1,
-    comments: [] as Post[],
-  });
-
-  const handleScroll = async () => {
-    console.log('Scrolled to the Bottom');
-    if (state.loading) {
-      return;
-    }
-    setState('loading', true);
-
-    const NewComments = await getCommentsFromPost(
-      post.ID,
-      state.repeated * commentListLoad,
-      10,
-    );
-
-    const json: Post[] = await NewComments.json();
-
-    if (!NewComments.ok) {
-      console.error('Loading new posts was not ok');
-      setState('loading', false);
-      return;
-    }
-
-    if (json.length < commentListLoad) {
-      setState('comments', state.comments.concat(...json));
-
-      // Stop sending when response/future response will be empty
-      return;
-    }
-
-    setState('repeated', state.repeated + 1);
-    setState('loading', false);
-    setState('comments', state.comments.concat(...json));
-  };
-
-  createBottomListener(handleScroll, 512);
-
-  return (
-    <div class='flex flex-col items-center gap-4'>
-      <Show when={!initComments.loading}>
-        <For each={initComments()!.Posts.concat(state.comments)}>
-          {(item) => <Comment post={item} />}
-        </For>
-      </Show>
-    </div>
-  );
-};
+const PostLoad: number = 10;
 
 const AddComment: Component = () => {
   const { post, user } = useFocus();
 
-  const [Connector, input] = useInput<HTMLTextAreaElement>('');
-
-  const [status, setStatus] = createSignal<Status>(Statuses.DefaultStatus);
+  const [state, setState] = createStore({
+    input: '',
+    status: Statuses.DefaultStatus,
+  });
 
   let color = '';
   createEffect(() => {
-    color = status().ok ? 'text-accent' : 'text-warning';
+    color = state.status.ok ? 'text-accent' : 'text-warning';
   });
 
   const OnSubmit: JSX.EventHandlerUnion<
@@ -160,34 +57,27 @@ const AddComment: Component = () => {
       const userID = await authToID();
       const Req: AddPostRequest = {
         postedBy: userID,
-        content: input(),
+        content: state.input,
         parentID: post.ID,
         images: '',
       };
 
-      const Res = await addPost(Req);
+      const Res = await addPost(Req),
+        msg = Res.ok ? 'Success' : 'Something Went Wrong';
 
-      setStatus({
-        show: true,
-        ok: Res.ok,
-        msg: Res.ok ? 'Success' : 'Something Went Wrong',
-      });
+      setState('status', new Status(msg, Res.ok));
 
       if (Res.ok) location.reload();
     } catch (error) {
       console.error(error);
-      setStatus({
-        show: true,
-        ok: false,
-        msg: (error as Error).message,
-      });
+      setState('status', new Status((error as Error).message, false));
     }
   };
 
   return (
     <div class='col-start-2 my-2 flex flex-col gap-2'>
-      <Show when={status().show}>
-        <span class={`${color} my-0 font-semibold`}>{status().msg}</span>
+      <Show when={state.status.show}>
+        <span class={`${color} my-0 font-semibold`}>{state.status.msg}</span>
       </Show>
 
       <TextareaAutosize
@@ -198,7 +88,8 @@ const AddComment: Component = () => {
         minRows={1}
         maxRows={6}
         maxLength={240}
-        oninput={Connector}
+        onInput={(event) => setState('input', event.target.value)}
+        value={state.input}
         onkeydown={NoEnter}
       />
 
@@ -210,7 +101,7 @@ const AddComment: Component = () => {
         >
           <OcPaperairplane2 />
         </button>
-        <p class='text-text'>{input().length}/240</p>
+        <p class='text-text'>{state.input.length}/240</p>
       </div>
     </div>
   );
@@ -218,6 +109,39 @@ const AddComment: Component = () => {
 
 const Main: Component = () => {
   const { post, user } = useFocus();
+
+  const handleScroll: PostListHandler = async (get, set) => {
+    console.log('Scrolled to the Bottom');
+    if (get.loading) {
+      return;
+    }
+
+    set('loading', true);
+
+    const NewComments = await getCommentsFromPost(
+      post.ID,
+      get.times * PostLoad,
+      10,
+    );
+
+    const json: Post[] = await NewComments.json();
+
+    if (!NewComments.ok) {
+      console.error('Loading new posts was not ok');
+      set('loading', false);
+      return;
+    }
+
+    if (json.length < PostLoad) {
+      set('Posts', get.Posts.concat(...json));
+      return; // Stop sending when response/future response will be empty
+    }
+
+    set('Posts', get.Posts.concat(...json));
+    set('times', get.times + 1);
+    set('loading', false);
+  };
+
   return (
     <main class='flex flex-col items-center gap-2 pb-4'>
       <Title>{`CoffeeCo - ${user.handle}'s Post`}</Title>
@@ -229,7 +153,9 @@ const Main: Component = () => {
         <AddComment />
       </Show>
 
-      <CommentList />
+      <PostList handler={handleScroll} loadOffset={256}>
+        {(post) => <Comment post={post} />}
+      </PostList>
     </main>
   );
 };

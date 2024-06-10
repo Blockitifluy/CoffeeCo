@@ -1,11 +1,12 @@
 import { Component, JSX, Show, Setter, createSignal } from 'solid-js';
-import { OcPlus2, OcBell2, OcThreebars2 } from 'solid-icons/oc';
+import { OcPlus2, OcBell2, OcThreebars2, OcSearch2 } from 'solid-icons/oc';
 import { A } from '@solidjs/router';
 import Logo64 from '../assets/logos/logo64.png';
 import { useUser } from '../contexts/usercontext';
 import { isLoggedIn } from '../requests/user';
 import { ChildrenProps } from '../common';
 import Hamburger from './hamburger';
+import { useInput } from '../hooks';
 
 // TODO Docs
 
@@ -94,6 +95,29 @@ const rightNotLoggedIn: Component = () => {
 const Right: Component = () => {
   const User = useUser();
 
+  const searchTerm = new URLSearchParams(location.search).get('search');
+
+  const [Connected, search] = useInput(searchTerm ?? '');
+
+  const onSearchSubmit = () => {
+    console.log(`Searched for "${search()}"`);
+
+    const SearchURL = new URL(location.href);
+    SearchURL.searchParams.set('search', search());
+
+    location.href = SearchURL.toString();
+  };
+
+  const onSearchInput: JSX.EventHandlerUnion<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      onSearchSubmit();
+    }
+  };
+
   return (
     <section class='flex flex-row-reverse items-center gap-6 px-4 md:gap-4'>
       <Show when={isLoggedIn()} fallback={rightNotLoggedIn({})}>
@@ -118,6 +142,18 @@ const Right: Component = () => {
           <OcPlus2 />
         </HeaderButton>
       </Show>
+      <div>
+        <OcSearch2 class='relative left-6 inline text-white' />
+        <input
+          id='search'
+          name='search'
+          placeholder='Search'
+          value={search()}
+          onInput={Connected}
+          onKeyPress={onSearchInput}
+          class='w-24 overflow-ellipsis rounded bg-button px-2 py-1 pl-8 text-white transition-[width] focus:w-48 focus:outline-none'
+        />
+      </div>
     </section>
   );
 };

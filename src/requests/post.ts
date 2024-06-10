@@ -249,3 +249,37 @@ export async function getUserPostHistory(
 
   return Res;
 }
+
+/**
+ *
+ * @param content The search term
+ * @param from Start from
+ * @param range The amount requested
+ * @returns A promise of a list of posts uploaded by the content
+ */
+export async function getPostsFromQuery(
+  content: string,
+  from: number,
+  range: number,
+): Promise<Response> {
+  const resURL = new URL('http://localhost:8000/api/post/search');
+  resURL.searchParams.set('content', content);
+  resURL.searchParams.set('from', from.toString());
+  resURL.searchParams.set('range', range.toString());
+
+  const Res = await fetch(resURL.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-cache',
+    mode: 'no-cors',
+  });
+
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
+
+    throw new Error(ResError.public);
+  }
+
+  return Res;
+}

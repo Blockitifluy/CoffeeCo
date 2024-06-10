@@ -1,4 +1,4 @@
-import Header from '../components/Header';
+import Header from '../components/header';
 import Sides from '../components/sides';
 import {
   Component,
@@ -6,17 +6,15 @@ import {
   Show,
   useContext,
   createResource,
-  For,
 } from 'solid-js';
 import { DefaultUser, getUserFromID } from '../requests/user';
 import { useParams } from '@solidjs/router';
 import { useUser } from '../contexts/usercontext';
 import { OcGear2 } from 'solid-icons/oc';
 import { Meta, Title } from '@solidjs/meta';
-import { getUserPostHistory, Post, PostListReq } from '../requests/post';
-import { createStore } from 'solid-js/store';
-import { createBottomListener } from '../hooks';
+import { getUserPostHistory, Post } from '../requests/post';
 import PostUI from '../components/Post';
+import PostList, { PostListHandler } from '../components/postlist';
 
 /**
  * The Page User (Stored in a Context)
@@ -74,75 +72,37 @@ const UserInfo: Component = () => {
   );
 };
 
-const postListLoad: number = 10;
-
-const UserList: Component = () => {
-  const ID: number = parseInt(useParams()['ID']);
-
-  const [initComments] = createResource<PostListReq>(async () => {
-    try {
-      const Posts = await getUserPostHistory(ID, 0, postListLoad);
-
-      return { Posts: await Posts.json(), ok: Posts.ok };
-    } catch (error) {
-      return { Posts: [], ok: false };
-    }
-  });
-
-  const [state, setState] = createStore({
-    loading: false,
-    repeated: 1,
-    comments: [] as Post[],
-  });
-
-  const handleScroll = async () => {
-    console.log('Scrolled to the Bottom');
-    if (state.loading) {
-      return;
-    }
-    setState('loading', true);
-
-    const NewComments = await getUserPostHistory(
-      ID,
-      state.repeated * postListLoad,
-      10,
-    );
-
-    const json: Post[] = await NewComments.json();
-
-    if (!NewComments.ok) {
-      console.error('Loading new posts was not ok');
-      setState('loading', false);
-      return;
-    }
-
-    if (json.length < postListLoad) {
-      setState('comments', state.comments.concat(...json));
-
-      // Stop sending when response/future response will be empty
-      return;
-    }
-
-    setState('repeated', state.repeated + 1);
-    setState('loading', false);
-    setState('comments', state.comments.concat(...json));
-  };
-
-  createBottomListener(handleScroll, 512);
-
-  return (
-    <div class='flex flex-col items-center gap-4'>
-      <Show when={!initComments.loading}>
-        <For each={initComments()!.Posts.concat(state.comments)}>
-          {(item) => <PostUI post={item} />}
-        </For>
-      </Show>
-    </div>
-  );
-};
+const postsLoad: number = 10;
 
 const UserPage: Component = () => {
   const ID: number = parseInt(useParams()['ID']);
+
+  const handleScroll: PostListHandler = async (get, set) => {
+    console.log('Scrolled to the Bottom');
+    if (get.loading) {
+      return;
+    }
+
+    set('loading', true);
+
+    const NewComments = await getUserPostHistory(ID, get.times * postsLoad, 10),
+      json: Post[] = await NewComments.json();
+
+    if (!NewComments.ok) {
+      console.error('Loading new posts was not ok');
+      set('loading', false);
+      return;
+    }
+
+    if (json.length < postsLoad) {
+      set('Posts', get.Posts.concat(...json));
+      return; // Stop sending when response/future response will be empty
+    }
+
+    set('times', get.times + 1);
+    set('Posts', get.Posts.concat(...json));
+    set('loading', false);
+  };
 
   const [user] = createResource(() => {
     try {
@@ -190,7 +150,9 @@ const UserPage: Component = () => {
           <main class='flex flex-col items-center gap-8'>
             <UserInfo />
 
-            <UserList />
+            <PostList loadOffset={256} handler={handleScroll}>
+              {(post) => <PostUI post={post} />}
+            </PostList>
           </main>
         </Sides>
       </PageUser.Provider>

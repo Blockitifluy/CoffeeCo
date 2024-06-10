@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -203,6 +204,7 @@ func (srv *Server) APIGetCommentsFromPost(w http.ResponseWriter, r *http.Request
 			Message: err.Error(),
 			Code:    500,
 		})
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -523,6 +525,101 @@ func (srv *Server) APIGetUserPostHistory(w http.ResponseWriter, r *http.Request)
 	}
 
 	zipped, err := utility.GZipBytes(json)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Write(zipped)
+}
+
+// APISearchPost is an API call do not use outside of http requests
+//
+// Searches posts by content (Feed Type)
+func (srv *Server) APISearchPost(w http.ResponseWriter, r *http.Request) {
+	URLQuery := r.URL.Query()
+	content, err := url.QueryUnescape(URLQuery.Get("content"))
+
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: err.Error(),
+			Code:    400,
+		})
+		return
+	}
+
+	from, err := strconv.Atoi(URLQuery.Get("from"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't parse from",
+			Code:    400,
+		})
+		return
+	}
+
+	postRange, err := strconv.Atoi(URLQuery.Get("range"))
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicBadRequest,
+			Message: "Couldn't range from",
+			Code:    400,
+		})
+		return
+	}
+
+	const Query = `
+	SELECT *
+	FROM Posts
+	WHERE ParentId = -1
+	AND lower(content) LIKE lower(?)
+	ORDER BY id DESC
+	LIMIT ? OFFSET ?
+	`
+
+	rows, err := srv.Query(Query, fmt.Sprintf("%%%s%%", content), postRange, from)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	var Posts []PostDB
+	if err := scan.Rows(&Posts, rows); err != nil {
+		utility.SendScanErr(w, err, nil)
+		return
+	}
+
+	if len(Posts) == 0 {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicNotFoundError,
+			Message: "no rows found",
+			Code:    404,
+		})
+		return
+	}
+
+	JSON, err := json.Marshal(Posts)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
+
+	zipped, err := utility.GZipBytes(JSON)
+	if err != nil {
+		utility.Error(w, utility.HTTPError{
+			Public:  utility.PublicServerError,
+			Message: err.Error(),
+			Code:    500,
+		})
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Encoding", "gzip")

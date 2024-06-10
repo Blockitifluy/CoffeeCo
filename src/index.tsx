@@ -10,7 +10,7 @@ import { UserProvider } from './contexts/usercontext';
 import './index.css';
 import { ErrorBoundary, lazy } from 'solid-js';
 
-const MainPage = lazy(() => import('./routes/MainPage')),
+const MainPage = lazy(() => import('./routes/main-page')),
   NotFoundPage = lazy(() => import('./routes/notfound')),
   AddPostUI = lazy(() => import('./routes/addpost')),
   UserPage = lazy(() => import('./routes/user-page')),

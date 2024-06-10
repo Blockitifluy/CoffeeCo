@@ -7,7 +7,7 @@ import { useUser } from '../contexts/usercontext';
 import { OcImage2, OcPaperairplane2, OcX2 } from 'solid-icons/oc';
 import { uploadImage, reformatImages, ImageObj } from '../requests/images';
 import { authToID } from '../requests/user';
-import Header from '../components/Header';
+import Header from '../components/header';
 import Sides from '../components/sides';
 import { useInput } from '../hooks';
 import { Meta, Title } from '@solidjs/meta';

@@ -1,50 +1,7 @@
-import { Component, For, Show, createResource } from 'solid-js';
-import {
-  GetPostsFromUser as getPostsFromUser,
-  Post,
-  PostFeedList as postFeedList,
-  PostListReq,
-} from '../requests/post';
-import PostUI from './Post';
-import { createStore } from 'solid-js/store';
+import { Component, For, JSX, onMount } from 'solid-js';
+import { Post } from '../requests/post';
+import { createStore, SetStoreFunction } from 'solid-js/store';
 import { createBottomListener } from '../hooks';
-
-/**
- * Gets the amount of posts wanted from every user
- * @param amount The amount of posts wanted
- * @returns All posts from a global scope
- */
-async function getPostsGlobal(amount: number): Promise<PostListReq> {
-  try {
-    const Res = await postFeedList(amount);
-
-    return { Posts: await Res.json(), ok: Res.ok };
-  } catch (error) {
-    console.error('Failed to Connect to Server');
-
-    return { Posts: [], ok: false };
-  }
-}
-
-/**
- * Get the amount of posts wanted from one user
- * @param amount The amount of posts wanted
- * @param ID The ID of the wanted user
- * @returns All posts from an user
- */
-async function getPostUser(amount: number, ID: number): Promise<PostListReq> {
-  try {
-    const Res = await getPostsFromUser(amount, ID);
-
-    const JSON: Post[] = await Res.json();
-
-    return { Posts: JSON, ok: Res.ok };
-  } catch (error) {
-    console.error(error);
-
-    return { Posts: [], ok: false };
-  }
-}
 
 /**
  * Appears when there is {@link PostList} has no posts
@@ -60,33 +17,26 @@ const ListFallback: Component = () => {
   );
 };
 
+export type PostListHandler = (
+  get: PostListState,
+  set: SetStoreFunction<PostListState>,
+) => void;
+
 /**
  * The Properties of the {@link PostList} component
  * @property amount The amount of Posts in the PostList
  * @property ID The posts wanted from user (If any)
  */
 interface PostListProps {
-  amount: number;
-  ID?: number;
+  handler: PostListHandler;
+  children: (post: Post) => JSX.Element;
+  loadOffset: number;
 }
 
-/**
- * Loads post from a user (If ID is present, else from every user)
- * @param amount The amount of posts wanted
- * @param ID The user's ID
- * @returns A promise of PostListReq
- */
-function loadPosts(amount: number, ID?: number): Promise<PostListReq> {
-  if (ID) {
-    return getPostUser(amount, ID);
-  }
-
-  return getPostsGlobal(amount);
-}
-
-interface PostListState {
-  isLoadingPost: boolean;
-  newPosts: Post[];
+export interface PostListState {
+  times: number;
+  loading: boolean;
+  Posts: Post[];
 }
 
 /**
@@ -95,47 +45,24 @@ interface PostListState {
  */
 const PostList: Component<PostListProps> = (props) => {
   const [state, setState] = createStore<PostListState>({
-    isLoadingPost: false,
-    newPosts: [],
+    times: 0,
+    loading: false,
+    Posts: [],
   });
 
-  const [initPosts] = createResource<PostListReq>(() =>
-    loadPosts(props.amount, props.ID),
-  );
-
-  const handleScroll = async () => {
-    console.log('Scrolled To Bottom');
-    if (state.isLoadingPost) {
-      return;
-    }
-
-    setState('isLoadingPost', true);
-
-    console.log('Loading new posts');
-
-    const NewPosts = await loadPosts(props.amount, props.ID);
-    if (!NewPosts.ok) {
-      console.error('Loading new posts was not ok');
-      setState('isLoadingPost', false);
-      return;
-    }
-
-    setState('newPosts', state.newPosts.concat(...NewPosts.Posts));
-    setState('isLoadingPost', false);
+  const HandlerWrapper = () => {
+    props.handler(state, setState);
   };
 
-  createBottomListener(handleScroll, 100);
+  onMount(HandlerWrapper);
+
+  createBottomListener(HandlerWrapper, props.loadOffset);
 
   return (
     <div class='flex flex-col items-center gap-4'>
-      <Show when={!initPosts.loading || initPosts()?.ok}>
-        <For
-          each={initPosts()?.Posts.concat(...state.newPosts)}
-          fallback={<ListFallback />}
-        >
-          {(post) => <PostUI post={post} />}
-        </For>
-      </Show>
+      <For each={state.Posts} fallback={<ListFallback />}>
+        {props.children}
+      </For>
     </div>
   );
 };

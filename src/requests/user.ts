@@ -13,6 +13,7 @@ import { FetchError } from '../common';
  * @todo Add Followers
  */
 export interface User {
+  ID: number;
   /**
    * A non-unique username
    */
@@ -45,9 +46,10 @@ export interface User {
  * A Placeholder Default User
  */
 export const DefaultUser: User = {
+  ID: -1,
   username: 'default',
   handle: 'default',
-  bio: 'Lorem Ipsum',
+  bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam velit nisl, faucibus eget ipsum non.',
   Banner: 'https://placehold.co/1080x256',
   Profile: DefaultProfile,
   FollowersCount: 0,
@@ -208,4 +210,38 @@ export async function getUserFromAuth(
   if (ID === -1) return undefined;
 
   return getUserFromID(ID);
+}
+
+/**
+ * Searchs for Users with same {@link User.handle handle} and {@link User.username username}.
+ * @param name The search query for the user
+ * @param from Start From
+ * @param range The amount
+ * @returns A response of the search
+ */
+export async function searchForUsers(
+  name: string,
+  from: number,
+  range: number,
+): Promise<Response> {
+  const resURL = new URL('http://localhost:8000/api/user/search');
+  resURL.searchParams.set('name', name);
+  resURL.searchParams.set('from', from.toString());
+  resURL.searchParams.set('range', range.toString());
+
+  const Res = await fetch(resURL.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-cache',
+    mode: 'no-cors',
+  });
+
+  if (!Res.ok) {
+    const ResError: FetchError = await Res.json();
+
+    throw new Error(ResError.public);
+  }
+
+  return Res;
 }
