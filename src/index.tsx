@@ -7,6 +7,7 @@ import { Link, MetaProvider } from '@solidjs/meta';
 
 import { UserProvider } from './contexts/usercontext';
 
+import 'solid-devtools';
 import './index.css';
 import { ErrorBoundary, lazy } from 'solid-js';
 import Boundary from './routes/error-boundary';
