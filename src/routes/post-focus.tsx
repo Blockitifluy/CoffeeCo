@@ -1,7 +1,6 @@
 import {
   Component,
   createContext,
-  createEffect,
   JSX,
   onMount,
   Show,
@@ -19,13 +18,7 @@ import {
   getCommentsFromPost,
 } from '../requests/post';
 import { useParams } from '@solidjs/router';
-import {
-  authToID,
-  DefaultUser,
-  getUserFromID,
-  isLoggedIn,
-  User,
-} from '../requests/user';
+import { DefaultUser, getUserFromID, isLoggedIn, User } from '../requests/user';
 import { Meta, Title } from '@solidjs/meta';
 import { createStore } from 'solid-js/store';
 import { NoEnter, Status, Statuses } from '../common';
@@ -33,6 +26,7 @@ import { OcPaperairplane2 } from 'solid-icons/oc';
 import TextareaAutosize from 'solid-textarea-autosize';
 import PostList, { PostListHandler } from '../components/postlist';
 import Comment from '../components/comment';
+import { useUser } from '../contexts/usercontext';
 
 const PostLoad: number = 10;
 
@@ -44,17 +38,16 @@ const AddComment: Component = () => {
     status: Statuses.DefaultStatus,
   });
 
-  let color = '';
-  createEffect(() => {
-    color = state.status.ok ? 'text-accent' : 'text-warning';
-  });
+  const statusColour = () => (state.status.ok ? 'text-accent' : 'text-warning');
 
   const OnSubmit: JSX.EventHandlerUnion<
     HTMLButtonElement,
     MouseEvent
   > = async () => {
     try {
-      const userID = await authToID();
+      const userID = useUser()?.ID;
+      if (!userID) throw new Error('UserID doesn not exist');
+
       const Req: AddPostRequest = {
         postedBy: userID,
         content: state.input,
@@ -77,7 +70,9 @@ const AddComment: Component = () => {
   return (
     <div class='col-start-2 my-2 flex flex-col gap-2'>
       <Show when={state.status.show}>
-        <span class={`${color} my-0 font-semibold`}>{state.status.msg}</span>
+        <span class={`${statusColour()} my-0 font-semibold`}>
+          {state.status.msg}
+        </span>
       </Show>
 
       <TextareaAutosize

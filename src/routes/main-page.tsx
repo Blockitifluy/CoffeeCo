@@ -3,11 +3,7 @@ import { Meta, Title } from '@solidjs/meta';
 import Header from '../components/header';
 import Sides from '../components/sides';
 import { Component, createResource, For, Show } from 'solid-js';
-import {
-  getPostsFromQuery,
-  Post,
-  PostFeedList as postFeedList,
-} from '../requests/post';
+import { getPostsFromQuery, Post, postFeedList } from '../requests/post';
 import PostUI from '../components/Post';
 import { searchForUsers, User } from '../requests/user';
 

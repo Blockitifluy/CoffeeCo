@@ -6,13 +6,13 @@ import { ChildrenProps } from '../common';
 /**
  * The User stored in a Context (Variable stored in an element)
  */
-const User = Solid.createContext<UserReq.User | undefined>(UserReq.DefaultUser);
+const User = Solid.createContext<UserReq.User | undefined>(undefined);
 
 /**
  * Gets a User from Cookies' `AuthToken`
  * @returns The User
  */
-async function GetUser(): Promise<UserReq.User> {
+async function GetUser(): Promise<UserReq.User | undefined> {
   try {
     const User = await UserReq.getUserFromAuth();
 
@@ -31,7 +31,7 @@ async function GetUser(): Promise<UserReq.User> {
     /* empty */
   }
 
-  return UserReq.DefaultUser;
+  return undefined;
 }
 
 /**

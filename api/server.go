@@ -36,7 +36,7 @@ func (srv *Server) getHTMLRoutes() []string {
 	return []string{
 		"/user/{id}",
 		"/post/{id}",
-		"/new-post",
+		"/add-post",
 		"/sign-up",
 		"/log-in",
 		"/",

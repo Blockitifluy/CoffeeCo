@@ -57,7 +57,7 @@ export async function getPostFromID(ID: number): Promise<Post> {
  * @param amount The amount of post you want to get
  * @returns Response
  */
-export async function PostFeedList(amount: number): Promise<Response> {
+export async function postFeedList(amount: number): Promise<Response> {
   const Res = await fetch(`/api/post/feedlist/${amount}`, {
     cache: 'no-cache',
     mode: 'no-cors',

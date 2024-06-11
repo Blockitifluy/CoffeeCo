@@ -1,12 +1,11 @@
 import { NoEnter, Status, Statuses } from '../common';
-import { Accessor, Component, createEffect, For, Show } from 'solid-js';
+import { Accessor, Component, For, Show } from 'solid-js';
 
 import { addPost as addPost, AddPostRequest } from '../requests/post';
 import { PostSkeleton } from '../components/Post';
 import { useUser } from '../contexts/usercontext';
 import { OcImage2, OcPaperairplane2, OcX2 } from 'solid-icons/oc';
 import { uploadImage, reformatImages, ImageObj } from '../requests/images';
-import { authToID } from '../requests/user';
 import Header from '../components/header';
 import Sides from '../components/sides';
 import { useInput } from '../hooks';
@@ -81,12 +80,13 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
   event.preventDefault();
 
   try {
-    const usr: number = await authToID();
+    const userID = useUser()?.ID;
+    if (!userID) throw new Error('UserID doesn not exist');
 
     const Req: AddPostRequest = {
       content: inputs.input(),
       images: reformatImages(inputs.state.Images),
-      postedBy: usr,
+      postedBy: userID,
       parentID: -1, // Sole Post
     };
 
@@ -234,23 +234,24 @@ interface PromptState {
  */
 const Prompt: Component = () => {
   const [Connecter, getInput] = useInput<HTMLTextAreaElement>();
+
   const User = useUser();
+  if (!User) throw new Error('UserID doesn not exist');
 
   const [state, setState] = createStore<PromptState>({
     Images: [],
     status: Statuses.DefaultStatus,
   });
 
-  let color = '';
-  createEffect(() => {
-    color = state.status.ok ? 'text-accent' : 'text-warning';
-  });
+  const colorStatus = () => (state.status.ok ? 'text-accent' : 'text-warning');
 
   return (
     <PostSkeleton title='Create New Post' subtitle={`As @${User!.handle}`}>
       <div class='col-start-2 flex flex-col gap-1'>
         <Show when={state.status.show}>
-          <span class={`${color} my-0 font-semibold`}>{state.status.msg}</span>
+          <span class={`${colorStatus()} my-0 font-semibold`}>
+            {state.status.msg}
+          </span>
         </Show>
 
         <div class='grid grid-cols-[1fr_0px]'>
@@ -309,6 +310,9 @@ const Prompt: Component = () => {
  * Basic Sides Page
  */
 const AddPostUI: Component = () => {
+  const User = useUser();
+  if (!User) throw new Error('UserID doesn not exist');
+
   return (
     <>
       <Title>CoffeeCo - New Post</Title>

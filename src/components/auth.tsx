@@ -1,11 +1,13 @@
 import {
   Component,
+  createContext,
   createSignal,
   For,
   JSX,
   Setter,
   Show,
   Signal,
+  useContext,
 } from 'solid-js';
 import { OcArrowleft2 } from 'solid-icons/oc';
 import { Status, Statuses, BasicStatus } from '../common';
@@ -136,19 +138,18 @@ const InputUI: Component<FormInput.AuthInput> = (props) => {
 
 /**
  * When the submit button is clicked
- * @param inputs Includes the {@link InputUI.AuthOnClickInputs.page page} and sets the status
+ * @param setStatus Sets the page's status
  * @param event The event occured on Mouse Click
  */
-const AuthOnClick = async (
-  inputs: FormInput.AuthOnClickInputs,
-  event: MouseEvent,
-) => {
+const AuthOnClick = async (setStatus: Setter<Status>, event: MouseEvent) => {
   event.preventDefault();
 
-  const result = await inputs.page.submit(InputMap),
+  const page = usePage();
+
+  const result = await page.submit(InputMap),
     resultStatus = new Status(result.msg, result.ok);
 
-  inputs.setStatus(resultStatus);
+  setStatus(resultStatus);
 
   console.log(result);
 
@@ -157,6 +158,57 @@ const AuthOnClick = async (
   }
 };
 
+const AuthBottom: Component<{ setStatus: Setter<Status> }> = (props) => {
+  const page = usePage();
+
+  return (
+    <section>
+      <button
+        onClick={[AuthOnClick as any, props.setStatus]}
+        class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
+      >
+        {page.confirmText}
+      </button>
+
+      <A class='mt-4 flex items-center justify-end text-accent' href='/'>
+        <OcArrowleft2 />
+        Back
+      </A>
+    </section>
+  );
+};
+
+const AuthTitle: Component = () => {
+  const page = usePage();
+  return (
+    <div>
+      <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
+        {page.title}
+      </h1>
+      <sub class='mb-2 text-sm text-subtitle'>{page.subtitle}</sub>
+    </div>
+  );
+};
+
+const PageContext = createContext<FormInput.AuthProps>({
+  title: '',
+  subtitle: '',
+  confirmText: '',
+  Inputs: [],
+  submit: (() => {}) as any,
+});
+
+/**
+ * Get the page context
+ */
+function usePage(): FormInput.AuthProps {
+  const page = useContext(PageContext);
+  if (!page) {
+    throw new Error('Cannot get page');
+  }
+  return page;
+}
+
 /**
  * The Auth Page (could be Login / Signin)
  * @param props The page's propetries
@@ -164,22 +216,19 @@ const AuthOnClick = async (
 const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
   const [status, setStatus] = createSignal<Status>(Statuses.DefaultStatus);
 
+  const statusColour = () => (status().ok ? 'text-accent' : 'text-warning');
+
   return (
-    <>
+    <PageContext.Provider value={props.page}>
       <Meta name='description' content={props.page.subtitle} />
       <Title>CoffeeCo - {props.page.title}</Title>
 
       <div class='grid h-screen w-screen items-center justify-center bg-background'>
         <form class='flex w-80 flex-col gap-4 rounded bg-header px-8 py-10 drop-shadow-lg'>
-          <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
-            {props.page.title}
-          </h1>
-          <sub class='mb-2 text-sm text-subtitle'>{props.page.subtitle}</sub>
+          <AuthTitle />
 
           <Show when={status().show}>
-            <span
-              class={`${status().ok ? 'text-accent' : 'text-warning'} my-0 font-semibold`}
-            >
+            <span class={`${statusColour()} my-0 font-semibold`}>
               {status().msg}
             </span>
           </Show>
@@ -196,22 +245,10 @@ const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
             </For>
           </section>
 
-          <section>
-            <button
-              onClick={[AuthOnClick as any, { page: props.page, setStatus }]}
-              class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
-            >
-              {props.page.confirmText}
-            </button>
-
-            <A class='mt-4 flex items-center justify-end text-accent' href='/'>
-              <OcArrowleft2 />
-              Back
-            </A>
-          </section>
+          <AuthBottom setStatus={setStatus} />
         </form>
       </div>
-    </>
+    </PageContext.Provider>
   );
 };
 

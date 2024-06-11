@@ -3,7 +3,7 @@ import { deformatImages, ImageObj, ValidImages } from '../requests/images';
 import { DefaultUser, getUserFromID, User } from '../requests/user';
 import { Show, Component, createResource, For } from 'solid-js';
 import ProfileIcon from '../assets/DefaultProfile.png';
-import { Post as PostType } from '../requests/post';
+import { Post } from '../requests/post';
 import { ChildrenProps } from '../common';
 import { A } from '@solidjs/router';
 import RichText from './rich-text';
@@ -155,12 +155,12 @@ const PostImages: Component<PostImageProps> = (props) => {
  * Propetries for {@link PostUI}
  */
 export interface PostProps {
-  post: PostType;
+  post: Post;
 }
 
 /**
- * Shows a {@link PostType post} as a UI component
- * @param props A {@link PostType} Object
+ * Shows a {@link Post post} as a UI component
+ * @param props A {@link Post} Object
  */
 const PostUI: Component<PostProps> = (props) => {
   const pst = props.post;
