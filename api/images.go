@@ -14,8 +14,8 @@ import (
 
 // ImageData contains the URL, content, content-type of an image
 type ImageData struct {
-	URL         string `db:"url"`
-	Content     []byte `db:"Content"`
+	URL         string `db:"URL"`
+	Content     []byte `db:"content"`
 	ContentType string `db:"mimetype"`
 }
 

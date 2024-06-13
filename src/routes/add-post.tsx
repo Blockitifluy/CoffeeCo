@@ -2,8 +2,8 @@ import { NoEnter, Status, Statuses } from '../common';
 import { Accessor, Component, For, Show } from 'solid-js';
 
 import { addPost as addPost, AddPostRequest } from '../requests/post';
-import { PostSkeleton } from '../components/Post';
-import { useUser } from '../contexts/usercontext';
+import { PostSkeleton } from '../components/post';
+import { useUser } from '../contexts/user-context';
 import { OcImage2, OcPaperairplane2, OcX2 } from 'solid-icons/oc';
 import { uploadImage, reformatImages, ImageObj } from '../requests/images';
 import Header from '../components/header';
@@ -11,12 +11,13 @@ import Sides from '../components/sides';
 import { useInput } from '../hooks';
 import { Meta, Title } from '@solidjs/meta';
 import { createStore, SetStoreFunction } from 'solid-js/store';
+import { User } from '../requests/user';
 
 /**
  * Propetries for {@link AddImageButton}
  */
 interface AddImageProps {
-  OnFileAdd: (Params: FileAddParams, event: Event) => Promise<void> | void;
+  onFileAdd: (Params: FileAddParams, event: Event) => Promise<void> | void;
   Params: FileAddParams;
 }
 
@@ -47,7 +48,7 @@ const AddImageButton: Component<AddImageProps> = (props) => {
         type='file'
         id='image-picker'
         class='absolute -z-10 opacity-0'
-        onInput={[props.OnFileAdd, props.Params as any]}
+        onInput={(event) => props.onFileAdd(props.Params, event)}
         accept='image/png, image/jpeg, image/gif'
         multiple
       />
@@ -55,44 +56,26 @@ const AddImageButton: Component<AddImageProps> = (props) => {
   );
 };
 
-/**
- * Inputs need to {@link OnSubmit submit} a post.
- */
-interface SubmitInputs {
-  /*The content of the post*/
-  input: Accessor<string>;
-  /**
-   * Gets the status and images
-   */
-  state: PromptState;
-  /**
-   * Sets the status and images
-   */
-  setState: SetStoreFunction<PromptState>;
-}
-
-/**
- * Submits a new post to the Database (Can fail)
- * @param inputs content, images and setting status
- * @param event The mouse event
- */
-const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
+const onSubmit = async (
+  input: Accessor<string>,
+  state: PromptState,
+  setState: SetStoreFunction<PromptState>,
+  user: User,
+  event: MouseEvent,
+) => {
   event.preventDefault();
 
   try {
-    const userID = useUser()?.ID;
-    if (!userID) throw new Error('UserID doesn not exist');
-
     const Req: AddPostRequest = {
-      content: inputs.input(),
-      images: reformatImages(inputs.state.Images),
-      postedBy: userID,
+      content: input(),
+      images: reformatImages(state.Images),
+      postedBy: user.ID,
       parentID: -1, // Sole Post
     };
 
     const Res = await addPost(Req);
 
-    inputs.setState('status', {
+    setState('status', {
       show: true,
       ok: Res.ok,
       msg: Res.ok ? 'Success' : 'Something Went Wrong',
@@ -102,7 +85,7 @@ const OnSubmit = async (inputs: SubmitInputs, event: MouseEvent) => {
   } catch (err) {
     console.error(err);
 
-    inputs.setState('status', {
+    setState('status', {
       show: true,
       ok: false,
       msg: (err as Error).message,
@@ -187,7 +170,7 @@ module ImagePreview {
    * Closes a {@link ImagePreview}
    * @param Params the {@link ImagePreview.Props Propetries} of {@link ImagePreview}
    */
-  export const Close = (Params: Props) => {
+  export const close = (Params: Props) => {
     Params.setState('Images', (prev) => {
       const clone = [...prev];
       clone.splice(Params.index, 1);
@@ -200,19 +183,19 @@ module ImagePreview {
    * @param props {@link ImagePreview.Props Propetries}
    */
   export const Preview: Component<Props> = (props) => {
-    const image = props.state.Images[props.index];
+    const image = () => props.state.Images[props.index];
 
     return (
       <li class='grid grid-rows-[0px_1fr]'>
         <button
           class='bg-sandy-500 relative size-6 rounded leading-none text-warning'
-          onClick={[ImagePreview.Close, props]}
+          onClick={() => ImagePreview.close(props)}
         >
           <OcX2 class='m-auto text-lg' />
         </button>
         <img
-          src={image.src}
-          alt={image.alt}
+          src={image().src}
+          alt={image().alt}
           class='rounded'
           width={100}
           height={100}
@@ -235,8 +218,8 @@ interface PromptState {
 const Prompt: Component = () => {
   const [Connecter, getInput] = useInput<HTMLTextAreaElement>();
 
-  const User = useUser();
-  if (!User) throw new Error('UserID doesn not exist');
+  const user = useUser();
+  if (!user) throw new Error('UserID doesn not exist');
 
   const [state, setState] = createStore<PromptState>({
     Images: [],
@@ -246,7 +229,7 @@ const Prompt: Component = () => {
   const colorStatus = () => (state.status.ok ? 'text-accent' : 'text-warning');
 
   return (
-    <PostSkeleton title='Create New Post' subtitle={`As @${User!.handle}`}>
+    <PostSkeleton title='Create New Post' subtitle={`As @${user!.handle}`}>
       <div class='col-start-2 flex flex-col gap-1'>
         <Show when={state.status.show}>
           <span class={`${colorStatus()} my-0 font-semibold`}>
@@ -262,8 +245,8 @@ const Prompt: Component = () => {
             cols={50}
             rows={6}
             maxLength={240}
-            oninput={Connecter}
-            onkeydown={NoEnter}
+            onInput={Connecter}
+            onKeyDown={NoEnter}
           />
           <p class='relative right-16 top-full -translate-y-8 text-title/50'>
             {getInput().length}/240
@@ -271,7 +254,7 @@ const Prompt: Component = () => {
         </div>
 
         <section class='my-2 flex flex-col gap-2'>
-          <AddImageButton OnFileAdd={OnFileAdd} Params={{ state, setState }} />
+          <AddImageButton onFileAdd={OnFileAdd} Params={{ state, setState }} />
 
           <Show when={state.Images.length > 0}>
             <ul class='justify-left flex flex-row gap-3'>
@@ -293,10 +276,7 @@ const Prompt: Component = () => {
         <button
           class='btn button flex w-fit items-center gap-2 bg-accent'
           type='submit'
-          onClick={[
-            OnSubmit,
-            { input: getInput, state: state, setState: setState },
-          ]}
+          onClick={(event) => onSubmit(getInput, state, setState, user, event)}
         >
           <OcPaperairplane2 />
           Submit

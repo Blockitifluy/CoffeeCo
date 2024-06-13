@@ -5,7 +5,7 @@ import { render } from 'solid-js/web';
 import { Router, Route } from '@solidjs/router';
 import { Link, MetaProvider } from '@solidjs/meta';
 
-import { UserProvider } from './contexts/usercontext';
+import { UserProvider } from './contexts/user-context';
 
 import 'solid-devtools';
 import './index.css';
@@ -49,21 +49,20 @@ function getRoot(): HTMLElement {
  */
 const RouteElement = () => {
   return (
-    <ErrorBoundary fallback={Boundary}>
+    <MetaProvider>
       <UserProvider>
-        <MetaProvider>
-          <Link rel='dns-prefetch' href='https://fonts.googleapis.com' />
-          <Link rel='preconnect' href='https://fonts.googleapis.com' />
+        <Link rel='dns-prefetch' href='https://fonts.googleapis.com' />
+        <Link rel='preconnect' href='https://fonts.googleapis.com' />
 
-          <Link rel='dns-prefetch' href='https://placehold.co' />
-          <Link rel='preconnect' href='https://placehold.co' />
+        <Link rel='dns-prefetch' href='https://placehold.co' />
+        <Link rel='preconnect' href='https://placehold.co' />
 
-          <Link
-            rel='manifest'
-            href='/manifest.json'
-            crossorigin='use-credentials'
-          />
-
+        <Link
+          rel='manifest'
+          href='/manifest.json'
+          crossorigin='use-credentials'
+        />
+        <ErrorBoundary fallback={Boundary}>
           <Router explicitLinks={true}>
             <Route path='/post/:ID' component={PostFocusPage} />
             <Route path='/search/:ID' component={MainPage} />
@@ -74,9 +73,9 @@ const RouteElement = () => {
             <Route path='/' component={MainPage} />
             <Route path='*404' component={NotFoundPage} />
           </Router>
-        </MetaProvider>
+        </ErrorBoundary>
       </UserProvider>
-    </ErrorBoundary>
+    </MetaProvider>
   );
 };
 

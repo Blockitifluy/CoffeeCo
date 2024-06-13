@@ -26,13 +26,16 @@ type AddPostRequest struct {
 
 // PostDB is a struct replicata of the `Posts` table
 type PostDB struct {
-	ID          int       `json:"ID" db:"id"`
-	PostedBy    int       `json:"postedBy" db:"PostedBy"`
+	ID          int       `json:"ID" db:"ID"`
+	PostedBy    int       `json:"postedBy" db:"postedBy"`
 	Content     string    `json:"content" db:"content"`
 	TimeCreated time.Time `json:"timeCreated" db:"timeCreated"`
-	ParentID    int       `json:"parentID" db:"ParentId"`
-	// Images list format seperated with commas: url (alt)
-	Images string `json:"images" db:"images"`
+	ParentID    int       `json:"parentID" db:"parentID"`
+	WhoLiked    string    `json:"whoLiked" db:"whoLiked"`
+	WhoDisliked string    `json:"whoDisliked" db:"whoDisliked"`
+	Likes       int       `json:"likes" db:"likes"`
+	Dislikes    int       `json:"dislikes" db:"dislikes"`
+	Images      string    `json:"images" db:"images"`
 }
 
 // PostListBody is used by [coffeecoserver/api.server.PostFeedList] and only contains Amount int value.

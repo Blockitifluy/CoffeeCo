@@ -1,6 +1,6 @@
 import { Component, For, Show } from 'solid-js';
 import { ChildrenProps } from '../common';
-import getLeftLink from '../sideurls';
+import getLeftLink from '../side-urls';
 import { A } from '@solidjs/router';
 
 interface HamburgerItemProps extends ChildrenProps {

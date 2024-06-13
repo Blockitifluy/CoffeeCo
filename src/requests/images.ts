@@ -52,6 +52,8 @@ export function deformatImages(images: string): ImageObj[] {
     index++;
   }
 
+  console.log(`DeformatImages: ${images}:`, total);
+
   return total;
 }
 
@@ -71,7 +73,10 @@ export function reformatImages(images: ImageObj[]): string {
     index++;
   }
 
-  return total.join(',');
+  const join = total.join(',');
+
+  console.log('ReformatImages:', total, `: ${join}`);
+  return join;
 }
 
 /**

@@ -1,1 +1,2 @@
-dist/assets/index.js
+dist/assets/**/*
+.vscode/setting.json

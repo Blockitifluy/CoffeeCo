@@ -1,7 +1,7 @@
 import { OcComment2, OcThumbsdown2, OcThumbsup2 } from 'solid-icons/oc';
-import { deformatImages, ImageObj, ValidImages } from '../requests/images';
+import { deformatImages, ValidImages } from '../requests/images';
 import { DefaultUser, getUserFromID, User } from '../requests/user';
-import { Show, Component, createResource, For } from 'solid-js';
+import { Show, Component, createResource, For, createMemo } from 'solid-js';
 import ProfileIcon from '../assets/DefaultProfile.png';
 import { Post } from '../requests/post';
 import { ChildrenProps } from '../common';
@@ -31,12 +31,10 @@ export interface PostSkeletonProps extends ChildrenProps {
  * @param props children, title and subtitle
  */
 export const PostSkeleton: Component<PostSkeletonProps> = (props) => {
-  const linkLabel = `${props.title}'s page`;
-
   return (
     <article class='post'>
       {props.url ? (
-        <A href={props.url} aria-label={linkLabel}>
+        <A href={props.url} aria-label={`${props.title}'s page`}>
           <img
             src={ProfileIcon}
             alt={`${props.title} Profile Image`}
@@ -88,19 +86,24 @@ interface PostButtonProps extends ChildrenProps {
  * @param props A button's text and url (and is a button)
  */
 const PostButton: Component<PostButtonProps> = (props) => {
-  return props.isButton ? (
-    <button class='flex flex-row items-center gap-1 text-sm text-text'>
-      {props.children}
-      <span>{props.text}</span>
-    </button>
-  ) : (
-    <A
-      href={props.url || '/not-found'}
-      class='flex flex-row items-center gap-1 text-sm text-text'
+  return (
+    <Show
+      when={props.isButton}
+      fallback={
+        <A
+          href={props.url || '/not-found'}
+          class='flex flex-row items-center gap-1 text-sm text-text'
+        >
+          {props.children}
+          <span>{props.text}</span>
+        </A>
+      }
     >
-      {props.children}
-      <span>{props.text}</span>
-    </A>
+      <button class='flex flex-row items-center gap-1 text-sm text-text'>
+        {props.children}
+        <span>{props.text}</span>
+      </button>
+    </Show>
   );
 };
 
@@ -133,15 +136,15 @@ export interface PostImageProps {
  * @param props an `images` string
  */
 const PostImages: Component<PostImageProps> = (props) => {
-  const ref: ImageObj[] = deformatImages(props.images);
+  const images = createMemo(() => deformatImages(props.images));
 
   return (
     <section class='flex justify-center gap-2'>
-      <For each={ref}>
+      <For each={images()}>
         {(image) => (
           <img
             src={image.src}
-            width={400 / ref.length}
+            width={400 / images().length}
             class='rounded-lg'
             alt={image.alt}
           />
@@ -163,11 +166,11 @@ export interface PostProps {
  * @param props A {@link Post} Object
  */
 const PostUI: Component<PostProps> = (props) => {
-  const pst = props.post;
+  const pst = () => props.post;
 
   const [user] = createResource<User>(async () => {
     try {
-      const usr = await getUserFromID(pst.postedBy);
+      const usr = await getUserFromID(pst().postedBy);
 
       return usr;
     } catch (error) {
@@ -177,26 +180,26 @@ const PostUI: Component<PostProps> = (props) => {
     }
   });
 
-  const date = new Date(pst.timeCreated).toDateString();
+  const date = () => new Date(pst().timeCreated).toDateString();
 
   return (
     <Show when={!user.loading} fallback={<DummyPost />}>
       <PostSkeleton
         title={`@${user()!.handle}`}
-        subtitle={date}
+        subtitle={date()}
         url={`http://localhost:8000/user/${props.post.postedBy}`}
       >
         <div class='col-start-2 flex w-full flex-col gap-2 overflow-hidden'>
           <RichText class='whitespace-pre-wrap text-wrap break-words text-text'>
-            {pst.content}
+            {pst().content}
           </RichText>
 
-          <Show when={ValidImages.test(pst.images)}>
-            <PostImages images={pst.images} />
+          <Show when={ValidImages.test(pst().images)}>
+            <PostImages images={pst().images} />
           </Show>
 
           <div class='flex-rows flex gap-3 text-lg'>
-            <PostButton text='197' url={`/post/${pst.ID}`} isButton={false}>
+            <PostButton text='197' url={`/post/${pst().ID}`} isButton={false}>
               <OcComment2 />
             </PostButton>
 

@@ -1,13 +1,13 @@
 import { Component, createResource, Show } from 'solid-js';
 import { DefaultUser, getUserFromID } from '../requests/user';
-import { PostProps } from './Post';
+import { PostProps } from './post';
 
 const Comment: Component<PostProps> = (props) => {
-  const pst = props.post;
+  const pst = () => props.post;
 
   const [user] = createResource(async () => {
     try {
-      const user = await getUserFromID(pst.postedBy);
+      const user = await getUserFromID(pst().postedBy);
 
       return user;
     } catch {
@@ -15,7 +15,7 @@ const Comment: Component<PostProps> = (props) => {
     }
   });
 
-  const date = new Date(pst.timeCreated).toDateString();
+  const date = () => new Date(pst().timeCreated).toDateString();
 
   return (
     <Show when={!user.loading}>
@@ -31,9 +31,9 @@ const Comment: Component<PostProps> = (props) => {
           <h1 class='text-ms font-medium leading-4 text-title'>
             @{user()!.handle}
           </h1>
-          <sub class='text-xs text-subtitle'>{date}</sub>
+          <sub class='text-xs text-subtitle'>{date()}</sub>
         </div>
-        <p class='col-start-2 text-text'>{pst.content}</p>
+        <p class='col-start-2 text-text'>{pst().content}</p>
       </article>
     </Show>
   );

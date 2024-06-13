@@ -1,19 +1,16 @@
-import PostList, { PostListHandler } from '../components/postlist';
+import PostList, { PostListHandler } from '../components/post-list';
 import { Meta, Title } from '@solidjs/meta';
 import Header from '../components/header';
 import Sides from '../components/sides';
 import { Component, createResource, For, Show } from 'solid-js';
 import { getPostsFromQuery, Post, postFeedList } from '../requests/post';
-import PostUI from '../components/Post';
+import PostUI from '../components/post';
 import { searchForUsers, User } from '../requests/user';
 
 const LoadAmount = 10;
 
 const handleScrollSearch: PostListHandler = async (get, set) => {
-  console.log('Scrolled to the Bottom');
-  if (get.loading) {
-    return;
-  }
+  if (get.loading) return;
 
   const content = new URLSearchParams(location.search).get('search');
   if (!content) {
@@ -30,7 +27,7 @@ const handleScrollSearch: PostListHandler = async (get, set) => {
     json: Post[] = await NewComments.json();
 
   if (!NewComments.ok) {
-    console.error('Loading new posts was not ok');
+    console.error('PostList: Could not load posts');
     set('loading', false);
     return;
   }
@@ -52,12 +49,9 @@ const handleScrollSearch: PostListHandler = async (get, set) => {
  * @returns All posts from a global scope
  */
 const handleScrollAll: PostListHandler = async (get, set) => {
-  console.log('Scrolled To Bottom');
-  if (get.loading) {
-    return;
-  }
+  if (get.loading) return;
 
-  console.log('Loading New Posts');
+  console.log('PostList: Loading New Posts');
   set('loading', true);
 
   try {
@@ -66,7 +60,9 @@ const handleScrollAll: PostListHandler = async (get, set) => {
 
     set('Posts', get.Posts.concat(...Posts));
   } catch (error) {
-    console.error('Loading new posts was not ok');
+    console.error('PostList: Could not load posts');
+    set('loading', false);
+    return;
   }
 
   set('times', get.times + 1);
@@ -74,17 +70,17 @@ const handleScrollAll: PostListHandler = async (get, set) => {
 };
 
 const UserListItem: Component<{ user: User }> = (props) => {
-  const user = props.user;
+  const user = () => props.user;
 
   return (
     <a
-      href={`/user/${user.ID}`}
+      href={`/user/${user().ID}`}
       class='post grid'
-      aria-label={`@${user.handle}`}
+      aria-label={`@${user().handle}`}
     >
       <img
-        src={user.Profile}
-        alt={`${user.username} Profile Image`}
+        src={user().Profile}
+        alt={`${user().username} Profile Image`}
         width={32}
         height={32}
         class='rounded-full'
@@ -92,15 +88,15 @@ const UserListItem: Component<{ user: User }> = (props) => {
 
       <div class='flex flex-col justify-center'>
         <h1 class='text-ms font-medium leading-4 text-title'>
-          {user.username}
+          {user().username}
         </h1>
-        <p class='text-xs text-subtitle'>{user.handle}</p>
+        <p class='text-xs text-subtitle'>{user().handle}</p>
       </div>
 
       <p
-        class={`col-start-2 overflow-ellipsis whitespace-pre-wrap text-wrap break-words text-base ${user.bio === '' ? 'text-subtitle' : 'text-text'}`}
+        class={`col-start-2 overflow-ellipsis whitespace-pre-wrap text-wrap break-words text-base ${user().bio === '' ? 'text-subtitle' : 'text-text'}`}
       >
-        {user.bio === '' ? 'No Bio' : user.bio}
+        {user().bio === '' ? 'No Bio' : user().bio}
       </p>
     </a>
   );

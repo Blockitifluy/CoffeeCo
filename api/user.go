@@ -25,13 +25,14 @@ type LoginUser struct {
 
 // PublicUser is the root of most User structs contains non-personal information about the user
 type PublicUser struct {
-	ID             int    `json:"ID" db:"id"`
-	Username       string `json:"username" db:"username"`             // A non-unique name
-	Handle         string `json:"handle" db:"handle"`                 // An unique handle
-	Bio            string `json:"bio" db:"bio"`                       // The description (biography)
-	FollowersCount int    `json:"followersCount" db:"followersCount"` // How many users following
-	Banner         string `json:"Banner" db:"Banner"`                 // Url to the Banner
-	Profile        string `json:"Profile" db:"Profile"`               // Url to the Profile
+	ID          int    `json:"ID" db:"ID"`
+	Username    string `json:"username" db:"username"` // A non-unique name
+	Handle      string `json:"handle" db:"handle"`     // An unique handle
+	Bio         string `json:"bio" db:"bio"`           // The description (biography)
+	Followers   int    `json:"followers" db:"followers"`
+	WhoFollowed string `json:"whoFollowed" db:"whoFollowed"` // How many users following
+	Banner      string `json:"Banner" db:"banner"`           // Url to the Banner
+	Profile     string `json:"Profile" db:"profile"`         // Url to the Profile
 }
 
 // SentUser contains all the regular information from [coffeecoserver/api.PublicUser] as well as:
@@ -129,16 +130,7 @@ func (srv *Server) APIUserFromID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type UFIUser struct {
-		Username       string `json:"username"`
-		Handle         string `json:"handle"`
-		FollowersCount int    `json:"followersCount"`
-		Banner         string `json:"Banner"`
-		Profile        string `json:"Profile"`
-		Bio            string `json:"bio"`
-	}
-
-	var u UFIUser
+	var u PublicUser
 	if err := scan.Row(&u, rows); err != nil {
 		utility.SendScanErr(w, err, nil)
 		return

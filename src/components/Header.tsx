@@ -1,8 +1,8 @@
 import { Component, JSX, Show, Setter, createSignal } from 'solid-js';
 import { OcPlus2, OcBell2, OcThreebars2, OcSearch2 } from 'solid-icons/oc';
 import { A } from '@solidjs/router';
-import Logo64 from '../assets/logos/logo64.png';
-import { useUser } from '../contexts/usercontext';
+import Logo from '../assets/logo.svg';
+import { useUser } from '../contexts/user-context';
 import { isLoggedIn } from '../requests/user';
 import { ChildrenProps } from '../common';
 import Hamburger from './hamburger';
@@ -27,22 +27,27 @@ const HeaderButton: Component<HeaderLinksProps> = (props) => {
     </>
   );
 
-  return props.url ? (
-    <A
-      aria-label={props.label}
-      class='btn-transition head-btn'
-      href={props.url!}
+  return (
+    <Show
+      when={props.url}
+      fallback={
+        <button
+          onClick={props.onClick}
+          aria-label={props.label}
+          class='btn-transition head-btn'
+        >
+          {Content}
+        </button>
+      }
     >
-      {Content}
-    </A>
-  ) : (
-    <button
-      onClick={props.onClick}
-      aria-label={props.label}
-      class='btn-transition head-btn'
-    >
-      {Content}
-    </button>
+      <A
+        aria-label={props.label}
+        class='btn-transition head-btn'
+        href={props.url!}
+      >
+        {Content}
+      </A>
+    </Show>
   );
 };
 
@@ -59,15 +64,16 @@ const Left: Component<{ setHamburger: Setter<boolean> }> = (props) => {
         </HeaderButton>
       </div>
 
-      <A href='/' class='full-center gap-4'>
+      <A href='/' class='full-center gap-2'>
         <img
-          src={Logo64}
+          src={Logo}
+          class='scale-110'
           loading='lazy'
           alt='CoffeeCo Logo'
           width='36'
           height='36'
         />
-        <h1 class='hidden rounded px-1 text-lg font-semibold text-title transition-all hover:bg-accent/40 active:bg-accent/25 sm:block'>
+        <h1 class='hidden rounded px-1 text-2xl font-bold text-title transition-all hover:bg-accent/40 active:bg-accent/25 sm:block'>
           CoffeeCo
         </h1>
       </A>
@@ -75,17 +81,14 @@ const Left: Component<{ setHamburger: Setter<boolean> }> = (props) => {
   );
 };
 
-const rightNotLoggedIn: Component = () => {
+const RightNotLoggedIn: Component = () => {
   return (
     <>
-      <a class='btn-transition btn bg-button hover:bg-accent/75' href='/log-in'>
+      <a class='btn-transition head-btn' href='/log-in'>
         Login
       </a>
       <span class='text-text'>or</span>
-      <a
-        class='btn-transition btn bg-button hover:bg-accent/75'
-        href='/sign-up'
-      >
+      <a class='btn-transition head-btn' href='/sign-up'>
         Signup
       </a>
     </>
@@ -99,28 +102,34 @@ const Right: Component = () => {
 
   const [Connected, search] = useInput(searchTerm ?? '');
 
-  const onSearchSubmit = () => {
-    console.log(`Searched for "${search()}"`);
+  const onSearchInput: JSX.EventHandlerUnion<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key !== 'Enter') return;
+
+    event.preventDefault();
+
+    console.log(`Searchbar: Searched for "${search()}"`);
 
     const SearchURL = new URL(location.href);
+    if (search()) SearchURL.searchParams.delete('search');
+
     SearchURL.searchParams.set('search', search());
 
     location.href = SearchURL.toString();
   };
 
-  const onSearchInput: JSX.EventHandlerUnion<
-    HTMLInputElement,
-    KeyboardEvent
-  > = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      onSearchSubmit();
-    }
-  };
-
   return (
     <section class='flex flex-row-reverse items-center gap-6 px-4 md:gap-4'>
-      <Show when={isLoggedIn()} fallback={rightNotLoggedIn({})}>
+      <Show
+        when={isLoggedIn()}
+        fallback={
+          <>
+            <RightNotLoggedIn />
+          </>
+        }
+      >
         <div
           aria-label='Profile'
           class='flex flex-row-reverse items-center gap-1'
@@ -138,12 +147,12 @@ const Right: Component = () => {
           <OcBell2 />
         </HeaderButton>
 
-        <HeaderButton url='/new-post' label='Create Post' subtitle='Create'>
+        <HeaderButton url='/add-post' label='Create Post' subtitle='Create'>
           <OcPlus2 />
         </HeaderButton>
       </Show>
-      <div>
-        <OcSearch2 class='relative left-6 inline text-white' />
+      <div class='flex flex-row'>
+        <OcSearch2 class='relative left-6 translate-y-1/2 text-white' />
         <input
           id='search'
           name='search'
@@ -151,7 +160,7 @@ const Right: Component = () => {
           value={search()}
           onInput={Connected}
           onKeyPress={onSearchInput}
-          class='w-24 overflow-ellipsis rounded bg-button px-2 py-1 pl-8 text-white transition-[width] focus:w-48 focus:outline-none'
+          class='full-center h-8 w-24 gap-2 text-ellipsis rounded bg-header p-2 pl-8 text-title outline outline-1 outline-outline transition-[width] placeholder:text-subtitle focus:w-48'
         />
       </div>
     </section>
@@ -174,7 +183,7 @@ const Header: Component = () => {
   return (
     <>
       <header class='text-slate-500 relative z-10 h-16 w-full bg-header px-4 py-4 outline outline-1 outline-outline'>
-        <div class='grid min-w-32 grid-cols-2'>
+        <div class='mx-auto grid min-w-32 max-w-7xl grid-cols-2'>
           <Left setHamburger={setHamburger} />
 
           <Right />

@@ -1,14 +1,5 @@
-import {
-  Component,
-  createContext,
-  createSignal,
-  For,
-  JSX,
-  Setter,
-  Show,
-  Signal,
-  useContext,
-} from 'solid-js';
+/* eslint-disable jsdoc/check-param-names */
+import { Component, createSignal, For, Setter, Show, Signal } from 'solid-js';
 import { OcArrowleft2 } from 'solid-icons/oc';
 import { Status, Statuses, BasicStatus } from '../common';
 import { A } from '@solidjs/router';
@@ -19,7 +10,7 @@ export namespace FormInput {
   export type AuthSubmit = (Inputs: InputMap) => Promise<BasicStatus>;
 
   /**
-   * Used by {@link AuthOnClick}
+   * Used by {@link authOnClick}
    */
   export interface AuthOnClickInputs {
     page: FormInput.AuthProps;
@@ -96,23 +87,12 @@ export namespace FormInput {
  */
 const InputMap: FormInput.InputMap = new Map<string, string>();
 
-/**
- * Happens the input has a keyup event, then updates the signal and adds from {@link InputMap}
- * @param key The name of {@link InputUI Input}
- * @param Signal Contains getter (0) and setter (1)
- * @returns An event connecter
- */
-function onInput(
-  key: string,
-  Signal: Signal<string>,
-): JSX.EventHandlerUnion<HTMLInputElement, KeyboardEvent> {
-  return (event) => {
-    const Target: HTMLInputElement = event.target as HTMLInputElement;
+const onInput = (key: string, signal: Signal<string>, event: KeyboardEvent) => {
+  const Target: HTMLInputElement = event.target as HTMLInputElement;
 
-    Signal[1](Target.value);
-    InputMap.set(key, Signal[0]());
-  };
-}
+  signal[1](Target.value);
+  InputMap.set(key, signal[0]());
+};
 
 /**
  * The InputComponent included in {@link Auth}
@@ -124,7 +104,7 @@ const InputUI: Component<FormInput.AuthInput> = (props) => {
   return (
     <input
       id={props.key}
-      onKeyUp={onInput(props.key, [input, setInput])}
+      onKeyUp={(event) => onInput(props.key, [input, setInput], event)}
       class='rounded border-2 border-outline bg-background p-2 text-text placeholder:text-subtitle focus:outline-accent'
       placeholder={
         props.limit ? `${props.key} (${props.limit} limit)` : props.key
@@ -136,78 +116,30 @@ const InputUI: Component<FormInput.AuthInput> = (props) => {
   );
 };
 
+// eslint-disable-next-line jsdoc/require-param
 /**
  * When the submit button is clicked
- * @param setStatus Sets the page's status
+ * @param 0 Sets the page's status
+ * @param 1 The auth page
  * @param event The event occured on Mouse Click
  */
-const AuthOnClick = async (setStatus: Setter<Status>, event: MouseEvent) => {
+const authOnClick = async (
+  [setStatus, page]: [Setter<Status>, FormInput.AuthProps],
+  event: MouseEvent,
+) => {
   event.preventDefault();
-
-  const page = usePage();
 
   const result = await page.submit(InputMap),
     resultStatus = new Status(result.msg, result.ok);
 
   setStatus(resultStatus);
 
-  console.log(result);
+  console.log('Auth: Result is', result);
 
   if (result.ok) {
     location.href = '/';
   }
 };
-
-const AuthBottom: Component<{ setStatus: Setter<Status> }> = (props) => {
-  const page = usePage();
-
-  return (
-    <section>
-      <button
-        onClick={[AuthOnClick as any, props.setStatus]}
-        class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
-      >
-        {page.confirmText}
-      </button>
-
-      <A class='mt-4 flex items-center justify-end text-accent' href='/'>
-        <OcArrowleft2 />
-        Back
-      </A>
-    </section>
-  );
-};
-
-const AuthTitle: Component = () => {
-  const page = usePage();
-  return (
-    <div>
-      <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
-        {page.title}
-      </h1>
-      <sub class='mb-2 text-sm text-subtitle'>{page.subtitle}</sub>
-    </div>
-  );
-};
-
-const PageContext = createContext<FormInput.AuthProps>({
-  title: '',
-  subtitle: '',
-  confirmText: '',
-  Inputs: [],
-  submit: (() => {}) as any,
-});
-
-/**
- * Get the page context
- */
-function usePage(): FormInput.AuthProps {
-  const page = useContext(PageContext);
-  if (!page) {
-    throw new Error('Cannot get page');
-  }
-  return page;
-}
 
 /**
  * The Auth Page (could be Login / Signin)
@@ -216,16 +148,21 @@ function usePage(): FormInput.AuthProps {
 const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
   const [status, setStatus] = createSignal<Status>(Statuses.DefaultStatus);
 
+  const page = () => props.page;
+
   const statusColour = () => (status().ok ? 'text-accent' : 'text-warning');
 
   return (
-    <PageContext.Provider value={props.page}>
+    <>
       <Meta name='description' content={props.page.subtitle} />
       <Title>CoffeeCo - {props.page.title}</Title>
 
       <div class='grid h-screen w-screen items-center justify-center bg-background'>
         <form class='flex w-80 flex-col gap-4 rounded bg-header px-8 py-10 drop-shadow-lg'>
-          <AuthTitle />
+          <h1 class='mt-2 text-3xl font-semibold leading-4 text-title'>
+            {page().title}
+          </h1>
+          <sub class='mb-2 text-sm text-subtitle'>{page().subtitle}</sub>
 
           <Show when={status().show}>
             <span class={`${statusColour()} my-0 font-semibold`}>
@@ -234,7 +171,7 @@ const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
           </Show>
 
           <section class='mx-auto mb-2 flex w-64 flex-col gap-2'>
-            <For each={props.page.Inputs}>
+            <For each={page().Inputs}>
               {(input) => (
                 <InputUI
                   isPassword={input.isPassword}
@@ -245,10 +182,22 @@ const Auth: Component<{ page: FormInput.AuthProps }> = (props) => {
             </For>
           </section>
 
-          <AuthBottom setStatus={setStatus} />
+          <section>
+            <button
+              onClick={(event) => authOnClick([setStatus, page()], event)}
+              class='mx-auto w-full rounded bg-accent py-2 text-2xl font-medium text-white transition-colors hover:bg-accent/25'
+            >
+              {page().confirmText}
+            </button>
+
+            <A class='mt-4 flex items-center justify-end text-accent' href='/'>
+              <OcArrowleft2 />
+              Back
+            </A>
+          </section>
         </form>
       </div>
-    </PageContext.Provider>
+    </>
   );
 };
 
