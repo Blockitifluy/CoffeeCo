@@ -10,6 +10,13 @@ export interface Post {
   content: string;
   timeCreated: string;
   parentID: number;
+
+  likes: number;
+  whoLiked: string;
+
+  dislikes: number;
+  whoDisliked: string;
+
   images: string;
 }
 
@@ -29,6 +36,10 @@ export interface PostListReq {
 export const DefaultPost: Post = {
   ID: 0,
   postedBy: 0,
+  whoDisliked: '',
+  dislikes: 0,
+  likes: 0,
+  whoLiked: '',
   content: 'THIS TEST CODE DO NOT USE FOR PRODUCTION',
   timeCreated: 'Invalid Date',
   parentID: -1,

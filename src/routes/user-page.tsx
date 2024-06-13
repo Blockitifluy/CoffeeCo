@@ -9,12 +9,12 @@ import {
 } from 'solid-js';
 import { DefaultUser, getUserFromID } from '../requests/user';
 import { useParams } from '@solidjs/router';
-import { useUser } from '../contexts/usercontext';
+import { useUser } from '../contexts/user-context';
 import { OcGear2 } from 'solid-icons/oc';
 import { Meta, Title } from '@solidjs/meta';
 import { getUserPostHistory, Post } from '../requests/post';
-import PostUI from '../components/Post';
-import PostList, { PostListHandler } from '../components/postlist';
+import PostUI from '../components/post';
+import PostList, { PostListHandler } from '../components/post-list';
 
 /**
  * The Page User (Stored in a Context)
@@ -78,10 +78,9 @@ const UserPage: Component = () => {
   const ID: number = parseInt(useParams()['ID']);
 
   const handleScroll: PostListHandler = async (get, set) => {
-    console.log('Scrolled to the Bottom');
-    if (get.loading) {
-      return;
-    }
+    if (get.loading) return;
+
+    console.log('PostList: Loading new posts');
 
     set('loading', true);
 
@@ -89,7 +88,7 @@ const UserPage: Component = () => {
       json: Post[] = await NewComments.json();
 
     if (!NewComments.ok) {
-      console.error('Loading new posts was not ok');
+      console.error('PostList: Could not load posts');
       set('loading', false);
       return;
     }

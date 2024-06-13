@@ -1,6 +1,6 @@
 import { Component, createMemo, For } from 'solid-js';
 import { A } from '@solidjs/router';
-import getLeftLink from '../../sideurls';
+import getLeftLink from '../../side-urls';
 import { ChildrenProps } from '../../common';
 import Island from './island';
 
@@ -15,7 +15,7 @@ const LeftLink: Component<LeftLinkProps> = (props) => {
   return (
     <li class='w-full border-b border-outline py-1 last:border-none'>
       <A
-        class={`hover:bg-slate-950/25 active:bg-slate-950/35 flex flex-row items-center gap-1 py-1 pl-4 text-lg font-medium ${background} transition-colors`}
+        class={`hover:bg-slate-950/25 active:bg-slate-950/35 flex flex-row items-center gap-1 py-1 pl-4 text-lg font-medium ${background()} transition-colors`}
         href={props.url}
       >
         {props.children}

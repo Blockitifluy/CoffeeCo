@@ -1,4 +1,4 @@
-import { Component } from 'solid-js';
+import { Component, createEffect } from 'solid-js';
 import { OcHash2 } from 'solid-icons/oc';
 import Island, { IslandLink } from './island';
 
@@ -7,9 +7,11 @@ interface HashtagProps {
 }
 
 const Hashtag: Component<HashtagProps> = (props) => {
+  const text = () => props.text;
+
   const href = new URL(location.href);
 
-  href.searchParams.set('h', encodeURIComponent(props.text));
+  createEffect(() => href.searchParams.set('h', encodeURIComponent(text())));
 
   return (
     <IslandLink href={href.toString()} selected={false}>

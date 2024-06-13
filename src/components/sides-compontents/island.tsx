@@ -8,11 +8,11 @@ export interface IslandLinkProps extends ChildrenProps {
 }
 
 export const IslandLink: Component<IslandLinkProps> = (props) => {
-  const background: string = props.selected ? 'bg-slate-950/35' : '';
+  const background = () => (props.selected ? 'bg-slate-950/35' : '');
 
   return (
     <li class='w-full transition-opacity hover:opacity-60'>
-      <A class={`${background} island-link`} href={props.href}>
+      <A class={`${background()} island-link`} href={props.href}>
         {props.children}
       </A>
     </li>

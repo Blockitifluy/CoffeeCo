@@ -89,7 +89,8 @@ const RichText: Component<RichTextProps> = (props) => {
     loadEncodings(he.encode(props.children), getEncodings()),
   );
 
-  return <div class={props.class} innerHTML={formatedText()} />;
+  // eslint-disable-next-line solid/no-innerhtml
+  return <p class={props.class} innerHTML={formatedText()} />;
 };
 
 export default RichText;

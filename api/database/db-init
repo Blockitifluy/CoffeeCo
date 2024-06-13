@@ -1,0 +1,41 @@
+CREATE TABLE Images (
+    URL TEXT PRIMARY KEY,
+    content BLOB,
+    mimetype TEXT
+);
+
+CREATE TABLE Posts (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    PostedBy INTEGER,
+    content TEXT,
+
+    likes INTEGER DEFAULT 0,
+    whoLiked TEXT NOT NULL DEFAULT "",
+
+    dislikes INTEGER DEFAULT 0,
+    whoDisliked TEXT NOT NULL DEFAULT "",
+
+    timeCreated DATETIME,
+    parentID INTEGER,
+    images TEXT
+);
+
+CREATE TABLE Users (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    password BLOB,
+    handle TEXT UNIQUE,
+    email TEXT NULL,
+    bio TEXT DEFAULT "",
+
+    auth TEXT NOT NULL,
+    timeCreated DATETIME,
+
+    Followers NUMBER DEFAULT 0,
+    whoFollowed TEXT DEFAULT "",
+
+    posts INTEGER DEFAULT 0,
+
+    profile TEXT DEFAULT "",
+    banner TEXT DEFAULT ""
+);

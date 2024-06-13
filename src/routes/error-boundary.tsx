@@ -1,5 +1,6 @@
 import { Meta, Title } from '@solidjs/meta';
 import { OcArrowleft2 } from 'solid-icons/oc';
+import { createEffect } from 'solid-js';
 
 /**
  * A error boundary catchs uncaught errors, and changing the page
@@ -8,6 +9,8 @@ import { OcArrowleft2 } from 'solid-icons/oc';
  * @param reset The function to reset the page
  */
 const Boundary = (err: Error, reset: () => void) => {
+  createEffect(() => console.warn('Caught Error:', err));
+
   // TODO
   return (
     <>

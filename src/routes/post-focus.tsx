@@ -1,4 +1,5 @@
 import {
+  Accessor,
   Component,
   createContext,
   JSX,
@@ -8,7 +9,7 @@ import {
 } from 'solid-js';
 import Header from '../components/header';
 import Sides from '../components/sides';
-import PostUI from '../components/Post';
+import PostUI from '../components/post';
 import {
   addPost,
   AddPostRequest,
@@ -24,14 +25,15 @@ import { createStore } from 'solid-js/store';
 import { NoEnter, Status, Statuses } from '../common';
 import { OcPaperairplane2 } from 'solid-icons/oc';
 import TextareaAutosize from 'solid-textarea-autosize';
-import PostList, { PostListHandler } from '../components/postlist';
+import PostList, { PostListHandler } from '../components/post-list';
 import Comment from '../components/comment';
-import { useUser } from '../contexts/usercontext';
+import { useUser } from '../contexts/user-context';
 
 const PostLoad: number = 10;
 
 const AddComment: Component = () => {
   const { post, user } = useFocus();
+  const currentUser = useUser();
 
   const [state, setState] = createStore({
     input: '',
@@ -45,13 +47,13 @@ const AddComment: Component = () => {
     MouseEvent
   > = async () => {
     try {
-      const userID = useUser()?.ID;
+      const userID = currentUser?.ID;
       if (!userID) throw new Error('UserID doesn not exist');
 
       const Req: AddPostRequest = {
         postedBy: userID,
         content: state.input,
-        parentID: post.ID,
+        parentID: post().ID,
         images: '',
       };
 
@@ -78,7 +80,7 @@ const AddComment: Component = () => {
       <TextareaAutosize
         id='post-content'
         class='overflow-hidden rounded-xl bg-header p-2 px-4 text-text outline outline-1 outline-outline transition-[height] placeholder:text-subtitle'
-        placeholder={`Comment on ${user.username}'s post`}
+        placeholder={`Comment on ${user().username}'s post`}
         cols={50}
         minRows={1}
         maxRows={6}
@@ -90,7 +92,7 @@ const AddComment: Component = () => {
 
       <div class='flex flex-row items-center gap-2'>
         <button
-          onclick={OnSubmit}
+          onClick={OnSubmit}
           aria-label='Submit Comment'
           class='flex aspect-square w-fit flex-row items-center gap-1 rounded-full bg-accent p-2 text-title'
         >
@@ -106,15 +108,13 @@ const Main: Component = () => {
   const { post, user } = useFocus();
 
   const handleScroll: PostListHandler = async (get, set) => {
-    console.log('Scrolled to the Bottom');
-    if (get.loading) {
-      return;
-    }
+    if (get.loading) return;
 
+    console.log('PostList: Loading new posts');
     set('loading', true);
 
     const NewComments = await getCommentsFromPost(
-      post.ID,
+      post().ID,
       get.times * PostLoad,
       10,
     );
@@ -122,7 +122,7 @@ const Main: Component = () => {
     const json: Post[] = await NewComments.json();
 
     if (!NewComments.ok) {
-      console.error('Loading new posts was not ok');
+      console.error('PostList: Could not load posts');
       set('loading', false);
       return;
     }
@@ -139,10 +139,10 @@ const Main: Component = () => {
 
   return (
     <main class='flex flex-col items-center gap-2 pb-4'>
-      <Title>{`CoffeeCo - ${user.handle}'s Post`}</Title>
-      <Meta name='author' content={`@${user.handle}`} />
-      <Meta name='description' content={post.content} />
-      <PostUI post={post} />
+      <Title>{`CoffeeCo - ${user().handle}'s Post`}</Title>
+      <Meta name='author' content={`@${user().handle}`} />
+      <Meta name='description' content={post().content} />
+      <PostUI post={post()} />
 
       <Show when={isLoggedIn() || import.meta.env.DEV}>
         <AddComment />
@@ -156,8 +156,8 @@ const Main: Component = () => {
 };
 
 interface FocusContextType {
-  user: User;
-  post: Post;
+  user: Accessor<User>;
+  post: Accessor<Post>;
 }
 
 /**
@@ -168,8 +168,8 @@ function useFocus(): FocusContextType {
 }
 
 const FocusContext = createContext<FocusContextType>({
-  user: DefaultUser,
-  post: DefaultPost,
+  user: () => DefaultUser,
+  post: () => DefaultPost,
 });
 
 interface PostFocusState {
@@ -184,6 +184,9 @@ const PostFocus: Component = () => {
     user: DefaultUser,
     post: DefaultPost,
   });
+
+  const post = () => state.post,
+    user = () => state.user;
 
   onMount(async () => {
     const userID = parseInt(useParams().ID);
@@ -205,7 +208,7 @@ const PostFocus: Component = () => {
   });
 
   return (
-    <FocusContext.Provider value={{ post: state.post, user: state.user }}>
+    <FocusContext.Provider value={{ post, user }}>
       <Header />
       <Sides>
         <Show when={!state.loading || import.meta.env.DEV}>

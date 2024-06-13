@@ -3,13 +3,13 @@
 		"browser": true,
 		"es2021": true
 	},
-	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:solid/recommended"],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
-	"plugins": ["@typescript-eslint", "jsdoc"],
+	"plugins": ["jsdoc", "solid"],
 	"rules": {
 		"@typescript-eslint/no-explicit-any": "off",
 		"indent": ["off", "tab"],
@@ -22,6 +22,7 @@
 		"id-length": ["error", {"min": 2, "exceptions": ["_"], "properties": "never"}],
 		"no-underscore-dangle":"error",
 
+		"solid/no-array-handlers": "error",
 		"eslint-plugin-import/no-unresolved": "off",
 		"@typescript-eslint/no-namespace": "off",
 		"jsdoc/check-access": 1, // Recommended

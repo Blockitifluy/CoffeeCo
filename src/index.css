@@ -9,7 +9,7 @@
 }
 
 .head-btn {
-	@apply p-2 rounded text-lg outline outline-1 text-title outline-outline h-8 gap-2 full-center;
+	@apply p-2 rounded outline outline-1 text-title outline-outline h-8 gap-2 full-center;
 }
 
 .btn {
