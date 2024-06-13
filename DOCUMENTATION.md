@@ -22,9 +22,9 @@ This is the Documentation of CoffeeCo, this includes:
 | Field       | Type     | Used As                        | Description                                                                                     |
 | ----------- | -------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
 | ID          | integer  | \_                             | The ID of the Post                                                                              |
-| TimeCreated | DateTime | \_                             | The Time when the post created                                                                  |
-| PostedBy    | integer  | Users                          | The User that posted it                                                                         |
-| ParentID    | integer  | \_                             | If the ParentID is not equal to -1, then the ParentID is comments Parent, else it's a sole post |
+| timeCreated | DateTime | \_                             | The Time when the post created                                                                  |
+| postedBy    | integer  | Users                          | The User that posted it                                                                         |
+| parentID    | integer  | \_                             | If the ParentID is not equal to -1, then the ParentID is comments Parent, else it's a sole post |
 | content     | string   | \_                             | The text of the post                                                                            |
 | images      | string   | img-url (alt-text),img2 (alt2) | A list of images and their alt text                                                             |
 
@@ -38,7 +38,7 @@ This is the Documentation of CoffeeCo, this includes:
 | handle      | string   | \_      | The unique handle of the User (Still use `id` because the propetry may change) |
 | email       | string   | \_      | The email of User                                                              |
 | auth        | string   | \_      | The Authorisation Token (TODO: The token isn't secured)                        |
-| TimeCreated | DateTime | \_      | The time when the User was Created to the Database                             |
+| timeCreated | DateTime | \_      | The time when the User was Created to the Database                             |
 | bio         | string   | \_      | The biography/description of the User                                          |
 | profile     | string   | URL     | The Profile Image                                                              |
 | banner      | string   | URL     | The User's banner image                                                        |
@@ -60,7 +60,7 @@ Content-Type: application/josn
 
 {
 	"public": "message for the user",
-	"message": "detailed message for the user"
+	"message": "detailed message for the developer"
 }
 ```
 

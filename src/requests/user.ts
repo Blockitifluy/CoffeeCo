@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import DefaultProfile from '../assets/DefaultProfile.png';
+import DefaultProfile from '../assets/default-profile.png';
 import { FetchError } from '../common';
 
 /**

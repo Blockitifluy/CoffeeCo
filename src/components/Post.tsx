@@ -2,7 +2,7 @@ import { OcComment2, OcThumbsdown2, OcThumbsup2 } from 'solid-icons/oc';
 import { deformatImages, ValidImages } from '../requests/images';
 import { DefaultUser, getUserFromID, User } from '../requests/user';
 import { Show, Component, createResource, For, createMemo } from 'solid-js';
-import ProfileIcon from '../assets/DefaultProfile.png';
+import ProfileIcon from '../assets/default-profile.png';
 import { Post } from '../requests/post';
 import { ChildrenProps } from '../common';
 import { A } from '@solidjs/router';

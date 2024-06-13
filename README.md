@@ -9,32 +9,38 @@
 ![Coverage](https://img.shields.io/coveralls/github/badges/shields)
 
 <div align="center">
-  <img src="src/assets/logos/logo128.png" alt="CoffeeCo Logo"/>
+  <img src="src/assets/logo.svg" width="150" alt="CoffeeCo Logo"/>
   <h3>CoffeeCo - The Social Media App</h3>
   <p>CoffeeCo is an open-source social media app; All about Personalisation and Privacy.</p>
   <a href="./CHANGELOG.md">View Changelog »</a>
 </div>
 
-# About The Project
+# About
 
 ![Coffee Website Showoff](./meta/showoff.png)
+<!--make showoff look normal-->
 
 CoffeeCo's main goal focuses on:
 
-- User Personalistion,
-- User Privacy,
-- Performance
+1. Personalistion,
+2. Privacy,
+3. Performance.
 
-CoffeeCo ensures privacy by you being able to run and compile on your own home PC. The benefit of an open source website, is that anyone can rapidly update to be come better. To compile download [Go](https://go.dev) and [npm](https://nodejs.org/download).
+CoffeeCo ensures privacy by you being able to run and compile on your own home PC. The benefit of an open source website, is that anyone can rapidly update to be come better.
 
 ## Built With
 
+Uses Stack GGLST
+
 - [Go](https://www.go.dev/)
+- [Gorrila Mux](https://pkg.go.dev/github.com/gorilla/mux)
+- [SQLite](http://https://sqlite.org/)
 - [Solid.js](https://www.solidjs.com/)
-- [Typescript](https://www.typescriptlang.org/)
-- [Tailwind.css](https://www.tailwindcss.com/)
+- [Tailwind](https://www.tailwindcss.com/)
 
 # Getting Started
+
+To compile download [Go](https://go.dev) and [npm](https://nodejs.org/download).
 
 ## Compile Server
 
@@ -54,7 +60,7 @@ Then, see the `dist` folder.
 
 ## New build
 
-To make a new build run [buildrelease.py](./meta/buildrelease.py), and do the steps supplied.
+To make a new build run [build-release.py](./meta/build-release.py), and do the steps supplied.
 
 # Usage
 

@@ -1,5 +1,13 @@
 # Server Methods
 
+Go to:
+
+1. [User](#user)
+2. [Post](#post)
+3. [Images](#images)
+
+# User
+
 ## /api/user/get-user-from-id/{id}
 
 `GET` Method
@@ -7,8 +15,6 @@
 Gets an User based on it's `ID`.
 
 Returns `application/json`.
-
-### Example
 
 `/api/user/get-user-from-id/1`
 
@@ -27,8 +33,6 @@ Returns `application/json`.
 `GET` Method
 
 Gets an User's `id` based on it's `AuthToken`.
-
-### Example
 
 `/api/user/auth-to-id/42069`
 
@@ -87,6 +91,7 @@ Has a request body `application/json`:
 
 ```json
 {
+	"ID": 1,
 	"username": "a",
 	"handle": "a",
 	"bio": "Lorem Ipsum",
@@ -98,6 +103,50 @@ Has a request body `application/json`:
 ```
 
 Adds a new user
+
+## /api/user/search
+
+`GET` Method
+
+Has three URL queries:
+
+- `name` string,
+- `from` integer,
+- `range` integer
+
+Has a request body `application/json`:
+
+`/api/user/search?name=foobar&from=0&range=2`
+
+```json
+[
+	{
+		"ID": 1,
+		"username": "foobar",
+		"handle": "foobar",
+		"bio": "Lorem Ipsum",
+		"Banner": "https://placehold.co/1080x512",
+		"Profile": "https://placehold.co/64",
+		"email": "a@mail.com",
+		"password": "helloworld"
+	},
+
+	{
+		"ID": 2,
+		"username": "foobar2",
+		"handle": "foobar2",
+		"bio": "Lorem Ipsum",
+		"Banner": "https://placehold.co/1080x512",
+		"Profile": "https://placehold.co/64",
+		"email": "a@mail.com",
+		"password": "helloworld"
+	}
+]
+```
+
+Searchs for a user based on name (similar to [`api/post/search`](#apipostsearch)).
+
+# Post
 
 ## /api/post/get-comments-from-post
 
@@ -111,8 +160,6 @@ Query Params:
 - amount (_number_): The amount of wanted posts
 
 Returns `application/json`.
-
-### Example
 
 `/api/user/get-comments-from-post?ID=3&amount=2`
 
@@ -144,8 +191,6 @@ Gets a post from it's `ID`.
 
 Returns `application/json`.
 
-### Example
-
 `/api/post/get-post-from-id/1`
 
 ```JSON
@@ -165,8 +210,6 @@ Returns `application/json`.
 Gets x amount of posts
 
 Returns `application/json`.
-
-### Example
 
 `/api/post/feedlist/3`
 
@@ -204,8 +247,6 @@ Gets a random post
 
 Returns `application/json`.
 
-### Example
-
 `/api/post/feed`
 
 ```json
@@ -226,8 +267,6 @@ Uploads a Post
 
 Has a request body `application/json`.
 
-### Example
-
 ```json
 {
 	"postedBy": 1,
@@ -245,6 +284,8 @@ Success
 
 ## /api/post/get-posts-from-user
 
+**THIS IS DEPRECATED, DO NOT USE!**
+
 `GET` Method
 
 Gets a requested amount of posts from a user (similar to `/api/post/feedlist)
@@ -255,8 +296,6 @@ Query Params:
 - amount (_number_): The amount of wanted posts
 
 Returns `application/json`.
-
-### Example
 
 `/api/post/get-posts-from-user?amount=3&ID=1`
 
@@ -287,6 +326,85 @@ Returns `application/json`.
 ]
 ```
 
+## /api/post/get-user-post-history
+
+`GET` Method
+
+Gets posts, exluding comments, from user sorted by recent (Unlike [get-post-from-user](#apipostget-posts-from-user) which is random).
+
+Query Params:
+
+- `ID` int - ID of user
+- `from` int - starting from
+- `range` int - the amount wanted
+
+Returns `application/json`.
+
+`/api/post/get-user-post-history?ID=1&from=0&range=3`
+
+```json
+[
+	{
+		"ID": 1,
+		"postedBy": 1,
+		"content": "Foo Bar",
+		"parentID": -1,
+		"images": ""
+	},
+	{
+		"ID": 2,
+		"postedBy": 1,
+		"content": "Foo Bar #1",
+		"parentID": -1,
+		"images": "image-url-here (alternate text), a (b)"
+	},
+	{
+		"ID": 10,
+		"postedBy": 1,
+		"content": "Hello World",
+		"parentID": -1,
+		"images": "image-url-here (alternate text), a (b)"
+	}
+]
+```
+
+## /api/post/search
+
+`GET` Method
+
+Search posts, exluding comments, based on it content and sorted by recent (similar to [/api/user/search](#apiusersearch)).
+
+Query Params:
+
+- `content` string - the search query
+- `from` int - starting from
+- `range` int - the amount wanted
+
+Returns `application/json`.
+
+`/api/post/search?content=hello%20world&from=0&range=2`
+
+```json
+[
+	{
+		"ID": 1,
+		"postedBy": 1,
+		"content": "Hello World",
+		"parentID": -1,
+		"images": ""
+	},
+	{
+		"ID": 3,
+		"postedBy": 2,
+		"content": "Hello World, Hello Great World",
+		"parentID": -1,
+		"images": ""
+	}
+]
+```
+
+# Images
+
 ## /api/images/upload
 
 `POST` Method
@@ -301,8 +419,8 @@ Has a request body of:
 
 Returns `application/json`:
 
-```js
-"4bdf72aa-dfe6-476d-8d34-f10b20534f24";
+```txt
+4bdf72aa-dfe6-476d-8d34-f10b20534f24;
 ```
 
 ## /api/images/download/{url}

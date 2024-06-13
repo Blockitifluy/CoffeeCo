@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 DB_PATH = "temp/api/database/db.sql"
-TABLE_INIT_PATH = "temp/api/database/TableInit.txt"
+TABLE_INIT_PATH = "temp/api/database/db-init"
 
 def clear_folder(folder: str):
     """Clears the contents of a folder
@@ -65,7 +65,7 @@ def create_database():
     Path(DB_PATH).touch()
     Path(TABLE_INIT_PATH).touch()
 
-    shutil.copyfile("api/database/TableInit.txt", TABLE_INIT_PATH)
+    shutil.copyfile("api/database/db-init", TABLE_INIT_PATH)
 
 def copy_from(src: str, dst: str):
     """Copies a file
@@ -96,7 +96,7 @@ def start(name: str) -> tuple[bool, str]:
         print("Temp file already exists")
 
     vite_success = build_with_vite()
-    if vite_success: # Building wasn't successful
+    if not vite_success: # Building wasn't successful
         return False, "Error with Vite"
 
     print("Building server")

@@ -2,6 +2,27 @@
 
 The changelog is based on the github's release or important commits.
 
+## v0.1.5 (13/6/2024)
+
+- Post Rich Text,
+- Character Limits for Posts and Usernames,
+- Post load whilst scrolling,
+- Scaling up uploaded images,
+- Comments,
+- User Histroy (User Page Post List),
+- Updated python scripts,
+- Added ID to User struct,
+- More Reactive,
+- Updated `not-found.tsx`,
+- Updated Failing Post List,
+- Changed `/new-post` to `/add-post`,
+- Lessen the use `DefaultUser`,
+- Solid-js Devtools,
+- Solid-js Linting,
+- Consistent File Names,
+- New Logo,
+- Post Placeholders
+
 ## v0.1.4 (28/05/2024)
 
 - Frontend Redesign and Cleanup
